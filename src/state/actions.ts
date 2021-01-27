@@ -1,4 +1,4 @@
-import { keyBy } from 'lodash';
+import { keyBy, flatMap, reduce } from 'lodash';
 import type { ProjectDto } from '../apis/project-api';
 import { rootState } from './root-state';
 
@@ -20,6 +20,21 @@ export function projectsLoaded(projects: ProjectDto[]) {
         byId: keyBy(projects, (p) => p.id),
         all: projects.map((p) => p.id),
       },
+      tasks: {
+        byId: keyBy(
+          flatMap(projects, (project) => project.tasks || []),
+          (task) => task.id
+        ),
+        byProjectId: reduce(
+          projects,
+          (acum, project) => {
+            const taskIds = (project.tasks || []).map((t) => t.id);
+            acum[project.id] = taskIds;
+            return acum;
+          },
+          {}
+        ),
+      },
     };
   });
 }
@@ -31,7 +46,6 @@ export function projectAdded(name: string) {
       name,
       id: nextId,
     };
-    console.log(newProject);
     return {
       ...state,
       projects: {

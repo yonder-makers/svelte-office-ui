@@ -13,7 +13,6 @@ export const projects = derived(
     const result = projects.all.map((id) => {
       return projects.byId[id];
     });
-    console.log('calcul', result);
     return result;
   }
 );
@@ -22,3 +21,22 @@ export const projectsCount = derived(projectsSelector, (projects) => {
   console.log('here');
   return projects.all.length;
 });
+
+export function projectById(projectId: number) {
+  return derived(projectsSelector, (projects) => {
+    return projects.byId[projectId];
+  });
+}
+
+export function taskIdsByProjectId(projectId: number) {
+  return derived(tasksSelector, (tasks) => {
+    return tasks.byProjectId[projectId] || [];
+  });
+}
+
+export function tasksByProjectId(projectId: number) {
+  return derived(tasksSelector, (tasks) => {
+    const taskIds = tasks.byProjectId[projectId] || [];
+    return taskIds.map((tId) => tasks.byId[tId]);
+  });
+}

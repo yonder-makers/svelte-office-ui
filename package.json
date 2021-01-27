@@ -25,6 +25,8 @@
     "typescript": "^3.9.3"
   },
   "dependencies": {
+    "carbon-components": "^10.27.0",
+    "carbon-web-components": "^1.11.1",
     "lodash": "^4.17.20",
     "sirv-cli": "^1.0.0"
   }

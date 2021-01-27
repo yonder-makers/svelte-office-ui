@@ -1,7 +1,19 @@
 [
   {
     "id": 1,
-    "name": "EcoOnline"
+    "name": "EcoOnline",
+    "tasks": [
+      {
+        "id": 4,
+        "name": "first task",
+        "yoId": 123
+      },
+      {
+        "id": 5,
+        "name": "second task",
+        "yoId": 124
+      }
+    ]
   },
   {
     "id": 2,

@@ -19,7 +19,9 @@ interface RootState {
         yoId: number;
       };
     };
-    all: number[];
+    byProjectId: {
+      [projectId: number]: number[];
+    };
   };
 }
 
@@ -32,7 +34,7 @@ function createInitialState(): RootState {
     },
     tasks: {
       byId: {},
-      all: [],
+      byProjectId: {},
     },
   };
 }
