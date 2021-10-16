@@ -1,45 +1,36 @@
 <script lang="ts">
+  import { DataTable, DataTableSkeleton } from 'carbon-components-svelte';
   import { onMount } from 'svelte';
   import { fetchEmployees } from '../../apis/employee-api';
-  import { getTasksLog } from '../../apis/tasks-log.api';
+  import type { EmployeeDto } from '../../apis/employee-api';
   import { authState } from '../../state/auth/auth.state';
 
-  let employees: any[] = undefined;
+  let employees: EmployeeDto[] = undefined;
+
+  let headers = [
+    { key: 'yoShort', value: 'YO' },
+    { key: 'firstName', value: 'First name' },
+    { key: 'lastName', value: 'Last name' },
+    { key: 'birthDate', value: 'Birthdate' },
+    { key: 'hireDate', value: 'Hire date' },
+    { key: 'position', value: 'Role' },
+  ];
 
   onMount(async () => {
     employees = await fetchEmployees($authState);
-    // const hasProjects = $projectsCount > 0;
-    // if (hasProjects) {
-    //   return;
-    // }
-    // projectsLoading();
-    // let projects = await fetchProjects();
-    // projectsLoaded(projects);
   });
 </script>
 
-<h3>Employees</h3>
-{#if employees === undefined}
-  Please wait
+{#if !employees}
+  <DataTableSkeleton showToolbar={false} size="compact" {headers} rows={20} />
 {:else}
-  <bx-table :size="null">
-    <bx-table-head>
-      <bx-table-header-row>
-        <bx-table-header-cell> YOID </bx-table-header-cell>
-        <bx-table-header-cell> First name </bx-table-header-cell>
-        <bx-table-header-cell> Last name </bx-table-header-cell>
-        <bx-table-header-cell> Role </bx-table-header-cell>
-      </bx-table-header-row>
-    </bx-table-head>
-    <bx-table-body>
-      {#each employees as employee}
-        <bx-table-row>
-          <bx-table-cell> {employee.yoShort} </bx-table-cell>
-          <bx-table-cell> {employee.firstName} </bx-table-cell>
-          <bx-table-cell> {employee.lastName} </bx-table-cell>
-          <bx-table-cell> {employee.position} </bx-table-cell>
-        </bx-table-row>
-      {/each}
-    </bx-table-body>
-  </bx-table>
+  <DataTable
+    size="compact"
+    sortable={true}
+    stickyHeader={true}
+    title="All Yonder employees"
+    description="Are you looking for someone?"
+    {headers}
+    rows={employees}
+  />
 {/if}
