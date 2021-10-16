@@ -41,12 +41,16 @@
 </Table>
 
 <style>
+  :global(.bx--data-table--sticky-header) {
+    max-height: 30rem !important; /* random value for now */
+  }
   :global(td.row-header, thead.row-header) {
     min-width: 200px !important;
     position: sticky;
     left: 0;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
     padding: 0 1rem !important;
     z-index: 2;
     border-right: 1px solid gray;
@@ -54,7 +58,6 @@
 
   :global(td.log-day, thead.log-day) {
     padding: 0 !important;
-    cursor: pointer;
     min-width: 50px !important;
     display: flex;
     flex-direction: column;

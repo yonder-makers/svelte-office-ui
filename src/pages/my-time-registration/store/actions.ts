@@ -2,6 +2,7 @@ import { addMonths, subMonths } from 'date-fns';
 import isSameDay from 'date-fns/isSameDay';
 import { differenceWith, isEqual, uniqWith } from 'lodash';
 import { get } from 'svelte/store';
+import type { TaskDto } from '../../../apis/tasks-api';
 import {
   BulkUpsertEntry,
   bulkUpsertTasksLog,
@@ -42,6 +43,26 @@ export function logEntriesLoadingStarted() {
 export function logEntriesLoaded(entries: LogEntry[]) {
   logEntries.set(entries);
   logEntriesAreLoading.set(false);
+}
+
+export function addNewTask(task: TaskDto) {
+  logEntries.update((entries) => {
+    if (entries.find((e) => e.taskId === task.taskId)) {
+      throw `Task with id ${task.taskId} is already in the grid!`;
+    }
+
+    return [
+      ...entries,
+      {
+        uid: 'task-' + task.taskId, // a dummy task which is not going to be displayed in the grid. temporary solution but works
+        hours: 0,
+        date: new Date(2000, 1, 1),
+        taskId: task.taskId,
+        description: task.description,
+        projectName: task.project,
+      },
+    ];
+  });
 }
 
 export function selectLog(taskId: number, day: Date, ctrlPressed: boolean) {

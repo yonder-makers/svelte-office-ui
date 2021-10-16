@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TableCell } from 'carbon-components-svelte';
+  import { TableCell, Loading } from 'carbon-components-svelte';
 
   import { tick } from 'svelte';
   import { selectLog, submitHours, updateEditingValue } from '../store/actions';
@@ -50,29 +50,40 @@
 </script>
 
 <TableCell on:click={focus} class={containerClass}>
-  {#if $isLoading}
-    OO
-  {:else if $enteringMode === 'hours' && $isSelected}
-    <input
-      bind:this={valueInput}
-      on:keyup={keyUpValue}
-      class="value-input"
-      type="text"
-      value={$editingValue}
-    />
-  {:else if $log === undefined}
-    -
-  {:else}
-    <b>{$log.hours}</b>
-  {/if}
+  <div class:loading={$isLoading} class:selected={$isSelected}>
+    {#if $isLoading}
+      <Loading withOverlay={false} small />
+    {:else if $enteringMode === 'hours' && $isSelected}
+      <input
+        bind:this={valueInput}
+        on:keyup={keyUpValue}
+        class="value-input"
+        type="text"
+        value={$editingValue}
+      />
+    {:else if $log === undefined}
+      -
+    {:else}
+      <b>{$log.hours}</b>
+    {/if}
+  </div>
 </TableCell>
 
 <style>
-  :global(td.loading) {
-    background-color: red !important;
+  div {
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
-  :global(td.selected) {
-    background-color: yellow !important;
+  div.loading {
+    /* background-color: red; */
+  }
+  .selected {
+    background-color: yellow;
   }
 
   input {
@@ -81,6 +92,6 @@
   }
 
   .value-input {
-    max-width: 30px;
+    max-width: 40px;
   }
 </style>
