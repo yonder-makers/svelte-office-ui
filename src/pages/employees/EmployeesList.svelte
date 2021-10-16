@@ -1,14 +1,13 @@
 <script lang="ts">
-
   import { onMount } from 'svelte';
-  import {  fetchEmployees } from '../../apis/employee-api';
-import { getTasksLog } from '../../apis/tasks-log.api';
-import { authState } from '../../state/auth/auth.state';
+  import { fetchEmployees } from '../../apis/employee-api';
+  import { getTasksLog } from '../../apis/tasks-log.api';
+  import { authState } from '../../state/auth/auth.state';
 
   let employees: any[] = undefined;
 
   onMount(async () => {
-    // employees = await fetchEmployees($authState);
+    employees = await fetchEmployees($authState);
     // const hasProjects = $projectsCount > 0;
     // if (hasProjects) {
     //   return;
@@ -20,7 +19,7 @@ import { authState } from '../../state/auth/auth.state';
 </script>
 
 <h3>Employees</h3>
-{#if employees === undefined }
+{#if employees === undefined}
   Please wait
 {:else}
   <bx-table :size="null">

@@ -1,11 +1,22 @@
 import { derived } from 'svelte/store';
-import { loadingLogs, logEntries, selectedLogs } from './state';
+import { currentMonth, loadingLogs, logEntries, selectedLogs } from './state';
 import { uniq } from 'lodash';
-import { isSameDay } from 'date-fns';
+import {
+  eachDayOfInterval,
+  endOfMonth,
+  isSameDay,
+  startOfMonth,
+} from 'date-fns';
 
 export const getLogEntryIds = derived(logEntries, (entries) => {
   const allIds = entries.map((entry) => entry.taskId);
   return uniq(allIds);
+});
+
+export const getDaysRange = derived(currentMonth, (month) => {
+  const start = startOfMonth(month);
+  const end = endOfMonth(start);
+  return eachDayOfInterval({ start, end });
 });
 
 export function getTaskInfoById(taskId: number) {

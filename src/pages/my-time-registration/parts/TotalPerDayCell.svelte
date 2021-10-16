@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { TableCell } from 'carbon-components-svelte';
+
   import { getTotalHoursForDay } from '../store/selectors';
 
   export let day: Date;
@@ -6,9 +8,9 @@
   $: total = getTotalHoursForDay(day);
 </script>
 
-<bx-table-cell>
+<TableCell class="log-day">
   <span>{$total}</span>
-</bx-table-cell>
+</TableCell>
 
 <style>
   span {

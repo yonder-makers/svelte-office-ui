@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { TableCell } from 'carbon-components-svelte';
+
   import { getTaskInfoById } from '../store/selectors';
 
   export let taskId: number;
@@ -6,22 +8,18 @@
   $: taskInfo = getTaskInfoById(taskId);
 </script>
 
-<bx-table-cell>
-  <div>
-    <span>{$taskInfo.projectName}</span>
-    <i>{$taskInfo.taskId} - {$taskInfo.taskName}</i>
-  </div>
-</bx-table-cell>
+<TableCell class="row-header">
+  <span>{$taskInfo.projectName}</span>
+  <i>{$taskInfo.taskId} - {$taskInfo.taskName}</i>
+</TableCell>
 
 <style>
-  div {
-    display: flex;
-    flex-direction: column;
-  }
   span {
     font-weight: bold;
+    display: block;
   }
   i {
     font-size: smaller;
+    display: block;
   }
 </style>

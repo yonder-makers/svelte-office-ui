@@ -1,30 +1,24 @@
 <script lang="ts">
-  import Menu from './components/Menu.svelte';
+  // White theme
+  import {
+    Content,
+    Header,
+    HeaderNav,
+    HeaderNavItem,
+  } from 'carbon-components-svelte';
+  import 'carbon-components-svelte/css/white.css';
   import Routing from './Routing.svelte';
 </script>
 
-<main>
-  <div class="left-menu">
-    <Menu />
-  </div>
-  <div class="content">
-    <Routing />
-  </div>
-</main>
+<Header company="Yonder" platformName="WebOffice">
+  <HeaderNav style="display:block">
+    <HeaderNavItem href="#/my-tr" text="My Time Registration" />
+    <HeaderNavItem href="#/employees" text="Employees" />
+  </HeaderNav>
+</Header>
+<Content>
+  <Routing />
+</Content>
 
 <style>
-  main {
-    height: 100vh;
-    display: flex;
-    flex-direction: row;
-  }
-
-  .left-menu {
-    flex: 0 0 120px;
-    background-color: bisque;
-  }
-
-  .content {
-    flex: 1;
-  }
 </style>

@@ -1,23 +1,20 @@
 <script lang="ts">
+  import { TableHead } from 'carbon-components-svelte';
   import { format } from 'date-fns';
 
   export let day: Date;
 </script>
 
-<bx-table-header-cell>
-  <div>
-    <span>
-      {format(day, 'd')}
-    </span>
-    <i>{format(day, 'EEE')}</i>
-  </div>
-</bx-table-header-cell>
+<TableHead class="log-day">
+  <span>
+    {format(day, 'd')}
+  </span>
+  <i>{format(day, 'EEE')}</i>
+</TableHead>
 
 <style>
-  div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  span {
+    display: block;
   }
 
   i {
