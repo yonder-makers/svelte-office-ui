@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { projectAdded } from '../state/actions';
+  import { projectAdded } from '../../state/actions';
 
   let projectName = '';
 

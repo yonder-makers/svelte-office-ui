@@ -3,9 +3,12 @@
 </script>
 
 <ul>
-  <li>Tasks</li>
-  <li>YO12</li>
-  <li>Projects {$projectsCount}</li>
+  <li><a href="#/my-tr">My TR</a></li>
+  <li><a href="#/manage">Tasks</a></li>
+  <li><a href="#/assignments">Assignments</a></li>
+  <li><a href="#/log">YO12</a></li>
+  <li><a href="#/blabla">Projects {$projectsCount}</a></li>
+  <li><a href="#/employees">Employees</a></li>
 </ul>
 
 <style>

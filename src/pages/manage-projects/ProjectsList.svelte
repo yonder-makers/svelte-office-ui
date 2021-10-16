@@ -1,5 +1,13 @@
 <script lang="ts">
-  import { projects } from '../state/selectors';
+import { onMount } from 'svelte';
+import { getTasks } from '../../apis/tasks-api';
+import { authState } from '../../state/auth/auth.state';
+
+  import { projects } from '../../state/selectors';
+
+  onMount(async ()=>{
+    const tasks = await getTasks($authState);
+  })
   import ProjectEdit from './ProjectEdit.svelte';
 </script>
 

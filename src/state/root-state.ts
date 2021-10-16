@@ -1,42 +1,62 @@
 import { writable } from 'svelte/store';
+import { DayId, getMonthId, MonthId } from '../core/id-utils';
 
-interface RootState {
-  isLoading: boolean;
-  projects: {
-    byId: {
-      [id: number]: {
-        id: number;
-        name: string;
-      };
-    };
-    all: number[];
+interface Project {
+  id: number;
+  name: string;
+}
+interface ProjectsState {
+  byId: {
+    [id: number]: Project;
   };
-  tasks: {
-    byId: {
-      [id: number]: {
-        id: number;
-        name: string;
-        yoId: number;
-      };
-    };
-    byProjectId: {
-      [projectId: number]: number[];
-    };
+  all: number[];
+}
+
+export interface Task {
+  id: number;
+  projectId: number;
+  title: string;
+  yoId: number;
+  defaultDescription: string;
+}
+interface TasksState {
+  byId: {
+    [id: number]: Task;
+  };
+  byProjectId: {
+    [projectId: number]: number[];
   };
 }
 
-function createInitialState(): RootState {
-  return {
-    isLoading: false,
-    projects: {
-      byId: {},
-      all: [],
-    },
-    tasks: {
-      byId: {},
-      byProjectId: {},
-    },
+export const projectsState = writable<ProjectsState>({
+  byId: {},
+  all: [],
+});
+
+export const tasksState = writable<TasksState>({
+  byId: {},
+  byProjectId: {},
+});
+interface AssignmentsState {
+  byMonth: {
+    [monthId: string]: number[];
   };
 }
 
-export const rootState = writable<RootState>(createInitialState());
+export const assignmentsState = writable<AssignmentsState>({
+  byMonth: {
+    // [getMonthId(new Date())]: [1, 2, 3],
+  },
+});
+
+export interface TimeEntry {
+  hours: number;
+  note: string;
+}
+
+interface TimeEntriesState {
+  [dayId: string]: {
+    [taskId: number]: TimeEntry;
+  };
+}
+export const timeEntriesState = writable<TimeEntriesState>({});

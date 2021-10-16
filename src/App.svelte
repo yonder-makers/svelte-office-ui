@@ -1,6 +1,12 @@
 <script lang="ts">
-  import ManagePage from './pages/ManagePage.svelte';
+  import { onMount } from 'svelte';
+  import { getProfile } from './apis/auth-api';
+
   import Menu from './components/Menu.svelte';
+  import Routing from './Routing.svelte';
+  import { authState } from './state/auth/auth.state';
+
+  onMount(async () => {});
 </script>
 
 <main>
@@ -8,7 +14,7 @@
     <Menu />
   </div>
   <div class="content">
-    <ManagePage />
+    <Routing />
   </div>
 </main>
 
