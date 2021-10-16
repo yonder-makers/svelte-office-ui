@@ -94,7 +94,8 @@ export async function submitHours(moveToNotes: boolean) {
       updatedLogs,
       (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date)
     );
-    return [...result, ...updatedLogs];
+    const notDeletedEntries = updatedLogs.filter((l) => l.hours > 0);
+    return [...result, ...notDeletedEntries];
   });
 
   loadingLogs.update((old) => {
