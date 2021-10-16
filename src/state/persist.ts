@@ -1,11 +1,5 @@
 import type { Writable } from 'svelte/store';
 import { authState } from './auth/auth.state';
-import {
-  assignmentsState,
-  projectsState,
-  tasksState,
-  timeEntriesState,
-} from './root-state';
 
 function init(key: string, state: Writable<any>) {
   const existing = localStorage.getItem(key);
@@ -20,9 +14,5 @@ function init(key: string, state: Writable<any>) {
 }
 
 export function startPersistance() {
-  init('LogsState', timeEntriesState);
-  init('Projects', projectsState);
-  init('Tasks', tasksState);
-  init('Assignments', assignmentsState);
   init('AuthState', authState);
 }

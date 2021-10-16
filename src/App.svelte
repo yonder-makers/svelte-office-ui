@@ -1,12 +1,6 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { getProfile } from './apis/auth-api';
-
   import Menu from './components/Menu.svelte';
   import Routing from './Routing.svelte';
-  import { authState } from './state/auth/auth.state';
-
-  onMount(async () => {});
 </script>
 
 <main>
