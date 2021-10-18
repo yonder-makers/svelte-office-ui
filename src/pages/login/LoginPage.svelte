@@ -30,7 +30,10 @@
     setTimeout(() => {
       // just to provide that nice experience so the user has the chance to
       // see the Success message
-      location.reload();
+      location.href = '/#/my-tr';
+      setTimeout(() => {
+        location.reload();
+      }, 100);
     }, 500);
   }
 </script>
