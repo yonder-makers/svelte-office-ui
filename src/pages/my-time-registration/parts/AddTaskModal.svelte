@@ -16,7 +16,7 @@
   import { authState } from '../../../state/auth/auth.state';
   import { addNewTask } from '../store/actions';
 
-  export let open = false;
+  let open = false;
 
   let taskId = '';
 
@@ -44,6 +44,8 @@
     }
   }
 </script>
+
+<Button on:click={() => (open = true)}>Add new task</Button>
 
 <Modal
   bind:open
