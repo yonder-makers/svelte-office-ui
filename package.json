@@ -28,7 +28,6 @@
   "dependencies": {
     "@nestjs/passport": "^7.1.5",
     "carbon-components": "^10.27.0",
-    "carbon-web-components": "^1.11.1",
     "date-fns": "^2.16.1",
     "lodash": "^4.17.20",
     "passport": "^0.4.1",

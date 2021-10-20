@@ -1,4 +1,3 @@
-import { BXModalBody } from 'carbon-web-components';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { get } from 'svelte/store';
 import { getTasksLog } from '../../../apis/tasks-log.api';
