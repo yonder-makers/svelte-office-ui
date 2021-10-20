@@ -11,6 +11,11 @@ export async function login(username: string, password: string) {
     },
   });
   const loginResponse = await result.json();
+
+  if (loginResponse.errorCode) {
+    throw loginResponse;
+  }
+
   return {
     accessToken: loginResponse.access_token,
   };

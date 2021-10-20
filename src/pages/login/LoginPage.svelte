@@ -1,22 +1,45 @@
 <script lang="ts">
+  import {
+    Button,
+    Column,
+    Grid,
+    InlineLoading,
+    PasswordInput,
+    Row,
+    TextInput,
+  } from 'carbon-components-svelte';
+  import type { ApiError } from '../../apis/api-error.model';
   import { login } from '../../apis/auth-api';
   import { loggedIn } from '../../state/auth/auth.state';
-
-  import {
-    FormGroup,
-    PasswordInput,
-    TextInput,
-    Button,
-    InlineLoading,
-    Grid,
-    Row,
-    Column,
-  } from 'carbon-components-svelte';
 
   let username = 'razvan';
   let password = '';
 
-  let loadingStatus: 'inactive' | 'active' | 'finished' = 'inactive';
+  let loadingStatus: 'inactive' | 'active' | 'finished' | 'error' = 'inactive';
+  let loadingDescription = '';
+
+  function getErrorMessage(error?: ApiError) {
+    if (!error || !error.errorCode) {
+      return 'Something went wrong. Please try again';
+    }
+
+    switch (error.errorCode) {
+      case 'WrongUsernameOrPassword':
+        return 'Wrong username or password.';
+      case 'YonderOfficeTimeout':
+        return "Can't connect to WebOffice. Please check your VPN connection";
+      default:
+        return error.errorDescription;
+    }
+  }
+
+  function afterLoginSuccessful() {
+    setTimeout(() => {
+      // just to provide that nice experience so the user has the chance to
+      // see the Success message
+      location.href = '/#/my-tr';
+    }, 2000);
+  }
 
   async function submit() {
     if (username.length === 0) {
@@ -24,17 +47,20 @@
     }
 
     loadingStatus = 'active';
-    const loginResult = await login(username, password);
-    loggedIn(loginResult.accessToken);
-    loadingStatus = 'finished';
-    setTimeout(() => {
-      // just to provide that nice experience so the user has the chance to
-      // see the Success message
-      location.href = '/#/my-tr';
-      setTimeout(() => {
-        location.reload();
-      }, 100);
-    }, 500);
+    loadingDescription = 'Validating your credentials';
+
+    try {
+      const loginResult = await login(username, password);
+      loggedIn(loginResult.accessToken);
+      loadingStatus = 'finished';
+      loadingDescription =
+        'Login successful. You will be redirected in a second';
+
+      afterLoginSuccessful();
+    } catch (error) {
+      loadingStatus = 'error';
+      loadingDescription = getErrorMessage(error);
+    }
   }
 </script>
 
@@ -46,26 +72,29 @@
   </Row>
   <Row>
     <Column sm={2} lg={4}>
-      <FormGroup>
-        <TextInput
-          labelText="Your username"
-          bind:value={username}
-          placeholder="Enter your username"
+      <TextInput
+        labelText="Your username"
+        bind:value={username}
+        placeholder="Enter your username"
+      />
+      <PasswordInput
+        labelText="Password"
+        bind:value={password}
+        placeholder="Enter password..."
+      />
+      {#if loadingStatus === 'inactive' || loadingStatus === 'error'}
+        <Button on:click={submit}>Login</Button>
+      {/if}
+    </Column>
+  </Row>
+  <Row>
+    <Column>
+      {#if loadingStatus !== 'inactive'}
+        <InlineLoading
+          status={loadingStatus}
+          description={loadingDescription}
         />
-        <PasswordInput
-          labelText="Password"
-          bind:value={password}
-          placeholder="Enter password..."
-        />
-        {#if loadingStatus === 'inactive'}
-          <Button on:click={submit}>Login</Button>
-        {:else}
-          <InlineLoading
-            status={loadingStatus}
-            description="Validating your credentials"
-          />
-        {/if}
-      </FormGroup>
+      {/if}
     </Column>
   </Row>
 </Grid>
