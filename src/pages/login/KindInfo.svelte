@@ -41,7 +41,23 @@
       <strong>Opensource spirit keeper</strong> - Toni Simu - engage with the community
     </li>
   </ul>
-</Tile>
+  <p />
+  <p>Technologies used:</p>
+  <ul>
+    <li>
+      Frontend: Svelte, TypeScript, Prettier, Rollup, date-fns, Carbon Design
+      System, Heroes Icons
+    </li>
+    <li>
+      Backend: NestJS, rest api with jwt authentication, reverse engineered http
+      requests from weboffice
+    </li>
+    <li>
+      Dev & deployment: VSCode + DevContainers, Docker, Github + Github Actions
+      + Github Container Registry
+    </li>
+  </ul></Tile
+>
 
 <style>
   ul {
