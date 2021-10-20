@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { startOfMonth, addMonths, subMonths } from 'date-fns';
 
-export const currentMonth = writable<Date>(startOfMonth(new Date(2021, 9, 2)));
+export const currentMonth = writable<Date>(startOfMonth(new Date(0, 0, 0)));
 
 export interface LogEntry {
   uid: string;

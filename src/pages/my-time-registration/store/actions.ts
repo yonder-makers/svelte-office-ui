@@ -1,4 +1,11 @@
-import { addMonths, subMonths } from 'date-fns';
+import {
+  addMonths,
+  subMonths,
+  differenceInSeconds,
+  startOfMonth,
+  startOfDay,
+  addSeconds,
+} from 'date-fns';
 import isSameDay from 'date-fns/isSameDay';
 import { differenceWith, isEqual, uniqWith } from 'lodash';
 import { get } from 'svelte/store';
@@ -33,6 +40,17 @@ export function goPreviousMonth() {
 
     return subMonths(state, 1);
   });
+}
+
+export function refreshData() {
+  const diffSeconds = differenceInSeconds(new Date(), startOfDay(new Date()));
+  let month =
+    get(currentMonth).getFullYear() < 2000
+      ? startOfMonth(new Date())
+      : startOfMonth(get(currentMonth));
+
+  // we do this just to trigger the refresh effect
+  currentMonth.set(addSeconds(month, diffSeconds));
 }
 
 export function logEntriesLoadingStarted() {

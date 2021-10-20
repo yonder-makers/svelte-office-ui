@@ -1,4 +1,4 @@
-import { endOfMonth, startOfMonth } from 'date-fns';
+import { endOfMonth, isBefore, startOfMonth } from 'date-fns';
 import { get } from 'svelte/store';
 import { getTasksLog } from '../../../apis/tasks-log.api';
 import { userSession } from '../../../state/auth/auth.state';
@@ -12,6 +12,10 @@ import { currentMonth } from './state';
 
 export function registerEffects() {
   currentMonth.subscribe(async (newCurrentMonth) => {
+    if (isBefore(newCurrentMonth, new Date(2000, 1, 1))) {
+      return;
+    }
+
     logEntriesLoadingStarted();
 
     const tasksLog = await getTasksLog(

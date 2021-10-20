@@ -2,7 +2,7 @@
   import { Button } from 'carbon-components-svelte';
 
   import { format } from 'date-fns';
-  import { goNextMonth, goPreviousMonth } from '../store/actions';
+  import { goNextMonth, goPreviousMonth, refreshData } from '../store/actions';
 
   import { currentMonth } from '../store/state';
 </script>
@@ -13,6 +13,8 @@
   <span>{format($currentMonth, 'yyyy MMM')}</span>
 
   <Button on:click={goNextMonth} size="small" kind="primary">+</Button>
+
+  <Button on:click={refreshData} size="small" kind="primary">Refresh</Button>
 </div>
 
 <style>

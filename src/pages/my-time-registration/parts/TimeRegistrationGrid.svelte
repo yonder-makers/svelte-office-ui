@@ -7,6 +7,7 @@
     TableRow,
   } from 'carbon-components-svelte';
   import { getDaysRange, getLogEntryIds } from '../store/selectors';
+  import LoadingGrid from './LoadingGrid.svelte';
   import LogColumnHeader from './LogColumnHeader.svelte';
   import LogDay from './LogDay.svelte';
   import LogDayHeader from './LogRowHeader.svelte';
@@ -29,6 +30,7 @@
         {/each}
       </TableRow>
     {/each}
+    <LoadingGrid />
     <TableRow>
       <TableCell class="row-header">
         <span class="total">TOTAL</span>
@@ -42,7 +44,7 @@
 
 <style>
   :global(.bx--data-table--sticky-header) {
-    max-height: 30rem !important; /* random value for now */
+    max-height: 40rem !important; /* random value for now, it can fit around 20 rows */
   }
   :global(td.row-header, thead.row-header) {
     min-width: 200px !important;

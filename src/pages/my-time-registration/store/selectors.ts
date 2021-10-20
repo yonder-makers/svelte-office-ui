@@ -22,6 +22,14 @@ export const getDaysRange = derived(currentMonth, (month) => {
 export function getTaskInfoById(taskId: number) {
   return derived(logEntries, (entries) => {
     const entry = entries.find((e) => e.taskId === taskId);
+    if (!entry) {
+      return {
+        taskId: 0,
+        projectName: 'no details yet',
+        taskName: 'no details yet',
+      };
+    }
+
     return {
       taskId: entry.taskId,
       projectName: entry.projectName,
