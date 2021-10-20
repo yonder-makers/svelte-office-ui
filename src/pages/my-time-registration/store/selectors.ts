@@ -1,10 +1,21 @@
 import { derived } from 'svelte/store';
-import { currentMonth, loadingLogs, logEntries, selectedLogs } from './state';
+import {
+  currentMonth,
+  enteringMode,
+  loadingLogs,
+  logEntries,
+  logEntriesAreLoading,
+  selectedLogs,
+} from './state';
 import { uniq } from 'lodash';
 import {
   eachDayOfInterval,
   endOfMonth,
+  isAfter,
+  isBefore,
   isSameDay,
+  isSameMonth,
+  isThisMonth,
   startOfMonth,
 } from 'date-fns';
 
@@ -74,3 +85,44 @@ export function isLogLoading(taskId: number, date: Date) {
     );
   });
 }
+
+export const isGridReadOnly = derived(currentMonth, (month) => {
+  return !isThisMonth(month);
+});
+
+export const hintMessage = derived(
+  [currentMonth, logEntriesAreLoading, selectedLogs, loadingLogs, enteringMode],
+  ([month, logsAreLoading, selected, loading, mode]) => {
+    if (logsAreLoading) {
+      return 'Loading data. Please wait.';
+    }
+
+    if (loading.length > 0) {
+      if (loading.length < 5) {
+        return 'Data is saving. Please wait.';
+      } else {
+        return `${loading.length} entries are updating. This might take a while, so hold on!`;
+      }
+    }
+
+    if (mode === 'hours') {
+      return `You are editing ${selected.length} entries. Hit ENTER to submit or ESC to cancel. Use value 0 to delete the entry`;
+    }
+
+    if (selected.length == 1) {
+      return 'Hit ENTER to edit. Or hold CTRL (or CMD) and click on other cells to select more';
+    } else if (selected.length > 1) {
+      return `${selected.length} days selected. Hit ENTER to edit or ESC to cancel`;
+    }
+
+    if (isBefore(month, startOfMonth(new Date()))) {
+      return 'You are not allowed to change data in the past, but you can look at it and be proud of your work!';
+    }
+
+    if (isAfter(month, endOfMonth(new Date()))) {
+      return 'You are not allowed to change data in the future.';
+    }
+
+    return 'Click on a cell to start logging your hours';
+  }
+);

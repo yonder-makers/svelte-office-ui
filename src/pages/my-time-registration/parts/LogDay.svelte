@@ -3,7 +3,12 @@
 
   import { tick } from 'svelte';
   import { selectLog, submitHours, updateEditingValue } from '../store/actions';
-  import { getLogInfo, isLogLoading, isLogSelected } from '../store/selectors';
+  import {
+    getLogInfo,
+    isGridReadOnly,
+    isLogLoading,
+    isLogSelected,
+  } from '../store/selectors';
   import { editingValue, enteringMode } from '../store/state';
 
   export let day: Date;
@@ -49,25 +54,37 @@
   let valueInput: HTMLInputElement, noteInput: HTMLInputElement;
 </script>
 
-<TableCell on:click={focus} class={containerClass}>
-  <div class:loading={$isLoading} class:selected={$isSelected}>
-    {#if $isLoading}
-      <Loading withOverlay={false} small />
-    {:else if $enteringMode === 'hours' && $isSelected}
-      <input
-        bind:this={valueInput}
-        on:keyup={keyUpValue}
-        class="value-input"
-        type="text"
-        value={$editingValue}
-      />
-    {:else if $log === undefined}
-      -
-    {:else}
-      <b>{$log.hours}</b>
-    {/if}
-  </div>
-</TableCell>
+{#if $isGridReadOnly}
+  <TableCell class="log-day">
+    <div class="read-only">
+      {#if $log === undefined}
+        -
+      {:else}
+        <b>{$log.hours}</b>
+      {/if}
+    </div>
+  </TableCell>
+{:else}
+  <TableCell on:click={focus} class={containerClass}>
+    <div class:loading={$isLoading} class:selected={$isSelected}>
+      {#if $isLoading}
+        <Loading withOverlay={false} small />
+      {:else if $enteringMode === 'hours' && $isSelected}
+        <input
+          bind:this={valueInput}
+          on:keyup={keyUpValue}
+          class="value-input"
+          type="text"
+          value={$editingValue}
+        />
+      {:else if $log === undefined}
+        -
+      {:else}
+        <b>{$log.hours}</b>
+      {/if}
+    </div>
+  </TableCell>
+{/if}
 
 <style>
   div {
@@ -79,11 +96,13 @@
     align-items: center;
     justify-content: center;
   }
-  div.loading {
-    /* background-color: red; */
+  div.read-only {
+    cursor: default;
   }
+
   .selected {
-    background-color: yellow;
+    background-color: #0f62fe;
+    color: white;
   }
 
   input {

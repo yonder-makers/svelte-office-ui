@@ -56,6 +56,10 @@ export function refreshData() {
 export function logEntriesLoadingStarted() {
   logEntriesAreLoading.set(true);
   logEntries.set([]);
+  selectedLogs.set([]);
+  loadingLogs.set([]);
+  enteringMode.set('none');
+  editingValue.set('');
 }
 
 export function logEntriesLoaded(entries: LogEntry[]) {

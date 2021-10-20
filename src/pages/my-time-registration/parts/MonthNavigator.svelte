@@ -7,6 +7,7 @@
   import { goNextMonth, goPreviousMonth, refreshData } from '../store/actions';
 
   import { currentMonth } from '../store/state';
+  import HintMessage from './HintMessage.svelte';
 </script>
 
 <div class="container">
@@ -29,6 +30,7 @@
   <Button class="refresh-btn" on:click={refreshData} size="small" kind="primary"
     >Refresh</Button
   >
+  <HintMessage />
 </div>
 
 <style>
@@ -38,6 +40,7 @@
 
   .container :global(button.refresh-btn) {
     margin-left: 12px;
+    margin-right: 12px;
   }
 
   .container {
