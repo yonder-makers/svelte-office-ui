@@ -11,8 +11,9 @@
   import type { ApiError } from '../../apis/api-error.model';
   import { login } from '../../apis/auth-api';
   import { loggedIn } from '../../state/auth/auth.state';
+  import KindInfo from './KindInfo.svelte';
 
-  let username = 'razvan';
+  let username = '';
   let password = '';
 
   let loadingStatus: 'inactive' | 'active' | 'finished' | 'error' = 'inactive';
@@ -66,12 +67,9 @@
 
 <Grid>
   <Row>
-    <Column>
+    <Column sm={2} lg={5}>
       <h2>Please login</h2>
-    </Column>
-  </Row>
-  <Row>
-    <Column sm={2} lg={4}>
+
       <TextInput
         labelText="Your username"
         bind:value={username}
@@ -85,10 +83,6 @@
       {#if loadingStatus === 'inactive' || loadingStatus === 'error'}
         <Button on:click={submit}>Login</Button>
       {/if}
-    </Column>
-  </Row>
-  <Row>
-    <Column>
       {#if loadingStatus !== 'inactive'}
         <InlineLoading
           status={loadingStatus}
@@ -96,5 +90,11 @@
         />
       {/if}
     </Column>
+    <Column sm={2} lg={11}>
+      <KindInfo />
+    </Column>
   </Row>
 </Grid>
+
+<style>
+</style>
