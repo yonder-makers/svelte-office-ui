@@ -8,8 +8,8 @@
     Row,
     TextInput,
   } from 'carbon-components-svelte';
-  import type { ApiError } from '../../apis/api-error.model';
-  import { login } from '../../apis/auth-api';
+  import type { ApiError } from '../../apis/core/api-error.model';
+  import { login } from '../../apis/auth.api';
   import { loggedIn } from '../../state/auth/auth.state';
   import KindInfo from './KindInfo.svelte';
 

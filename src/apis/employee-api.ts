@@ -1,5 +1,4 @@
-import { API_URL } from '../constants';
-import type { ApiSession } from './session.model';
+import { doGet } from './core/base-api';
 
 export interface EmployeeDto {
   id: string;
@@ -13,17 +12,7 @@ export interface EmployeeDto {
   picture: string;
 }
 
-export async function fetchEmployees(
-  apiSession: ApiSession
-): Promise<EmployeeDto[]> {
-  const result = await fetch(API_URL + 'api/employees', {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + apiSession.accessToken,
-    },
-  });
-
-  const response = await result.json();
+export async function fetchEmployees(): Promise<EmployeeDto[]> {
+  const response = await doGet<EmployeeDto[]>('/api/employees');
   return response;
 }

@@ -1,5 +1,4 @@
 <script lang="ts">
-  // White theme
   import {
     Content,
     Header,
@@ -7,7 +6,14 @@
     HeaderNavItem,
   } from 'carbon-components-svelte';
   import 'carbon-components-svelte/css/white.css';
+  import { onMount } from 'svelte';
   import Routing from './Routing.svelte';
+  import { loadConfiguration } from './state/auth/auth.actions';
+  import { isConfigLoaded } from './state/auth/auth.state';
+
+  onMount(() => {
+    loadConfiguration();
+  });
 </script>
 
 <Header company="Yonder" platformName="WebOffice">
@@ -17,7 +23,11 @@
   </HeaderNav>
 </Header>
 <Content>
-  <Routing />
+  {#if $isConfigLoaded}
+    <Routing />
+  {:else}
+    Please wait to load configuration.
+  {/if}
 </Content>
 
 <style>

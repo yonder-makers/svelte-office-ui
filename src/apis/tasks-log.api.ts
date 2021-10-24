@@ -1,6 +1,5 @@
-import { API_URL } from '../constants';
-import { fromWebOfficeFormat, toWebOfficeFormat } from './date-utils';
-import type { ApiSession } from './session.model';
+import { doPost } from './core/base-api';
+import { fromWebOfficeFormat, toWebOfficeFormat } from './core/date-utils';
 
 export interface TaskLogDto {
   uid: string;
@@ -15,26 +14,14 @@ export interface TaskLogDto {
   workDayStarted: string;
 }
 
-export async function getTasksLog(
-  apiSession: ApiSession,
-  startDate: Date,
-  endDate: Date
-) {
+export async function getTasksLog(startDate: Date, endDate: Date) {
   const body = {
     startDate: toWebOfficeFormat(startDate),
     endDate: toWebOfficeFormat(endDate),
   };
 
-  const result = await fetch(API_URL + 'api/tasks-log', {
-    method: 'post',
-    body: JSON.stringify(body),
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + apiSession.accessToken,
-    },
-  });
+  const entries = (await doPost('/api/tasks-log', body)) as any[];
 
-  const entries = (await result.json()) as any[];
   entries.forEach((element) => {
     element.created = fromWebOfficeFormat(element.created);
     element.date = fromWebOfficeFormat(element.date);
@@ -49,10 +36,7 @@ export interface BulkUpsertEntry {
   hours: number;
   description: string;
 }
-export async function bulkUpsertTasksLog(
-  apiSession: ApiSession,
-  entries: BulkUpsertEntry[]
-) {
+export async function bulkUpsertTasksLog(entries: BulkUpsertEntry[]) {
   const body = entries.map((entry) => {
     return {
       ...entry,
@@ -60,16 +44,11 @@ export async function bulkUpsertTasksLog(
     };
   });
 
-  const result = await fetch(API_URL + 'api/tasks-log/bulk-upsert', {
-    method: 'post',
-    body: JSON.stringify(body),
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + apiSession.accessToken,
-    },
-  });
+  const updatedEntries = (await doPost(
+    '/api/tasks-log/bulk-upsert',
+    body
+  )) as any[];
 
-  const updatedEntries = (await result.json()) as any[];
   updatedEntries.forEach((element) => {
     element.created = fromWebOfficeFormat(element.created);
     element.date = fromWebOfficeFormat(element.date);

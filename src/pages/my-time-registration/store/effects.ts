@@ -19,7 +19,6 @@ export function registerEffects() {
     logEntriesLoadingStarted();
 
     const tasksLog = await getTasksLog(
-      get(userSession),
       startOfMonth(newCurrentMonth),
       endOfMonth(newCurrentMonth)
     );

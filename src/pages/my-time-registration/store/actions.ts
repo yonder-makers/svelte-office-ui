@@ -14,7 +14,6 @@ import {
   BulkUpsertEntry,
   bulkUpsertTasksLog,
 } from '../../../apis/tasks-log.api';
-import { authState } from '../../../state/auth/auth.state';
 import {
   currentMonth,
   editingValue,
@@ -130,7 +129,7 @@ export async function submitHours(moveToNotes: boolean) {
       description: 'new description',
     };
   });
-  const updatedLogs = await bulkUpsertTasksLog(get(authState), upsertEntries);
+  const updatedLogs = await bulkUpsertTasksLog(upsertEntries);
   logEntries.update((oldEntries) => {
     let result = differenceWith(
       oldEntries,

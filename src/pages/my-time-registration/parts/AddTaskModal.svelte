@@ -13,7 +13,6 @@
 
   import { getTaskById } from '../../../apis/tasks-api';
   import type { TaskDto } from '../../../apis/tasks-api';
-  import { authState } from '../../../state/auth/auth.state';
   import { addNewTask } from '../store/actions';
 
   let open = false;
@@ -30,7 +29,7 @@
     selectedTask = undefined;
     loadingDescription = `Fetching info about task ${id}`;
     loadingStatus = 'active';
-    selectedTask = await getTaskById($authState, id);
+    selectedTask = await getTaskById(id);
     loadingStatus = 'finished';
     loadingDescription = `Task exists! Now, let's hope you are also assigned on this task.`;
   }

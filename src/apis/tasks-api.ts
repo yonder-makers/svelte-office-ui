@@ -1,17 +1,9 @@
-import { API_URL } from '../constants';
-import type { ApiSession } from './session.model';
+import { doGet } from './core/base-api';
 
-export async function getTasks(apiSession: ApiSession) {
-  const result = await fetch(API_URL + 'api/tasks', {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + apiSession.accessToken,
-    },
-  });
-
-  const response = await result.json();
-  return response;
+export async function getTasks() {
+  // not used for now, but helpful later after we enhance "explore tasks page"
+  const result = await doGet('/api/tasks');
+  return result;
 }
 
 export interface TaskDto {
@@ -21,15 +13,7 @@ export interface TaskDto {
   project: string;
 }
 
-export async function getTaskById(apiSession: ApiSession, taskId: number) {
-  const result = await fetch(`${API_URL}api/task/${taskId}`, {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + apiSession.accessToken,
-    },
-  });
-
-  const response = await result.json();
-  return response as TaskDto;
+export async function getTaskById(taskId: number) {
+  const result = await doGet(`/api/task/${taskId}`);
+  return result as TaskDto;
 }
