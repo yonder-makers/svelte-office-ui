@@ -28,6 +28,7 @@ RUN npm i --production
 COPY --from=builder /app/public/ /app/public/
 
 ENV NODE_ENV production
+ENV API_URL http://localhost:3000/
 
 EXPOSE 5000
 

@@ -31,5 +31,5 @@ export function configurationLoaded(apiUrl: string) {
 export const userSession = derived(authState, (state) => state);
 
 export const isConfigLoaded = derived(authState, (state) => {
-  return state.apiUrl && state.apiUrl.length > 0;
+  return state.apiUrl !== undefined;
 });

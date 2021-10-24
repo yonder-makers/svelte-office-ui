@@ -4,7 +4,6 @@ import { authState } from './auth/auth.state';
 function init(key: string, state: Writable<any>) {
   const existing = localStorage.getItem(key);
   if (existing) {
-    console.log(existing);
     state.set(JSON.parse(existing));
   }
 
