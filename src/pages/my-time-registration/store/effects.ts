@@ -1,6 +1,7 @@
 import { endOfMonth, isBefore, startOfMonth } from 'date-fns';
 import { get } from 'svelte/store';
 import { getTasksLog } from '../../../apis/tasks-log.api';
+import { fetchTypesOfWork } from '../../../apis/types-of-work.api';
 import { userSession } from '../../../state/auth/auth.state';
 import {
   enterKeyPressed,
@@ -23,7 +24,9 @@ export function registerEffects() {
       endOfMonth(newCurrentMonth)
     );
 
-    logEntriesLoaded(tasksLog);
+    const typesOfWork = await fetchTypesOfWork();
+
+    logEntriesLoaded(tasksLog, typesOfWork);
   });
 
   document.addEventListener('keyup', (ev) => {

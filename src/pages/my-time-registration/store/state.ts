@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { startOfMonth, addMonths, subMonths } from 'date-fns';
+import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 
 export const currentMonth = writable<Date>(startOfMonth(new Date(0, 0, 0)));
 
@@ -26,3 +27,5 @@ export type EnteringMode = 'none' | 'hours' | 'description';
 export const enteringMode = writable<EnteringMode>('none');
 
 export const editingValue = writable<string>('');
+
+export const typesOfWork = writable<TypeOfWorkDto[]>([]);

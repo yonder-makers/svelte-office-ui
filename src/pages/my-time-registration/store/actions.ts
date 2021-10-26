@@ -23,7 +23,9 @@ import {
   logEntriesAreLoading,
   LogEntry,
   selectedLogs,
+  typesOfWork,
 } from './state';
+import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 
 export function goNextMonth() {
   currentMonth.update((state) => {
@@ -61,8 +63,9 @@ export function logEntriesLoadingStarted() {
   editingValue.set('');
 }
 
-export function logEntriesLoaded(entries: LogEntry[]) {
+export function logEntriesLoaded(entries: LogEntry[], types: TypeOfWorkDto[]) {
   logEntries.set(entries);
+  typesOfWork.set(types);
   logEntriesAreLoading.set(false);
 }
 

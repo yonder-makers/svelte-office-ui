@@ -1,3 +1,13 @@
+import {
+  eachDayOfInterval,
+  endOfMonth,
+  isAfter,
+  isBefore,
+  isSameDay,
+  isThisMonth,
+  startOfMonth,
+} from 'date-fns';
+import { uniq } from 'lodash';
 import { derived } from 'svelte/store';
 import {
   currentMonth,
@@ -7,17 +17,6 @@ import {
   logEntriesAreLoading,
   selectedLogs,
 } from './state';
-import { uniq } from 'lodash';
-import {
-  eachDayOfInterval,
-  endOfMonth,
-  isAfter,
-  isBefore,
-  isSameDay,
-  isSameMonth,
-  isThisMonth,
-  startOfMonth,
-} from 'date-fns';
 
 export const getLogEntryIds = derived(logEntries, (entries) => {
   const allIds = entries.map((entry) => entry.taskId);
