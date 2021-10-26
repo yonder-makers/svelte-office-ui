@@ -8,6 +8,7 @@
     Toggle,
   } from 'carbon-components-svelte';
   import type { ComboBoxItem } from 'carbon-components-svelte/types/ComboBox/ComboBox';
+  import { tick } from 'svelte';
   import { escapeKeyPressed } from '../store/actions';
   import {
     editingLog,
@@ -17,6 +18,8 @@
   } from './edit-log-modal.state';
 
   let isValid = true;
+
+  let hoursInput: HTMLInputElement;
 
   function typeOfWorkString(typeOfWork: ComboBoxItem) {
     return `${typeOfWork.id} (${typeOfWork.text})`;
@@ -29,11 +32,17 @@
     return false;
   }
 
-  function onClose() {
+  async function onOpen() {
+    await tick();
+    hoursInput.focus();
+    hoursInput.setSelectionRange(0, hoursInput.value.length);
+  }
+
+  function onClose(ev: CustomEvent) {
     escapeKeyPressed();
   }
 
-  function onSubmit() {
+  function onSubmit(ev: CustomEvent) {
     save();
   }
 </script>
@@ -45,7 +54,7 @@
   primaryButtonText="Save"
   secondaryButtonText="Cancel"
   primaryButtonDisabled={!isValid}
-  on:open
+  on:open={onOpen}
   on:close={onClose}
   on:submit={onSubmit}
 >
@@ -61,6 +70,7 @@
       />
       <TextInput
         labelText="Hours"
+        bind:ref={hoursInput}
         bind:value={$editingLog.hours}
         placeholder="Hours"
       />

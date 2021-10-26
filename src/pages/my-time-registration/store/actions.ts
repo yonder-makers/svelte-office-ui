@@ -5,9 +5,20 @@ import {
   startOfMonth,
   startOfDay,
   addSeconds,
+  subDays,
+  isSameMonth,
+  addDays,
 } from 'date-fns';
 import isSameDay from 'date-fns/isSameDay';
-import { differenceWith, isEqual, keyBy, uniq, uniqBy, uniqWith } from 'lodash';
+import {
+  differenceWith,
+  isEqual,
+  keyBy,
+  last,
+  uniq,
+  uniqBy,
+  uniqWith,
+} from 'lodash';
 import { get } from 'svelte/store';
 import type { TaskDto } from '../../../apis/tasks.api';
 import {
@@ -137,7 +148,8 @@ export async function submitHours(
     return uniqWith([...old, ...selected], isEqual);
   });
 
-  selectedLogs.set([]);
+  const lastSelected = last(selected);
+  selectedLogs.set([lastSelected]);
   enteringMode.set('none');
 
   // const newHoursValue = parseFloat(get(editingValue));
@@ -190,6 +202,62 @@ export function enterKeyPressed() {
 }
 
 export function escapeKeyPressed() {
-  selectedLogs.set([]);
+  // selectedLogs.set([]);
   enteringMode.set('none');
+}
+
+export function navigateKeyPressed(
+  direction: 'up' | 'down' | 'left' | 'right'
+) {
+  if (get(enteringMode) !== 'none') return;
+
+  selectedLogs.update((selected) => {
+    const cursor = last(selected);
+    if (!cursor) return [];
+
+    if (direction == 'up') {
+      const taskIndex = get(tasksState).allIds.indexOf(cursor.taskId);
+      const prevTaskId = get(tasksState).allIds[taskIndex - 1];
+      if (prevTaskId) {
+        return [
+          {
+            day: cursor.day,
+            taskId: prevTaskId,
+          },
+        ];
+      }
+    } else if (direction == 'down') {
+      const taskIndex = get(tasksState).allIds.indexOf(cursor.taskId);
+      const prevTaskId = get(tasksState).allIds[taskIndex + 1];
+      if (prevTaskId) {
+        return [
+          {
+            day: cursor.day,
+            taskId: prevTaskId,
+          },
+        ];
+      }
+    } else if (direction == 'left') {
+      const prevDay = subDays(cursor.day, 1);
+      if (isSameMonth(cursor.day, prevDay)) {
+        return [
+          {
+            day: prevDay,
+            taskId: cursor.taskId,
+          },
+        ];
+      }
+    } else if (direction == 'right') {
+      const nextDay = addDays(cursor.day, 1);
+      if (isSameMonth(cursor.day, nextDay)) {
+        return [
+          {
+            day: nextDay,
+            taskId: cursor.taskId,
+          },
+        ];
+      }
+    }
+    return [cursor];
+  });
 }

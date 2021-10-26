@@ -8,6 +8,7 @@ import {
   escapeKeyPressed,
   logEntriesLoaded,
   logEntriesLoadingStarted,
+  navigateKeyPressed,
 } from './actions';
 import { currentMonth } from './state';
 
@@ -29,13 +30,32 @@ export function registerEffects() {
     logEntriesLoaded(tasksLog, typesOfWork);
   });
 
-  document.addEventListener('keyup', (ev) => {
+  document.addEventListener('keydown', (ev) => {
     switch (ev.key) {
       case 'Enter':
-        enterKeyPressed();
+        if (ev.ctrlKey) {
+          enterKeyPressed();
+        }
         break;
+
       case 'Escape':
         escapeKeyPressed();
+        break;
+
+      case 'ArrowUp':
+        navigateKeyPressed('up');
+        break;
+
+      case 'ArrowDown':
+        navigateKeyPressed('down');
+        break;
+
+      case 'ArrowLeft':
+        navigateKeyPressed('left');
+        break;
+
+      case 'ArrowRight':
+        navigateKeyPressed('right');
         break;
     }
   });
