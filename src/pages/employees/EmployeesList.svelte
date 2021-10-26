@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { DataTable,DataTableSkeleton } from 'carbon-components-svelte';
+  import { DataTable, DataTableSkeleton } from 'carbon-components-svelte';
   import { onMount } from 'svelte';
-  import type { EmployeeDto } from '../../apis/employee-api';
-  import { fetchEmployees } from '../../apis/employee-api';
+  import type { EmployeeDto } from '../../apis/employee.api';
+  import { fetchEmployees } from '../../apis/employee.api';
 
   let employees: EmployeeDto[] = undefined;
 

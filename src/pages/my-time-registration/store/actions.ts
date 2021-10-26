@@ -9,7 +9,7 @@ import {
 import isSameDay from 'date-fns/isSameDay';
 import { differenceWith, isEqual, uniqWith } from 'lodash';
 import { get } from 'svelte/store';
-import type { TaskDto } from '../../../apis/tasks-api';
+import type { TaskDto } from '../../../apis/tasks.api';
 import {
   BulkUpsertEntry,
   bulkUpsertTasksLog,
