@@ -34,8 +34,8 @@ editingLog.subscribe((a) => {
 
 export function save() {
   const log = get(editingLog);
-  const h = parseInt(log.hours);
-  const started = parseInt(log.workFromHomeStarted);
+  const h = parseFloat(log.hours);
+  const started = parseFloat(log.workFromHomeStarted);
   const typeOfWork = get(typesOfWorkComboItems)[log.selectedTypeOfWorkIndex].id;
   submitHours(typeOfWork, h, log.description, log.isWorkFromHome, started);
 }
