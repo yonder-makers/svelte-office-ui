@@ -6,6 +6,7 @@ export interface TaskLogDto {
   created: Date;
   date: Date;
   description: string;
+  custRefDescription: string;
   hours: number;
   projectName: string;
   taskId: number;

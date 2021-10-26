@@ -1,16 +1,15 @@
 <script lang="ts">
   import { TableCell } from 'carbon-components-svelte';
-
-  import { getTaskInfoById } from '../store/selectors';
+  import { tasksState } from '../store/state';
 
   export let taskId: number;
 
-  $: taskInfo = getTaskInfoById(taskId);
+  $: taskInfo = $tasksState.byId[taskId];
 </script>
 
 <TableCell class="row-header">
-  <span>{$taskInfo.projectName}</span>
-  <i>{$taskInfo.taskId} - {$taskInfo.taskName}</i>
+  <span>{taskInfo.project}</span>
+  <i><strong>{taskInfo.taskId}</strong> - {taskInfo.description}</i>
 </TableCell>
 
 <style>

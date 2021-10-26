@@ -11,13 +11,26 @@ export interface LogEntry {
   taskId: number;
   description: string;
   projectName: string;
+  custRefDescription: string;
   typeOfWork: string;
   isWorkFromHome: boolean;
   workFromHomeStarted: number;
 }
 
+export interface Task {
+  taskId: number;
+  project: string;
+  description: string;
+  custRefDescription: string;
+}
+
 export const logEntries = writable<LogEntry[]>([]);
 export const logEntriesAreLoading = writable<boolean>(false);
+
+export const tasksState = writable<{
+  byId: { [taskId: number]: Task };
+  allIds: number[];
+}>({ byId: {}, allIds: [] });
 
 interface LogId {
   day: Date;

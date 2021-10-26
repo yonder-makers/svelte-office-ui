@@ -35,7 +35,7 @@
 
   function keyUpValue(event: KeyboardEvent) {
     if (event.key === 'Enter') {
-      submitHours(false);
+      //submitHours(false);
     } else if (event.key === 'Escape') {
       // valueInput.value = $log.hours.toString();
       // focusOnEntry(undefined, undefined);

@@ -6,7 +6,8 @@
     TableHead,
     TableRow,
   } from 'carbon-components-svelte';
-  import { getDaysRange, getLogEntryIds } from '../store/selectors';
+  import { getDaysRange } from '../store/selectors';
+  import { tasksState } from '../store/state';
   import LoadingGrid from './LoadingGrid.svelte';
   import LogColumnHeader from './LogColumnHeader.svelte';
   import LogDay from './LogDay.svelte';
@@ -22,7 +23,7 @@
     {/each}
   </TableRow>
   <TableBody style="overflow-x: unset;">
-    {#each $getLogEntryIds as taskId}
+    {#each $tasksState.allIds as taskId}
       <TableRow>
         <LogDayHeader {taskId} />
         {#each $getDaysRange as day}

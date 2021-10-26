@@ -7,7 +7,7 @@ import {
   addSeconds,
 } from 'date-fns';
 import isSameDay from 'date-fns/isSameDay';
-import { differenceWith, isEqual, uniqWith } from 'lodash';
+import { differenceWith, isEqual, keyBy, uniq, uniqBy, uniqWith } from 'lodash';
 import { get } from 'svelte/store';
 import type { TaskDto } from '../../../apis/tasks.api';
 import {
@@ -23,6 +23,8 @@ import {
   logEntriesAreLoading,
   LogEntry,
   selectedLogs,
+  Task,
+  tasksState,
   typesOfWork,
 } from './state';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
@@ -57,6 +59,10 @@ export function refreshData() {
 export function logEntriesLoadingStarted() {
   logEntriesAreLoading.set(true);
   logEntries.set([]);
+  tasksState.set({
+    byId: {},
+    allIds: [],
+  });
   selectedLogs.set([]);
   loadingLogs.set([]);
   enteringMode.set('none');
@@ -66,29 +72,36 @@ export function logEntriesLoadingStarted() {
 export function logEntriesLoaded(entries: LogEntry[], types: TypeOfWorkDto[]) {
   logEntries.set(entries);
   typesOfWork.set(types);
+
+  const tasks = uniqBy(
+    entries.map(
+      (log) =>
+        ({
+          description: log.custRefDescription,
+          project: log.projectName,
+          taskId: log.taskId,
+        } as Task)
+    ),
+    (p) => p.taskId
+  );
+
+  tasksState.set({
+    byId: keyBy(tasks, (t) => t.taskId),
+    allIds: tasks.map((t) => t.taskId),
+  });
+
   logEntriesAreLoading.set(false);
 }
 
 export function addNewTask(task: TaskDto) {
-  logEntries.update((entries) => {
-    if (entries.find((e) => e.taskId === task.taskId)) {
-      throw `Task with id ${task.taskId} is already in the grid!`;
-    }
-
-    return [
-      ...entries,
-      {
-        uid: 'task-' + task.taskId, // a dummy task which is not going to be displayed in the grid. temporary solution but works
-        hours: 0,
-        date: new Date(2000, 1, 1),
-        taskId: task.taskId,
-        description: task.description,
-        projectName: task.project,
-        isWorkFromHome: true,
-        typeOfWork: 'SUPP',
-        workFromHomeStarted: 8,
+  tasksState.update((old) => {
+    return {
+      byId: {
+        ...old.byId,
+        [task.taskId]: task,
       },
-    ];
+      allIds: uniq([...old.allIds, task.taskId]),
+    };
   });
 }
 

@@ -7,7 +7,6 @@ import {
   isThisMonth,
   startOfMonth,
 } from 'date-fns';
-import { uniq } from 'lodash';
 import { derived } from 'svelte/store';
 import {
   currentMonth,
@@ -18,35 +17,11 @@ import {
   selectedLogs,
 } from './state';
 
-export const getLogEntryIds = derived(logEntries, (entries) => {
-  const allIds = entries.map((entry) => entry.taskId);
-  return uniq(allIds);
-});
-
 export const getDaysRange = derived(currentMonth, (month) => {
   const start = startOfMonth(month);
   const end = endOfMonth(start);
   return eachDayOfInterval({ start, end });
 });
-
-export function getTaskInfoById(taskId: number) {
-  return derived(logEntries, (entries) => {
-    const entry = entries.find((e) => e.taskId === taskId);
-    if (!entry) {
-      return {
-        taskId: 0,
-        projectName: 'no details yet',
-        taskName: 'no details yet',
-      };
-    }
-
-    return {
-      taskId: entry.taskId,
-      projectName: entry.projectName,
-      taskName: entry.description,
-    };
-  });
-}
 
 export function getLogInfo(taskId: number, date: Date) {
   return derived(logEntries, (entries) => {

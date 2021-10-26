@@ -7,6 +7,7 @@ import {
   selectedLogs,
   logEntries,
   typesOfWork,
+  tasksState,
 } from '../store/state';
 
 interface EditingLog {
@@ -81,9 +82,7 @@ isEditLogModalOpen.subscribe((newValue) => {
     }
   }
 
-  const task = allLogs.find((log) => {
-    return log.taskId === logIds[0].taskId;
-  });
+  const task = get(tasksState).byId[logIds[0].taskId];
 
   editingLog.update((old) => {
     return {
