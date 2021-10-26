@@ -4,7 +4,11 @@
 
   export let taskId: number;
 
-  $: taskInfo = $tasksState.byId[taskId];
+  $: taskInfo = $tasksState.byId[taskId] || {
+    project: 'loading',
+    taskId: 0,
+    description: 'loading',
+  };
 </script>
 
 <TableCell class="row-header">

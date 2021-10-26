@@ -42,6 +42,22 @@ export function getTotalHoursForDay(date: Date) {
   });
 }
 
+export function getTotalHoursForTask(taskId: number) {
+  return derived(logEntries, (entries) => {
+    const logs = entries.filter((e) => e.taskId === taskId);
+
+    return logs.reduce((sum, log) => {
+      return sum + log.hours;
+    }, 0);
+  });
+}
+
+export const getTotalForMonth = derived(logEntries, (entries) => {
+  return entries.reduce((sum, log) => {
+    return sum + log.hours;
+  }, 0);
+});
+
 export function isLogSelected(taskId: number, date: Date) {
   return derived(selectedLogs, (logs) => {
     return (

@@ -13,11 +13,14 @@
   import LogDay from './LogDay.svelte';
   import LogDayHeader from './LogRowHeader.svelte';
   import TotalPerDayCell from './TotalPerDayCell.svelte';
+  import TotalPerMonthCell from './TotalPerMonthCell.svelte';
+  import TotalPerTaskCell from './TotalPerTaskCell.svelte';
 </script>
 
 <Table stickyHeader={true}>
   <TableRow>
     <TableHead class="row-header" />
+    <TableHead class="log-day" />
     {#each $getDaysRange as day}
       <LogColumnHeader {day} />
     {/each}
@@ -26,6 +29,7 @@
     {#each $tasksState.allIds as taskId}
       <TableRow>
         <LogDayHeader {taskId} />
+        <TotalPerTaskCell {taskId} />
         {#each $getDaysRange as day}
           <LogDay {day} {taskId} />
         {/each}
@@ -36,6 +40,7 @@
       <TableCell class="row-header">
         <span class="total">TOTAL</span>
       </TableCell>
+      <TotalPerMonthCell />
       {#each $getDaysRange as day}
         <TotalPerDayCell {day} />
       {/each}
