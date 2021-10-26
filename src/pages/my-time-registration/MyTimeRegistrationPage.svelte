@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import AddTaskModal from './modals/AddTaskModal.svelte';
+  import EditLogModal from './modals/EditLogModal.svelte';
   import MonthNavigator from './parts/MonthNavigator.svelte';
   import TimeRegistrationGrid from './parts/TimeRegistrationGrid.svelte';
   import { refreshData } from './store/actions';
@@ -18,6 +19,8 @@
 <div class="footer-actions">
   <AddTaskModal />
 </div>
+
+<EditLogModal />
 
 <style>
   .footer-actions {

@@ -11,10 +11,11 @@ export interface TaskLogDto {
   taskId: number;
   typeOfWork: string;
   typeOfWorkDescription: string;
-  workDayStarted: string;
+  isWorkFromHome: boolean;
+  workFromHomeStarted: number;
 }
 
-export async function getTasksLog(startDate: Date, endDate: Date) {
+export async function fetchTasksLog(startDate: Date, endDate: Date) {
   const body = {
     startDate: toWebOfficeFormat(startDate),
     endDate: toWebOfficeFormat(endDate),
@@ -35,6 +36,9 @@ export interface BulkUpsertEntry {
   taskId: number;
   hours: number;
   description: string;
+  typeOfWork: string;
+  isWorkFromHome: boolean;
+  workFromHomeStarted: number;
 }
 export async function bulkUpsertTasksLog(entries: BulkUpsertEntry[]) {
   const body = entries.map((entry) => {

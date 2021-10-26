@@ -1,6 +1,6 @@
 import { endOfMonth, isBefore, startOfMonth } from 'date-fns';
 import { get } from 'svelte/store';
-import { getTasksLog } from '../../../apis/tasks-log.api';
+import { fetchTasksLog } from '../../../apis/tasks-log.api';
 import { fetchTypesOfWork } from '../../../apis/types-of-work.api';
 import { userSession } from '../../../state/auth/auth.state';
 import {
@@ -19,7 +19,7 @@ export function registerEffects() {
 
     logEntriesLoadingStarted();
 
-    const tasksLog = await getTasksLog(
+    const tasksLog = await fetchTasksLog(
       startOfMonth(newCurrentMonth),
       endOfMonth(newCurrentMonth)
     );

@@ -84,6 +84,9 @@ export function addNewTask(task: TaskDto) {
         taskId: task.taskId,
         description: task.description,
         projectName: task.project,
+        isWorkFromHome: true,
+        typeOfWork: 'SUPP',
+        workFromHomeStarted: 8,
       },
     ];
   });
@@ -109,7 +112,13 @@ export function updateEditingValue(newValue: string) {
   editingValue.set(newValue);
 }
 
-export async function submitHours(moveToNotes: boolean) {
+export async function submitHours(
+  typeOfWork: string,
+  hours: number,
+  description: string,
+  isWorkFromHome: boolean,
+  workFromHomeStarted: number
+) {
   const selected = get(selectedLogs);
   loadingLogs.update((old) => {
     return uniqWith([...old, ...selected], isEqual);
@@ -118,7 +127,7 @@ export async function submitHours(moveToNotes: boolean) {
   selectedLogs.set([]);
   enteringMode.set('none');
 
-  const newHoursValue = parseFloat(get(editingValue));
+  // const newHoursValue = parseFloat(get(editingValue));
   const existingEntries = get(logEntries);
   const upsertEntries = selected.map<BulkUpsertEntry>((s) => {
     const existingOne = existingEntries.find(
@@ -128,8 +137,11 @@ export async function submitHours(moveToNotes: boolean) {
       uid: existingOne?.uid,
       date: s.day,
       taskId: s.taskId,
-      hours: newHoursValue,
-      description: 'new description',
+      typeOfWork,
+      isWorkFromHome,
+      workFromHomeStarted,
+      hours,
+      description,
     };
   });
   const updatedLogs = await bulkUpsertTasksLog(upsertEntries);
@@ -157,7 +169,8 @@ export function enterKeyPressed() {
   const mode = get(enteringMode);
   if (mode === 'none') {
     editingValue.set('0');
-    enteringMode.set('hours');
+    // enteringMode.set('hours');
+    enteringMode.set('full');
   } else {
     enteringMode.set('none');
   }

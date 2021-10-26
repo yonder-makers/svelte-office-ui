@@ -8,7 +8,6 @@
     StructuredListBody,
     StructuredListCell,
     StructuredListRow,
-    Tile,
   } from 'carbon-components-svelte';
   import type { TaskDto } from '../../../apis/tasks.api';
   import { getTaskById } from '../../../apis/tasks.api';
