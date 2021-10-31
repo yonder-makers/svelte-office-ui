@@ -1,4 +1,11 @@
-import { addDays, addMonths, isSameMonth, subDays, subMonths } from 'date-fns';
+import {
+  addDays,
+  addMonths,
+  format,
+  isSameMonth,
+  subDays,
+  subMonths,
+} from 'date-fns';
 import isSameDay from 'date-fns/isSameDay';
 import {
   differenceWith,
@@ -16,6 +23,7 @@ import {
 } from '../../../apis/tasks-log.api';
 import type { TaskDto } from '../../../apis/tasks.api';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
+import { addNotification } from '../../../state/notifications/notifications.state';
 import {
   currentMonthState,
   editingValue,
@@ -157,7 +165,18 @@ export async function submitHours(
       description,
     };
   });
-  const updatedLogs = await bulkUpsertTasksLog(upsertEntries);
+  const bulkResult = await bulkUpsertTasksLog(upsertEntries);
+  const updatedLogs = bulkResult.filter((i) => !i.errorDescription);
+  const errors = bulkResult.filter((i) => i.errorDescription);
+
+  for (const error of errors) {
+    addNotification(
+      'Error from server',
+      error.errorDescription,
+      `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`
+    );
+  }
+
   logEntries.update((oldEntries) => {
     let result = differenceWith(
       oldEntries,

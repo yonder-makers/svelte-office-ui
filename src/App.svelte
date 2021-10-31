@@ -8,6 +8,7 @@
   import 'carbon-components-svelte/css/white.css';
   import { onMount } from 'svelte';
   import Routing from './Routing.svelte';
+  import Notifications from './components/Notifications.svelte';
   import { loadConfiguration } from './state/auth/auth.actions';
   import { isConfigLoaded } from './state/auth/auth.state';
 
@@ -29,6 +30,8 @@
     Please wait to load configuration.
   {/if}
 </Content>
+
+<Notifications />
 
 <style>
 </style>

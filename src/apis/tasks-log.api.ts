@@ -14,6 +14,7 @@ export interface TaskLogDto {
   typeOfWorkDescription: string;
   isWorkFromHome: boolean;
   workFromHomeStarted: number;
+  errorDescription: string;
 }
 
 function mapFromDto(item: any): TaskLogDto {
