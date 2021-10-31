@@ -1,5 +1,26 @@
 <script lang="ts">
-  import { Tile } from 'carbon-components-svelte';
+  import { Tile, CodeSnippet } from 'carbon-components-svelte';
+  import { apiUrlSelectorForPath } from '../../apis/resolvers/api-url.resolver';
+
+  let swaggerApi = apiUrlSelectorForPath('/');
+
+  let dockerComposeCode = `
+version: "3.3"  
+services:
+  frontend:
+    image: ghcr.io/yonder-makers/weboffice-ui-svelte:latest
+    environment:
+      - API_URL=http://localhost:3000/
+    ports:
+      - "5000:5000"
+
+  backend:
+    image: ghcr.io/yonder-makers/weboffice-api:latest
+    environment:
+      - WEBOFFICE_URL=https://weboffice.yonder.local/
+    ports:
+      - "3000:3000"
+`;
 </script>
 
 <Tile>
@@ -13,32 +34,18 @@
       >crash or it might lack features</span
     >. Help us making it better.
   </p>
-  <p>Contributers so far:</p>
   <ul>
     <li>
-      <strong>Product Owner/RA (WANTED)</strong> - define features, create backlog,
-      prioritize bugs
+      Product Owner/RA <strong> WANTED </strong>
     </li>
     <li>
-      <strong>UX/UI WANTED</strong> - create an attractive interface so we finally
-      enjoy doing Time Registration
+      UX/UI <strong> WANTED</strong>
     </li>
     <li>
-      <strong>Tech lead</strong> - Răzvan Dragomir - technical decisions, code reviews
+      Developers <strong> WANTED</strong>
     </li>
     <li>
-      <strong>Developers (WANTED)</strong> - implement features, fix bugs, learn
-    </li>
-    <li>
-      <strong>Tester (WANTED)</strong> - find bugs, detect usecases that crashes
-      the application
-    </li>
-    <li>
-      <strong>DevOps (WANTED)</strong> - keep an eye on the production server, improve
-      deployment process
-    </li>
-    <li>
-      <strong>Opensource spirit keeper</strong> - Toni Simu - engage with the community
+      Testers <strong> WANTED</strong>
     </li>
   </ul>
   <p />
@@ -46,7 +53,7 @@
   <ul>
     <li>
       Frontend: Svelte, TypeScript, Prettier, Rollup, date-fns, Carbon Design
-      System, Heroes Icons
+      System, Hero Icons
     </li>
     <li>
       Backend: NestJS, rest api with jwt authentication, reverse engineered http
@@ -56,8 +63,20 @@
       Dev & deployment: VSCode + DevContainers, Docker, Github + Github Actions
       + Github Container Registry
     </li>
-  </ul></Tile
->
+  </ul>
+  <p />
+</Tile>
+<Tile>
+  <p>
+    Feel free to create your own UI by using the API. Here is the swagger: <a
+      href={$swaggerApi.href}>{$swaggerApi.href}</a
+    >
+  </p>
+</Tile>
+<Tile>
+  <p>Want to host it on your local machine? Here is the docker-compose file:</p>
+  <CodeSnippet type="multi" code={dockerComposeCode} />
+</Tile>
 
 <style>
   ul {
