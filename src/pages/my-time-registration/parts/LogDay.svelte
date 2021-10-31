@@ -2,7 +2,12 @@
   import { TableCell, Loading } from 'carbon-components-svelte';
 
   import { tick } from 'svelte';
-  import { selectLog, submitHours, updateEditingValue } from '../store/actions';
+  import {
+    enterKeyPressed,
+    selectLog,
+    submitHours,
+    updateEditingValue,
+  } from '../store/actions';
   import {
     getLogInfo,
     isGridReadOnly,
@@ -51,6 +56,11 @@
     selectLog(taskId, day, ctrlPressed);
   }
 
+  function onDbClick(event: MouseEvent) {
+    selectLog(taskId, day, false);
+    enterKeyPressed();
+  }
+
   let valueInput: HTMLInputElement, noteInput: HTMLInputElement;
 </script>
 
@@ -66,7 +76,11 @@
   </TableCell>
 {:else}
   <TableCell on:click={focus} class={containerClass}>
-    <div class:loading={$isLoading} class:selected={$isSelected}>
+    <div
+      on:dblclick={onDbClick}
+      class:loading={$isLoading}
+      class:selected={$isSelected}
+    >
       {#if $isLoading}
         <Loading withOverlay={false} small />
       {:else if $enteringMode === 'hours' && $isSelected}
