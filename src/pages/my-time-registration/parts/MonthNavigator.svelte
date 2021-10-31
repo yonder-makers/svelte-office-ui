@@ -1,12 +1,10 @@
 <script lang="ts">
   import { Button } from 'carbon-components-svelte';
-
   import { format } from 'date-fns';
   import ArrowLeft from '../../../components/icons/ArrowLeft.svelte';
   import ArrowRight from '../../../components/icons/ArrowRight.svelte';
   import { goNextMonth, goPreviousMonth, refreshData } from '../store/actions';
-
-  import { currentMonth } from '../store/state';
+  import { currentMonthState } from '../store/state';
   import HintMessage from './HintMessage.svelte';
 </script>
 
@@ -21,7 +19,7 @@
     <ArrowLeft size={16} />
   </Button>
 
-  <span>{format($currentMonth, 'yyyy MMM')}</span>
+  <span>{format($currentMonthState, 'yyyy MMM')}</span>
 
   <Button on:click={goNextMonth} class="nav-btn" size="small" kind="primary"
     ><ArrowRight size={16} /></Button

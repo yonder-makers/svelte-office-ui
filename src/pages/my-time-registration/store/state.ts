@@ -2,8 +2,6 @@ import { startOfMonth } from 'date-fns';
 import { writable } from 'svelte/store';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 
-export const currentMonth = writable<Date>(startOfMonth(new Date(0, 0, 0)));
-
 export interface LogEntry {
   uid: string;
   hours: number;
@@ -17,6 +15,11 @@ export interface LogEntry {
   workFromHomeStarted: number;
 }
 
+interface LogId {
+  day: Date;
+  taskId: number;
+}
+
 export interface Task {
   taskId: number;
   project: string;
@@ -24,6 +27,8 @@ export interface Task {
   custRefDescription: string;
 }
 
+export const currentMonthState = writable<Date>(startOfMonth(new Date()));
+export const lastRefreshDateState = writable<Date>(undefined);
 export const logEntries = writable<LogEntry[]>([]);
 export const logEntriesAreLoading = writable<boolean>(false);
 
@@ -32,10 +37,6 @@ export const tasksState = writable<{
   allIds: number[];
 }>({ byId: {}, allIds: [] });
 
-interface LogId {
-  day: Date;
-  taskId: number;
-}
 export const selectedLogs = writable<LogId[]>([]);
 export const loadingLogs = writable<LogId[]>([]);
 

@@ -1,14 +1,4 @@
-import {
-  addMonths,
-  subMonths,
-  differenceInSeconds,
-  startOfMonth,
-  startOfDay,
-  addSeconds,
-  subDays,
-  isSameMonth,
-  addDays,
-} from 'date-fns';
+import { addDays, addMonths, isSameMonth, subDays, subMonths } from 'date-fns';
 import isSameDay from 'date-fns/isSameDay';
 import {
   differenceWith,
@@ -20,15 +10,17 @@ import {
   uniqWith,
 } from 'lodash';
 import { get } from 'svelte/store';
-import type { TaskDto } from '../../../apis/tasks.api';
 import {
   BulkUpsertEntry,
   bulkUpsertTasksLog,
 } from '../../../apis/tasks-log.api';
+import type { TaskDto } from '../../../apis/tasks.api';
+import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 import {
-  currentMonth,
+  currentMonthState,
   editingValue,
   enteringMode,
+  lastRefreshDateState,
   loadingLogs,
   logEntries,
   logEntriesAreLoading,
@@ -38,33 +30,29 @@ import {
   tasksState,
   typesOfWork,
 } from './state';
-import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 
 export function goNextMonth() {
-  currentMonth.update((state) => {
+  currentMonthState.update((state) => {
     if (state === null) return null;
 
     return addMonths(state, 1);
   });
+
+  lastRefreshDateState.set(new Date());
 }
 
 export function goPreviousMonth() {
-  currentMonth.update((state) => {
+  currentMonthState.update((state) => {
     if (state === null) return null;
 
     return subMonths(state, 1);
   });
+
+  lastRefreshDateState.set(new Date());
 }
 
 export function refreshData() {
-  const diffSeconds = differenceInSeconds(new Date(), startOfDay(new Date()));
-  let month =
-    get(currentMonth).getFullYear() < 2000
-      ? startOfMonth(new Date())
-      : startOfMonth(get(currentMonth));
-
-  // we do this just to trigger the refresh effect
-  currentMonth.set(addSeconds(month, diffSeconds));
+  lastRefreshDateState.set(new Date());
 }
 
 export function logEntriesLoadingStarted() {

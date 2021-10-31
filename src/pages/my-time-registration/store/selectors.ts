@@ -7,7 +7,7 @@ import {
 } from 'date-fns';
 import { derived } from 'svelte/store';
 import {
-  currentMonth,
+  currentMonthState,
   enteringMode,
   loadingLogs,
   logEntries,
@@ -15,7 +15,7 @@ import {
   selectedLogs,
 } from './state';
 
-export const getDaysRange = derived(currentMonth, (month) => {
+export const getDaysRange = derived(currentMonthState, (month) => {
   const start = startOfMonth(month);
   const end = endOfMonth(start);
   return eachDayOfInterval({ start, end });
@@ -74,12 +74,18 @@ export function isLogLoading(taskId: number, date: Date) {
   });
 }
 
-export const isGridReadOnly = derived(currentMonth, (month) => {
+export const isGridReadOnly = derived(currentMonthState, (month) => {
   return isBefore(month, startOfMonth(new Date()));
 });
 
 export const hintMessage = derived(
-  [currentMonth, logEntriesAreLoading, selectedLogs, loadingLogs, enteringMode],
+  [
+    currentMonthState,
+    logEntriesAreLoading,
+    selectedLogs,
+    loadingLogs,
+    enteringMode,
+  ],
   ([month, logsAreLoading, selected, loading, mode]) => {
     if (logsAreLoading) {
       return 'Loading data. Please wait.';
