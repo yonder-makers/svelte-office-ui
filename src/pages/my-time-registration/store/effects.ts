@@ -11,13 +11,21 @@ import {
 } from './actions';
 import { currentMonthState, lastRefreshDateState } from './state';
 
-async function onDataNeedsRefresh() {
+async function onDataNeedsRefresh(refreshDate: Date) {
+  if (!refreshDate) {
+    return;
+  }
+
   const month = get(currentMonthState);
   logEntriesLoadingStarted();
 
   const tasksLog = await fetchTasksLog(startOfMonth(month), endOfMonth(month));
 
   const typesOfWork = await fetchTypesOfWork();
+
+  if (get(lastRefreshDateState) !== refreshDate) {
+    return;
+  }
 
   logEntriesLoaded(tasksLog, typesOfWork);
 }

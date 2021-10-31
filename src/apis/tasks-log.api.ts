@@ -16,6 +16,14 @@ export interface TaskLogDto {
   workFromHomeStarted: number;
 }
 
+function mapFromDto(item: any): TaskLogDto {
+  return {
+    ...item,
+    created: fromWebOfficeFormat(item.created),
+    date: fromWebOfficeFormat(item.date),
+  };
+}
+
 export async function fetchTasksLog(startDate: Date, endDate: Date) {
   const body = {
     startDate: toWebOfficeFormat(startDate),
@@ -24,11 +32,7 @@ export async function fetchTasksLog(startDate: Date, endDate: Date) {
 
   const entries = (await doPost('/api/tasks-log', body)) as any[];
 
-  entries.forEach((element) => {
-    element.created = fromWebOfficeFormat(element.created);
-    element.date = fromWebOfficeFormat(element.date);
-  });
-  return entries as TaskLogDto[];
+  return entries.map(mapFromDto);
 }
 
 export interface BulkUpsertEntry {
@@ -54,9 +58,5 @@ export async function bulkUpsertTasksLog(entries: BulkUpsertEntry[]) {
     body
   )) as any[];
 
-  updatedEntries.forEach((element) => {
-    element.created = fromWebOfficeFormat(element.created);
-    element.date = fromWebOfficeFormat(element.date);
-  });
-  return entries as TaskLogDto[];
+  return updatedEntries.map(mapFromDto);
 }
