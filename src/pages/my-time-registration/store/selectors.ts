@@ -1,10 +1,8 @@
 import {
   eachDayOfInterval,
   endOfMonth,
-  isAfter,
   isBefore,
   isSameDay,
-  isThisMonth,
   startOfMonth,
 } from 'date-fns';
 import { derived } from 'svelte/store';
@@ -77,7 +75,7 @@ export function isLogLoading(taskId: number, date: Date) {
 }
 
 export const isGridReadOnly = derived(currentMonth, (month) => {
-  return !isThisMonth(month);
+  return isBefore(month, startOfMonth(new Date()));
 });
 
 export const hintMessage = derived(
@@ -107,10 +105,6 @@ export const hintMessage = derived(
 
     if (isBefore(month, startOfMonth(new Date()))) {
       return 'You are not allowed to change data in the past, but you can look at it and be proud of your work!';
-    }
-
-    if (isAfter(month, endOfMonth(new Date()))) {
-      return 'You are not allowed to change data in the future.';
     }
 
     return 'Click on a cell to start logging your hours';

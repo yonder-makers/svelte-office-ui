@@ -26,10 +26,6 @@ export const editingLog = writable<EditingLog>({
   workFromHomeStarted: '8',
 });
 
-editingLog.subscribe((a) => {
-  console.log('new value', a);
-});
-
 /* actions */
 
 export function save() {
