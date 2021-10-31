@@ -2,6 +2,7 @@ import { endOfMonth, startOfMonth } from 'date-fns';
 import { get } from 'svelte/store';
 import { fetchTasksLog } from '../../../apis/tasks-log.api';
 import { fetchTypesOfWork } from '../../../apis/types-of-work.api';
+import { createAbortable } from '../../../utils/create-abortable';
 import {
   enterKeyPressed,
   escapeKeyPressed,
@@ -11,7 +12,7 @@ import {
 } from './actions';
 import { currentMonthState, lastRefreshDateState } from './state';
 
-async function onDataNeedsRefresh(refreshDate: Date) {
+async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {
   if (!refreshDate) {
     return;
   }
@@ -19,13 +20,10 @@ async function onDataNeedsRefresh(refreshDate: Date) {
   const month = get(currentMonthState);
   logEntriesLoadingStarted();
 
-  const tasksLog = await fetchTasksLog(startOfMonth(month), endOfMonth(month));
-
-  const typesOfWork = await fetchTypesOfWork();
-
-  if (get(lastRefreshDateState) !== refreshDate) {
-    return;
-  }
+  const [tasksLog, typesOfWork] = await Promise.all([
+    fetchTasksLog(startOfMonth(month), endOfMonth(month), signal),
+    fetchTypesOfWork(signal),
+  ]);
 
   logEntriesLoaded(tasksLog, typesOfWork);
 }
@@ -61,7 +59,7 @@ function onKeyDown(ev: KeyboardEvent) {
 }
 
 export function registerEffects() {
-  lastRefreshDateState.subscribe(onDataNeedsRefresh);
+  lastRefreshDateState.subscribe(createAbortable(onDataNeedsRefresh, true));
 
   document.addEventListener('keydown', onKeyDown);
 }

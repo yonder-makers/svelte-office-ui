@@ -10,7 +10,11 @@ function getAuthTokenHeaders() {
     : {};
 }
 
-export async function doPost<TResult>(relativeUrl: string, body: object) {
+export async function doPost<TResult>(
+  relativeUrl: string,
+  body: object,
+  signal?: AbortSignal
+) {
   const fullUrl = resolveApiURL(relativeUrl).href;
   const result = await fetch(fullUrl, {
     body: JSON.stringify(body),
@@ -19,6 +23,7 @@ export async function doPost<TResult>(relativeUrl: string, body: object) {
       'Content-Type': 'application/json',
       ...getAuthTokenHeaders(),
     },
+    signal,
   });
 
   const response = await result.json();
@@ -29,7 +34,10 @@ export async function doPost<TResult>(relativeUrl: string, body: object) {
   return response as TResult;
 }
 
-export async function doGet<TResult>(relativeUrl: string) {
+export async function doGet<TResult>(
+  relativeUrl: string,
+  signal?: AbortSignal
+) {
   const fullUrl = resolveApiURL(relativeUrl).href;
   const result = await fetch(fullUrl, {
     method: 'get',
@@ -37,6 +45,7 @@ export async function doGet<TResult>(relativeUrl: string) {
       'Content-Type': 'application/json',
       ...getAuthTokenHeaders(),
     },
+    signal,
   });
 
   const response = await result.json();

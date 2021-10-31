@@ -24,13 +24,17 @@ function mapFromDto(item: any): TaskLogDto {
   };
 }
 
-export async function fetchTasksLog(startDate: Date, endDate: Date) {
+export async function fetchTasksLog(
+  startDate: Date,
+  endDate: Date,
+  signal: AbortSignal
+) {
   const body = {
     startDate: toWebOfficeFormat(startDate),
     endDate: toWebOfficeFormat(endDate),
   };
 
-  const entries = (await doPost('/api/tasks-log', body)) as any[];
+  const entries = (await doPost('/api/tasks-log', body, signal)) as any[];
 
   return entries.map(mapFromDto);
 }
