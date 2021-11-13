@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import AddTaskModal from './modals/AddTaskModal.svelte';
   import EditLogModal from './modals/EditLogModal.svelte';
+  import ImportTogglButton from './parts/ImportTogglButton.svelte';
   import MonthNavigator from './parts/MonthNavigator.svelte';
   import TimeRegistrationGrid from './parts/TimeRegistrationGrid.svelte';
   import { refreshData } from './store/actions';
@@ -18,6 +19,7 @@
 
 <div class="footer-actions">
   <AddTaskModal />
+  <ImportTogglButton />
 </div>
 
 <EditLogModal />
