@@ -138,3 +138,27 @@ export const hintMessage = derived(
     return 'Click on a cell to start logging your hours';
   }
 );
+
+export const hasImportedData = derived(selectedLogs, (selections) =>
+  selections.some((select) => select.isImported)
+);
+
+export const getSelected = derived(selectedLogs, (logs) =>
+  logs.filter((log) => !log.isImported)
+);
+
+export const getImported = derived(selectedLogs, (logs) =>
+  logs.filter((log) => log.isImported)
+);
+
+export const importedEntries = derived(
+  [getImported, logEntries],
+  ([imported, allEntries]) =>
+    allEntries.filter((entry) =>
+      imported.some(
+        (imported) =>
+          imported.taskId === entry.taskId &&
+          isSameDay(imported.day, entry.date)
+      )
+    )
+);

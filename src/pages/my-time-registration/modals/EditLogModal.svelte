@@ -7,8 +7,8 @@
     TextInput,
     Toggle,
   } from 'carbon-components-svelte';
-  import type { ComboBoxItem } from 'carbon-components-svelte/types/ComboBox/ComboBox';
   import { tick } from 'svelte';
+  import TypOfWorkComboBox from '../parts/TypOfWorkComboBox.svelte';
   import { escapeKeyPressed } from '../store/actions';
   import {
     editingLog,
@@ -20,17 +20,6 @@
   let isValid = true;
 
   let hoursInput: HTMLInputElement;
-
-  function typeOfWorkString(typeOfWork: ComboBoxItem) {
-    return `${typeOfWork.id} (${typeOfWork.text})`;
-  }
-
-  function typeOfWorkFilter(typeOfWork: ComboBoxItem, value: string) {
-    value = value.toLocaleLowerCase();
-    if (typeOfWork.id.toLocaleLowerCase().indexOf(value) >= 0) return true;
-    if (typeOfWork.text.toLocaleLowerCase().indexOf(value) >= 0) return true;
-    return false;
-  }
 
   async function onOpen() {
     await tick();
@@ -60,12 +49,7 @@
 >
   <Form on:submit>
     <FormGroup>
-      <ComboBox
-        items={$typesOfWorkComboItems}
-        titleText="Type of work"
-        placeholder="Select the type of work"
-        itemToString={typeOfWorkString}
-        shouldFilterItem={typeOfWorkFilter}
+      <TypOfWorkComboBox
         bind:selectedIndex={$editingLog.selectedTypeOfWorkIndex}
       />
       <TextInput

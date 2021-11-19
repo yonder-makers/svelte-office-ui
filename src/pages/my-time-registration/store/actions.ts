@@ -19,13 +19,11 @@ import {
   uniqWith,
 } from 'lodash';
 import { get } from 'svelte/store';
-import {
-  BulkUpsertEntry,
-  bulkUpsertTasksLog,
-} from '../../../apis/tasks-log.api';
+import { bulkUpsertTasksLog } from '../../../apis/tasks-log.api';
 import type { TaskDto } from '../../../apis/tasks.api';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 import { addNotification } from '../../../state/notifications/notifications.state';
+import { hasImportedData, importedEntries, getSelected } from './selectors';
 import {
   currentMonthState,
   editingValue,
@@ -175,7 +173,7 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
 
 export function selectLog(taskId: number, day: Date, ctrlPressed: boolean) {
   selectedLogs.update((prevSelected) => {
-    if (ctrlPressed) {
+    if (ctrlPressed || prevSelected.some((prevSel) => prevSel.isImported)) {
       const existingLog = prevSelected.find(
         (s) => s.taskId === taskId && isSameDay(s.day, day)
       );
@@ -200,18 +198,25 @@ export async function submitHours(
   isWorkFromHome: boolean,
   workFromHomeStarted: number
 ) {
-  const selected = get(selectedLogs);
-  loadingLogs.update((old) => {
-    return uniqWith([...old, ...selected], isEqual);
-  });
+  const allSelected = get(selectedLogs);
 
-  const lastSelected = last(selected);
-  selectedLogs.set([lastSelected]);
-  enteringMode.set('none');
+  const isDataImported = get(hasImportedData);
 
+  if (!isDataImported) {
+    loadingLogs.update((old) => {
+      return uniqWith([...old, ...allSelected], isEqual);
+    });
+    const lastSelected = last(allSelected);
+    selectedLogs.set([lastSelected]);
+    enteringMode.set('none');
+  } else {
+    enteringMode.set('hours');
+  }
+
+  const manualSeleted = get(getSelected);
   // const newHoursValue = parseFloat(get(editingValue));
   const existingEntries = get(logEntries);
-  const upsertEntries = selected.map<BulkUpsertEntry>((s) => {
+  const upsertEntries = manualSeleted.map<LogEntry>((s) => {
     const existingOne = existingEntries.find(
       (e) => e.taskId === s.taskId && isSameDay(s.day, e.date)
     );
@@ -224,18 +229,25 @@ export async function submitHours(
       workFromHomeStarted,
       hours,
       description,
+      projectName: '',
+      custRefDescription: '',
     };
   });
-  const bulkResult = await bulkUpsertTasksLog(upsertEntries);
-  const updatedLogs = bulkResult.filter((i) => !i.errorDescription);
-  const errors = bulkResult.filter((i) => i.errorDescription);
 
-  for (const error of errors) {
-    addNotification(
-      'Error from server',
-      error.errorDescription,
-      `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`
-    );
+  let updatedLogs = upsertEntries.concat(get(importedEntries));
+
+  if (!isDataImported) {
+    const bulkResult = await bulkUpsertTasksLog(upsertEntries);
+    updatedLogs = bulkResult.filter((i) => !i.errorDescription);
+    const errors = bulkResult.filter((i) => i.errorDescription);
+
+    for (const error of errors) {
+      addNotification(
+        'Error from server',
+        error.errorDescription,
+        `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`
+      );
+    }
   }
 
   logEntries.update((oldEntries) => {
@@ -249,7 +261,7 @@ export async function submitHours(
   });
 
   loadingLogs.update((old) => {
-    return differenceWith(old, selected, isEqual);
+    return differenceWith(old, allSelected, isEqual);
   });
 }
 

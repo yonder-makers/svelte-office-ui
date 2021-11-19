@@ -1,8 +1,10 @@
 import {
   endOfDay,
+  endOfMonth,
   endOfToday,
   formatISO,
   isAfter,
+  startOfDay,
   startOfToday,
 } from 'date-fns';
 import { doGet } from '../core/base-api';
@@ -16,8 +18,8 @@ export async function getWorkedTimeFromToggl(
   const response = await doGet<WorkTimeDto[]>(
     '/api/work-times',
     {
-      startDate: startDate ? formatShortISO(startDate) : undefined,
-      endDate: endDate ? getEndDate(endDate) : undefined,
+      startDate: startDate ? formatShortISO(startOfDay(startDate)) : undefined,
+      endDate: endDate ? getEndDate(endOfDay(endDate)) : undefined,
     },
     signal
   );
@@ -30,8 +32,9 @@ const formatShortISO = (date: Date) => {
 };
 
 function getEndDate(endDate: Date): string {
-  if (isAfter(endOfDay(endDate), endOfToday())) {
-    return formatShortISO(startOfToday());
+  const lastDayOfMonth = endOfMonth(endOfToday());
+  if (isAfter(endOfDay(endDate), lastDayOfMonth)) {
+    return formatShortISO(lastDayOfMonth);
   }
   return formatShortISO(endDate);
 }

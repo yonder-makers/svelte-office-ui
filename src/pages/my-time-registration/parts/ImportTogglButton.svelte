@@ -10,9 +10,9 @@
     PasswordInput,
     TextInput,
   } from 'carbon-components-svelte';
-  import { get } from 'svelte/store';
-  import {startTogglImport} from "../store"
-  import {togglLogin} from "@svelte-office/api"
+  import { startTogglImport } from '../store';
+  import { togglLogin } from '@svelte-office/api';
+  import CommitImportedTogglEntries from './CommitImportedTogglEntries.svelte';
 
   let isImportInProgress = false;
   let openTogglLogin = false;
@@ -49,8 +49,9 @@
 </script>
 
 <Button disabled={isImportInProgress} on:click={startInport}
-  >Import from Toggl</Button
+  >Import Entries from Toggl</Button
 >
+<CommitImportedTogglEntries />
 <Modal
   bind:open={openTogglLogin}
   modalHeading="Toggl Login"
