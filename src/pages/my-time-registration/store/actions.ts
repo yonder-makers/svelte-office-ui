@@ -119,17 +119,45 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
   const importedLogs: LogId[] = [];
   const tasks: Record<number, Task> = {};
   const taskIds: number[] = [];
+  const updatedLogEntries: LogEntry[] = [];
+  const existingLogEntries = get(logEntries);
   for (const task of workTimes) {
     tasks[task.task.taskId] = task.task;
     taskIds.push(task.task.taskId);
     for (const day of task.timeEntries) {
+      const date = parseISO(day.entryDay);
       importedLogs.push({
-        day: parseISO(day.entryDay),
+        day: date,
         taskId: task.task.taskId,
         isImported: true,
       });
+      const existingOne = existingLogEntries.find(
+        (e) => e.taskId === task.task.taskId && isSameDay(date, e.date)
+      );
+      updatedLogEntries.push({
+        hours: day.duration,
+        custRefDescription: task.task.custRefDescription,
+        date: date,
+        description: task.task.description,
+        isWorkFromHome: true,
+        projectName: task.task.project,
+        taskId: task.task.taskId,
+        typeOfWork: 'PROG',
+        workFromHomeStarted: 0,
+        uid: existingOne?.uid,
+      });
     }
   }
+
+  logEntries.update((oldEntries) => {
+    let result = differenceWith(
+      oldEntries,
+      updatedLogEntries,
+      (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date)
+    );
+    const notDeletedEntries = updatedLogEntries.filter((l) => l.hours > 0);
+    return [...result, ...notDeletedEntries];
+  });
 
   tasksState.update((state) => {
     return {

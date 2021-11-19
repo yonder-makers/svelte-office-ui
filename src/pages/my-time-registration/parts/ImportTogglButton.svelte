@@ -51,10 +51,6 @@
 <Button disabled={isImportInProgress} on:click={startInport}
   >Import from Toggl</Button
 >
-{#if $isUserAuthenticatedInToggl}
-  <span>{$isUserAuthenticatedInToggl}</span>
-{/if}
-
 <Modal
   bind:open={openTogglLogin}
   modalHeading="Toggl Login"

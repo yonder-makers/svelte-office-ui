@@ -13,7 +13,7 @@ import {
   navigateKeyPressed,
 } from './actions';
 import { getDisplayedDateRange } from './selectors';
-import { currentMonthState, lastRefreshDateState } from './state';
+import { currentMonthState, lastRefreshDateState, logEntriesAreLoading } from './state';
 
 async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {
   if (!refreshDate) {
@@ -32,6 +32,7 @@ async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {
 }
 
 export async function startTogglImport(signal?: AbortSignal) {
+  logEntriesAreLoading.set(true);
   const interval = get(getDisplayedDateRange);
   const worktimes = await getWorkedTimeFromToggl(
     signal,
@@ -39,6 +40,7 @@ export async function startTogglImport(signal?: AbortSignal) {
     interval.endDate
   );
   addDataFromToggl(worktimes);
+  logEntriesAreLoading.set(false);
 }
 
 function onKeyDown(ev: KeyboardEvent) {
