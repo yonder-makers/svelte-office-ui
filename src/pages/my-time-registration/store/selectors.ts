@@ -21,6 +21,13 @@ export const getDaysRange = derived(currentMonthState, (month) => {
   return eachDayOfInterval({ start, end });
 });
 
+export const getDisplayedDateRange = derived(currentMonthState, (month) => {
+  return {
+    startDate: startOfMonth(month),
+    endDate: endOfMonth(month),
+  };
+});
+
 export function getLogInfo(taskId: number, date: Date) {
   return derived(logEntries, (entries) => {
     const log = entries.find(
@@ -59,8 +66,23 @@ export const getTotalForMonth = derived(logEntries, (entries) => {
 export function isLogSelected(taskId: number, date: Date) {
   return derived(selectedLogs, (logs) => {
     return (
-      logs.find((l) => l.taskId === taskId && isSameDay(date, l.day)) !==
-      undefined
+      logs.find(
+        (l) =>
+          l.taskId === taskId &&
+          isSameDay(date, l.day) &&
+          l.isImported === false
+      ) !== undefined
+    );
+  });
+}
+
+export function isLogImported(taskId: number, date: Date) {
+  return derived(selectedLogs, (logs) => {
+    return (
+      logs.find(
+        (l) =>
+          l.taskId === taskId && isSameDay(date, l.day) && l.isImported === true
+      ) !== undefined
     );
   });
 }

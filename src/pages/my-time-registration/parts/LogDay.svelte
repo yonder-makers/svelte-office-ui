@@ -13,6 +13,7 @@
     isGridReadOnly,
     isLogLoading,
     isLogSelected,
+    isLogImported
   } from '../store/selectors';
   import { editingValue, enteringMode } from '../store/state';
 
@@ -20,6 +21,7 @@
   export let taskId: number;
 
   let isSelected = isLogSelected(taskId, day);
+  let isImported = isLogImported(taskId, day);
   let isLoading = isLogLoading(taskId, day);
 
   $: log = getLogInfo(taskId, day);
@@ -30,7 +32,7 @@
   }
   $: containerClass = `log-day${$isSelected ? ' selected' : ''}${
     $isLoading ? ' loading' : ''
-  }`;
+  }${$isImported ? ' imported' : '' }`;
 
   async function focusInput() {
     await tick();
@@ -80,6 +82,7 @@
       on:dblclick={onDbClick}
       class:loading={$isLoading}
       class:selected={$isSelected}
+      class:imported={$isImported}
     >
       {#if $isLoading}
         <Loading withOverlay={false} small />
@@ -116,6 +119,11 @@
 
   .selected {
     background-color: #0f62fe;
+    color: white;
+  }
+
+  .imported {
+    background-color: #FF00FF;
     color: white;
   }
 

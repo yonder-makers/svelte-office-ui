@@ -1,24 +1,37 @@
 <script lang="ts">
   import {
+    loggedInToggl,
+    isUserAuthenticatedInToggl,
+  } from '@svelte-office/state';
+
+  import {
     Button,
     Modal,
     PasswordInput,
     TextInput,
   } from 'carbon-components-svelte';
-  import { login } from '../../../apis/toggl';
+  import { get } from 'svelte/store';
+  import {startTogglImport} from "../store"
+  import {togglLogin} from "@svelte-office/api"
 
-  let isUserAuthenticatedWithToggl = false;
   let isImportInProgress = false;
   let openTogglLogin = false;
   let username = '';
   let password = '';
-  let togglFullName = '';
 
-  function startInport() {
+  async function startInport() {
     isImportInProgress = true;
-    if (!isUserAuthenticatedWithToggl) {
+    if ($isUserAuthenticatedInToggl === false) {
       openTogglLogin = true;
+      return;
     }
+
+    await importData();
+  }
+
+  async function importData() {
+    await startTogglImport();
+    isImportInProgress = false;
   }
 
   function resetFlags() {
@@ -27,20 +40,19 @@
   }
 
   async function onSubmit() {
-    const loginInfo = await login(username, password);
-    if (loginInfo.id) {
-      resetFlags();
-      isUserAuthenticatedWithToggl = true;
-      togglFullName = loginInfo.fullName;
-    }
+    const loginResult = await togglLogin(username, password);
+    loggedInToggl(loginResult.accessToken);
+    openTogglLogin = false;
+    resetFlags();
+    await importData();
   }
 </script>
 
 <Button disabled={isImportInProgress} on:click={startInport}
   >Import from Toggl</Button
 >
-{#if isUserAuthenticatedWithToggl === true}
-  <span>{togglFullName}</span>
+{#if $isUserAuthenticatedInToggl}
+  <span>{$isUserAuthenticatedInToggl}</span>
 {/if}
 
 <Modal
@@ -48,9 +60,9 @@
   modalHeading="Toggl Login"
   primaryButtonText="Login"
   secondaryButtonText="Cancel"
-  on:click:button--secondary={onSubmit}
+  on:click:button--secondary={resetFlags}
   on:open
-  on:close={onSubmit}
+  on:close={resetFlags}
   on:submit={onSubmit}
 >
   <TextInput

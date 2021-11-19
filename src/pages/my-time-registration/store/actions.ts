@@ -1,8 +1,10 @@
+import type { WorkTimeDto } from '@svelte-office/api';
 import {
   addDays,
   addMonths,
   format,
   isSameMonth,
+  parseISO,
   subDays,
   subMonths,
 } from 'date-fns';
@@ -33,6 +35,7 @@ import {
   logEntries,
   logEntriesAreLoading,
   LogEntry,
+  LogId,
   selectedLogs,
   Task,
   tasksState,
@@ -112,6 +115,36 @@ export function addNewTask(task: TaskDto) {
   });
 }
 
+export function addDataFromToggl(workTimes: WorkTimeDto[]) {
+  const importedLogs: LogId[] = [];
+  const tasks: Record<number, Task> = {};
+  const taskIds: number[] = [];
+  for (const task of workTimes) {
+    tasks[task.task.taskId] = task.task;
+    taskIds.push(task.task.taskId);
+    for (const day of task.timeEntries) {
+      importedLogs.push({
+        day: parseISO(day.entryDay),
+        taskId: task.task.taskId,
+        isImported: true,
+      });
+    }
+  }
+
+  tasksState.update((state) => {
+    return {
+      byId: {
+        ...state.byId,
+        ...tasks,
+      },
+      allIds: uniq([...state.allIds, ...taskIds]),
+    };
+  });
+  selectedLogs.update(() => {
+    return importedLogs;
+  });
+}
+
 export function selectLog(taskId: number, day: Date, ctrlPressed: boolean) {
   selectedLogs.update((prevSelected) => {
     if (ctrlPressed) {
@@ -121,9 +154,9 @@ export function selectLog(taskId: number, day: Date, ctrlPressed: boolean) {
       if (existingLog !== undefined) {
         return prevSelected.filter((s) => s !== existingLog);
       }
-      return [...prevSelected, { day, taskId }];
+      return [...prevSelected, { day, taskId, isImported: false }];
     }
-    return [{ day, taskId }];
+    return [{ day, taskId, isImported: false }];
   });
   enteringMode.set('none');
 }
@@ -230,6 +263,7 @@ export function navigateKeyPressed(
           {
             day: cursor.day,
             taskId: prevTaskId,
+            isImported: false,
           },
         ];
       }
@@ -241,6 +275,7 @@ export function navigateKeyPressed(
           {
             day: cursor.day,
             taskId: prevTaskId,
+            isImported: false,
           },
         ];
       }
@@ -251,6 +286,7 @@ export function navigateKeyPressed(
           {
             day: prevDay,
             taskId: cursor.taskId,
+            isImported: false,
           },
         ];
       }
@@ -261,6 +297,7 @@ export function navigateKeyPressed(
           {
             day: nextDay,
             taskId: cursor.taskId,
+            isImported: false,
           },
         ];
       }

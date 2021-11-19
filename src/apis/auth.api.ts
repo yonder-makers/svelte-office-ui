@@ -1,6 +1,6 @@
 import { doGet, doPost } from './core/base-api';
 
-interface LoginResponse {
+export interface LoginResponse {
   access_token: string;
 }
 

@@ -1,15 +1,18 @@
+import { getWorkedTimeFromToggl } from '@svelte-office/api';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { get } from 'svelte/store';
 import { fetchTasksLog } from '../../../apis/tasks-log.api';
 import { fetchTypesOfWork } from '../../../apis/types-of-work.api';
 import { createAbortable } from '../../../utils/create-abortable';
 import {
+  addDataFromToggl,
   enterKeyPressed,
   escapeKeyPressed,
   logEntriesLoaded,
   logEntriesLoadingStarted,
   navigateKeyPressed,
 } from './actions';
+import { getDisplayedDateRange } from './selectors';
 import { currentMonthState, lastRefreshDateState } from './state';
 
 async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {
@@ -26,6 +29,16 @@ async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {
   ]);
 
   logEntriesLoaded(tasksLog, typesOfWork);
+}
+
+export async function startTogglImport(signal?: AbortSignal) {
+  const interval = get(getDisplayedDateRange);
+  const worktimes = await getWorkedTimeFromToggl(
+    signal,
+    interval.startDate,
+    interval.endDate
+  );
+  addDataFromToggl(worktimes);
 }
 
 function onKeyDown(ev: KeyboardEvent) {

@@ -15,9 +15,10 @@ export interface LogEntry {
   workFromHomeStarted: number;
 }
 
-interface LogId {
+export interface LogId {
   day: Date;
   taskId: number;
+  isImported: boolean;
 }
 
 export interface Task {
