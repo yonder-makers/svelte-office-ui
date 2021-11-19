@@ -47,3 +47,14 @@ export const enteringMode = writable<EnteringMode>('none');
 export const editingValue = writable<string>('');
 
 export const typesOfWork = writable<TypeOfWorkDto[]>([]);
+
+export interface ImportLogAttributes {
+  selectedTypeOfWorkIndex?: number;
+  isWorkFromHome?: boolean;
+  workFromHomeStart?: number;
+}
+export const importinfo = writable<ImportLogAttributes>({
+  isWorkFromHome: true,
+  selectedTypeOfWorkIndex: undefined,
+  workFromHomeStart: 8,
+});

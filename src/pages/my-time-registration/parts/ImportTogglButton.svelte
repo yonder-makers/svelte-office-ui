@@ -9,8 +9,9 @@
     Modal,
     PasswordInput,
     TextInput,
+    Toggle,
   } from 'carbon-components-svelte';
-  import { startTogglImport } from '../store';
+  import { isImportMetadataReady, startTogglImport } from '../store';
   import { togglLogin } from '@svelte-office/api';
   import CommitImportedTogglEntries from './CommitImportedTogglEntries.svelte';
 
@@ -44,14 +45,32 @@
     loggedInToggl(loginResult.accessToken);
     openTogglLogin = false;
     resetFlags();
-    await importData();
+  }
+
+  let isImportVisible = false;
+  function toggleImport(isVisible?: boolean) {
+    if ($isUserAuthenticatedInToggl === false) {
+      openTogglLogin = true;
+      return;
+    }
+
+    isImportVisible = isVisible ?? false;
   }
 </script>
 
-<Button disabled={isImportInProgress} on:click={startInport}
-  >Import Entries from Toggl</Button
->
-<CommitImportedTogglEntries />
+<Toggle
+  disabled={isImportInProgress}
+  labelText="Show Toggl Import"
+  on:toggle={(e) => toggleImport(e?.detail?.toggled)}
+/>
+
+{#if $isUserAuthenticatedInToggl && isImportVisible}
+  <Button
+    disabled={isImportInProgress && $isImportMetadataReady}
+    on:click={startInport}>Import Entries from Toggl</Button
+  >
+  <CommitImportedTogglEntries />
+{/if}
 <Modal
   bind:open={openTogglLogin}
   modalHeading="Toggl Login"

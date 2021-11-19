@@ -13,6 +13,7 @@ import {
   logEntries,
   logEntriesAreLoading,
   selectedLogs,
+  importinfo,
 } from './state';
 
 export const getDaysRange = derived(currentMonthState, (month) => {
@@ -161,4 +162,13 @@ export const importedEntries = derived(
           isSameDay(imported.day, entry.date)
       )
     )
+);
+
+export const isImportMetadataReady = derived(importinfo, (info) =>
+  info &&
+  info.isWorkFromHome !== undefined &&
+  info.selectedTypeOfWorkIndex !== undefined &&
+  info.isWorkFromHome
+    ? info.workFromHomeStart !== undefined
+    : true
 );
