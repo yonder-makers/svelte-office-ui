@@ -23,7 +23,12 @@ import { bulkUpsertTasksLog } from '../../../apis/tasks-log.api';
 import type { TaskDto } from '../../../apis/tasks.api';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 import { addNotification } from '../../../state/notifications/notifications.state';
-import { hasImportedData, importedEntries, getSelected } from './selectors';
+import {
+  hasImportedData,
+  importedEntries,
+  getSelected,
+  selectedTypeOfWorkKeyForImport,
+} from './selectors';
 import {
   currentMonthState,
   editingValue,
@@ -38,6 +43,7 @@ import {
   Task,
   tasksState,
   typesOfWork,
+  importinfo,
 } from './state';
 
 export function goNextMonth() {
@@ -119,6 +125,8 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
   const taskIds: number[] = [];
   const updatedLogEntries: LogEntry[] = [];
   const existingLogEntries = get(logEntries);
+  const importMetaData = get(importinfo);
+  const selectedTypeOfWork = get(selectedTypeOfWorkKeyForImport);
   for (const task of workTimes) {
     tasks[task.task.taskId] = task.task;
     taskIds.push(task.task.taskId);
@@ -137,11 +145,11 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
         custRefDescription: task.task.custRefDescription,
         date: date,
         description: task.task.description,
-        isWorkFromHome: true,
+        isWorkFromHome: importMetaData.isWorkFromHome,
         projectName: task.task.project,
         taskId: task.task.taskId,
-        typeOfWork: 'PROG',
-        workFromHomeStarted: 0,
+        typeOfWork: selectedTypeOfWork,
+        workFromHomeStarted: importMetaData.workFromHomeStart,
         uid: existingOne?.uid,
       });
     }

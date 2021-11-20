@@ -27,9 +27,12 @@
 <style>
   .footer-actions {
     margin-top: 12px;
+    box-sizing: border-box;
     display: grid;
-    grid-template-rows: 1fr;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    column-gap: 20px;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-auto-flow: dense;
+    column-gap: 12px;
+    row-gap: 12px;
   }
 </style>

@@ -14,6 +14,7 @@ import {
   logEntriesAreLoading,
   selectedLogs,
   importinfo,
+  typesOfWork,
 } from './state';
 
 export const getDaysRange = derived(currentMonthState, (month) => {
@@ -171,4 +172,24 @@ export const isImportMetadataReady = derived(importinfo, (info) =>
   info.isWorkFromHome
     ? info.workFromHomeStart !== undefined
     : true
+);
+
+export const selectedTypeOfWorkKeyForImport = derived(
+  [importinfo, typesOfWork],
+  ([importinfo, typesOfWork]) => {
+    const DEFAULT_TYPE_OF_WORK = 'PROG';
+    if ((typesOfWork?.length ?? 0) < 1) return DEFAULT_TYPE_OF_WORK;
+    if ((importinfo?.selectedTypeOfWorkIndex ?? undefined) === undefined) {
+      return DEFAULT_TYPE_OF_WORK;
+    }
+
+    if (importinfo.selectedTypeOfWorkIndex > typesOfWork.length - 1) {
+      return DEFAULT_TYPE_OF_WORK;
+    }
+
+    return (
+      typesOfWork[importinfo.selectedTypeOfWorkIndex]?.key ??
+      DEFAULT_TYPE_OF_WORK
+    );
+  }
 );

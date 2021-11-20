@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    ComboBox,
     Form,
     FormGroup,
     Modal,
@@ -10,12 +9,7 @@
   import { tick } from 'svelte';
   import TypOfWorkComboBox from '../parts/TypOfWorkComboBox.svelte';
   import { escapeKeyPressed } from '../store/actions';
-  import {
-    editingLog,
-    isEditLogModalOpen,
-    save,
-    typesOfWorkComboItems,
-  } from './edit-log-modal.state';
+  import { editingLog, isEditLogModalOpen, save } from './edit-log-modal.state';
 
   let isValid = true;
 

@@ -44,7 +44,6 @@
     const loginResult = await togglLogin(username, password);
     loggedInToggl(loginResult.accessToken);
     openTogglLogin = false;
-    resetFlags();
   }
 
   let isImportVisible = false;
@@ -61,15 +60,16 @@
 <Toggle
   disabled={isImportInProgress}
   labelText="Show Toggl Import"
+  bind:toggled={isImportVisible}
   on:toggle={(e) => toggleImport(e?.detail?.toggled)}
 />
 
 {#if $isUserAuthenticatedInToggl && isImportVisible}
+  <CommitImportedTogglEntries />
   <Button
     disabled={isImportInProgress && $isImportMetadataReady}
     on:click={startInport}>Import Entries from Toggl</Button
   >
-  <CommitImportedTogglEntries />
 {/if}
 <Modal
   bind:open={openTogglLogin}
