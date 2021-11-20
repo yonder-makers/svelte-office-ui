@@ -3,7 +3,6 @@ import { endOfMonth, format, isSameDay, startOfMonth } from 'date-fns';
 import { differenceWith, isEqual } from 'lodash';
 import { addNotification } from 'src/state/notifications/notifications.state';
 import { get } from 'svelte/store';
-import { selectedLogs } from '.';
 import { bulkUpsertTasksLog, fetchTasksLog } from '../../../apis/tasks-log.api';
 import { fetchTypesOfWork } from '../../../apis/types-of-work.api';
 import { createAbortable } from '../../../utils/create-abortable';
@@ -26,6 +25,7 @@ import {
   loadingLogs,
   logEntries,
   logEntriesAreLoading,
+  selectedLogs,
 } from './state';
 
 async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {

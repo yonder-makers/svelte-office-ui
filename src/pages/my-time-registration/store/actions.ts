@@ -132,14 +132,19 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
     taskIds.push(task.task.taskId);
     for (const day of task.timeEntries) {
       const date = parseISO(day.entryDay);
+      const existingOne = existingLogEntries.find(
+        (e) => e.taskId === task.task.taskId && isSameDay(date, e.date)
+      );
+
+      if (existingOne?.hours === day.duration) {
+        continue;
+      }
+
       importedLogs.push({
         day: date,
         taskId: task.task.taskId,
         status: 'imported',
       });
-      const existingOne = existingLogEntries.find(
-        (e) => e.taskId === task.task.taskId && isSameDay(date, e.date)
-      );
       updatedLogEntries.push({
         hours: day.duration,
         custRefDescription: task.task.custRefDescription,
@@ -161,8 +166,8 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
       updatedLogEntries,
       (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date)
     );
-    const notDeletedEntries = updatedLogEntries.filter((l) => l.hours > 0);
-    return [...result, ...notDeletedEntries];
+
+    return [...result, ...updatedLogEntries];
   });
 
   tasksState.update((state) => {
@@ -174,8 +179,14 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
       allIds: uniq([...state.allIds, ...taskIds]),
     };
   });
-  selectedLogs.update(() => {
-    return importedLogs;
+  selectedLogs.update((logs) => {
+    let result = differenceWith(
+      logs,
+      importedLogs,
+      (a, b) => a.taskId === b.taskId && isSameDay(a.day, b.day)
+    );
+
+    return [...result, ...importedLogs];
   });
 }
 
