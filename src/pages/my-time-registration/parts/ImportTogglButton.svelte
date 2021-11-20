@@ -11,7 +11,11 @@
     TextInput,
     Toggle,
   } from 'carbon-components-svelte';
-  import { isImportMetadataReady, startTogglImport } from '../store';
+  import {
+    hasImportedData,
+    isImportMetadataReady,
+    startTogglImport,
+  } from '../store';
   import { togglLogin } from '@svelte-office/api';
   import CommitImportedTogglEntries from './CommitImportedTogglEntries.svelte';
 
@@ -66,10 +70,12 @@
 
 {#if $isUserAuthenticatedInToggl && isImportVisible}
   <CommitImportedTogglEntries />
-  <Button
-    disabled={isImportInProgress && $isImportMetadataReady}
-    on:click={startInport}>Import Entries from Toggl</Button
-  >
+  {#if !$hasImportedData}
+    <Button
+      disabled={isImportInProgress && $isImportMetadataReady}
+      on:click={startInport}>Import Entries from Toggl</Button
+    >
+  {/if}
 {/if}
 <Modal
   bind:open={openTogglLogin}

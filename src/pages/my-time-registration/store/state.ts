@@ -31,6 +31,7 @@ export interface Task {
 export const currentMonthState = writable<Date>(startOfMonth(new Date()));
 export const lastRefreshDateState = writable<Date>(undefined);
 export const logEntries = writable<LogEntry[]>([]);
+export const importEntriesSafeCopy = writable<LogEntry[]>([]);
 export const logEntriesAreLoading = writable<boolean>(false);
 
 export const tasksState = writable<{

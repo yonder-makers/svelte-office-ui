@@ -157,7 +157,9 @@ export const hintMessage = derived(
 );
 
 export const hasImportedData = derived(selectedLogs, (selections) =>
-  selections.some((select) => select.status === 'imported')
+  selections.some(
+    (select) => select.status === 'imported' || select.status === 'updated'
+  )
 );
 
 export const getSelected = derived(selectedLogs, (logs) =>

@@ -44,6 +44,7 @@ import {
   tasksState,
   typesOfWork,
   importinfo,
+  importEntriesSafeCopy,
 } from './state';
 
 export function goNextMonth() {
@@ -119,6 +120,16 @@ export function addNewTask(task: TaskDto) {
   });
 }
 
+export function cancelImportFromToggl() {
+  selectedLogs.update((logs) =>
+    logs.filter((log) => log.status === 'selected')
+  );
+
+  const initialEntries = get(importEntriesSafeCopy);
+  logEntries.set([...initialEntries]);
+  importEntriesSafeCopy.set([]);
+}
+
 export function addDataFromToggl(workTimes: WorkTimeDto[]) {
   const importedLogs: LogId[] = [];
   const tasks: Record<number, Task> = {};
@@ -127,6 +138,7 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
   const existingLogEntries = get(logEntries);
   const importMetaData = get(importinfo);
   const selectedTypeOfWork = get(selectedTypeOfWorkKeyForImport);
+  importEntriesSafeCopy.set([...existingLogEntries]);
   for (const task of workTimes) {
     tasks[task.task.taskId] = task.task;
     taskIds.push(task.task.taskId);
@@ -191,8 +203,9 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
 }
 
 export function selectLog(taskId: number, day: Date, ctrlPressed: boolean) {
+  const isImport = get(hasImportedData);
   selectedLogs.update((prevSelected) => {
-    if (ctrlPressed || prevSelected.some((prevSel) => prevSel.status)) {
+    if (ctrlPressed || isImport) {
       const existingLog = prevSelected.find(
         (s) => s.taskId === taskId && isSameDay(s.day, day)
       );

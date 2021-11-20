@@ -1,6 +1,6 @@
 import { getWorkedTimeFromToggl } from '@svelte-office/api';
 import { endOfMonth, format, isSameDay, startOfMonth } from 'date-fns';
-import { differenceWith, isEqual } from 'lodash';
+import { differenceWith, intersectionWith, isEqual } from 'lodash';
 import { addNotification } from 'src/state/notifications/notifications.state';
 import { get } from 'svelte/store';
 import { bulkUpsertTasksLog, fetchTasksLog } from '../../../apis/tasks-log.api';
@@ -21,6 +21,7 @@ import {
 } from './selectors';
 import {
   currentMonthState,
+  importEntriesSafeCopy,
   lastRefreshDateState,
   loadingLogs,
   logEntries,
@@ -92,9 +93,12 @@ export function registerEffects() {
   document.addEventListener('keydown', onKeyDown);
 }
 
+const areLogEntriesEqual = (a, b) =>
+  a.taskId === b.taskId && isSameDay(a.date, b.date);
 export async function saveImportedData() {
   const affectedEntries = get(affectedEntriesDuringImport);
   const affectedLogs = get(affectedLogsDuringImport);
+  const entriesSafeCopy = get(importEntriesSafeCopy);
   selectedLogs.update((old) => {
     return differenceWith(old, affectedLogs, isEqual);
   });
@@ -114,12 +118,20 @@ export async function saveImportedData() {
     let result = differenceWith(
       oldEntries,
       successfulEntries,
-      (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date)
+      errors,
+      areLogEntriesEqual
+    );
+
+    const errorRollback = intersectionWith(
+      entriesSafeCopy,
+      errors,
+      areLogEntriesEqual
     );
     const notDeletedEntries = successfulEntries.filter((l) => l.hours > 0);
-    return [...result, ...notDeletedEntries];
+    return [...result, ...notDeletedEntries, ...errorRollback];
   });
   loadingLogs.update((old) => {
     return differenceWith(old, affectedLogs, isEqual);
   });
+  importEntriesSafeCopy.set([]);
 }
