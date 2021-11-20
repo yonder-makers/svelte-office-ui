@@ -18,7 +18,7 @@ export interface LogEntry {
 export interface LogId {
   day: Date;
   taskId: number;
-  isImported: boolean;
+  status: 'selected' | 'imported' | 'updated';
 }
 
 export interface Task {

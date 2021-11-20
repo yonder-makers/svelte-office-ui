@@ -1,9 +1,11 @@
 <script lang="ts">
   import { Button, TextInput, Toggle } from 'carbon-components-svelte';
 
-  import { hasImportedData, importinfo } from '../store';
+  import { hasImportedData, importinfo, saveImportedData } from '../store';
   import TypOfWorkComboBox from './TypOfWorkComboBox.svelte';
-  function saveImportedData() {}
+  function onSaveClicked() {
+    saveImportedData();
+  }
 </script>
 
 <TypOfWorkComboBox bind:selectedIndex={$importinfo.selectedTypeOfWorkIndex} />
@@ -18,6 +20,6 @@
 {#if $hasImportedData}
   <Button
     disabled={$importinfo.selectedTypeOfWorkIndex === undefined}
-    on:click={saveImportedData}>Save Updated Data</Button
+    on:click={onSaveClicked}>Save Updated Data</Button
   >
 {/if}

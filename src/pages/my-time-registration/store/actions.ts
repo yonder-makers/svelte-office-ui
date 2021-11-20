@@ -135,7 +135,7 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
       importedLogs.push({
         day: date,
         taskId: task.task.taskId,
-        isImported: true,
+        status: 'imported',
       });
       const existingOne = existingLogEntries.find(
         (e) => e.taskId === task.task.taskId && isSameDay(date, e.date)
@@ -181,16 +181,16 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
 
 export function selectLog(taskId: number, day: Date, ctrlPressed: boolean) {
   selectedLogs.update((prevSelected) => {
-    if (ctrlPressed || prevSelected.some((prevSel) => prevSel.isImported)) {
+    if (ctrlPressed || prevSelected.some((prevSel) => prevSel.status)) {
       const existingLog = prevSelected.find(
         (s) => s.taskId === taskId && isSameDay(s.day, day)
       );
       if (existingLog !== undefined) {
         return prevSelected.filter((s) => s !== existingLog);
       }
-      return [...prevSelected, { day, taskId, isImported: false }];
+      return [...prevSelected, { day, taskId, status: 'selected' }];
     }
-    return [{ day, taskId, isImported: false }];
+    return [{ day, taskId, status: 'selected' }];
   });
   enteringMode.set('none');
 }
@@ -209,7 +209,8 @@ export async function submitHours(
   const allSelected = get(selectedLogs);
 
   const isDataImported = get(hasImportedData);
-
+  const manualSeleted = get(getSelected);
+  const existingEntries = get(logEntries);
   if (!isDataImported) {
     loadingLogs.update((old) => {
       return uniqWith([...old, ...allSelected], isEqual);
@@ -219,11 +220,21 @@ export async function submitHours(
     enteringMode.set('none');
   } else {
     enteringMode.set('hours');
+    selectedLogs.update((prev) => {
+      const updated: LogId[] = manualSeleted.map((log) => {
+        return { ...log, status: 'updated' };
+      });
+
+      const notUpdated = differenceWith(
+        prev,
+        updated,
+        (a, b) => a.taskId === b.taskId && isSameDay(a.day, b.day)
+      );
+
+      return [...notUpdated, ...updated];
+    });
   }
 
-  const manualSeleted = get(getSelected);
-  // const newHoursValue = parseFloat(get(editingValue));
-  const existingEntries = get(logEntries);
   const upsertEntries = manualSeleted.map<LogEntry>((s) => {
     const existingOne = existingEntries.find(
       (e) => e.taskId === s.taskId && isSameDay(s.day, e.date)
@@ -242,7 +253,7 @@ export async function submitHours(
     };
   });
 
-  let updatedLogs = upsertEntries.concat(get(importedEntries));
+  let updatedLogs = upsertEntries;
 
   if (!isDataImported) {
     const bulkResult = await bulkUpsertTasksLog(upsertEntries);
@@ -264,7 +275,9 @@ export async function submitHours(
       updatedLogs,
       (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date)
     );
-    const notDeletedEntries = updatedLogs.filter((l) => l.hours > 0);
+    const notDeletedEntries = isDataImported
+      ? updatedLogs
+      : updatedLogs.filter((l) => l.hours > 0);
     return [...result, ...notDeletedEntries];
   });
 
@@ -311,7 +324,7 @@ export function navigateKeyPressed(
           {
             day: cursor.day,
             taskId: prevTaskId,
-            isImported: false,
+            status: 'selected',
           },
         ];
       }
@@ -323,7 +336,7 @@ export function navigateKeyPressed(
           {
             day: cursor.day,
             taskId: prevTaskId,
-            isImported: false,
+            status: 'selected',
           },
         ];
       }
@@ -334,7 +347,7 @@ export function navigateKeyPressed(
           {
             day: prevDay,
             taskId: cursor.taskId,
-            isImported: false,
+            status: 'selected',
           },
         ];
       }
@@ -345,7 +358,7 @@ export function navigateKeyPressed(
           {
             day: nextDay,
             taskId: cursor.taskId,
-            isImported: false,
+            status: 'selected',
           },
         ];
       }

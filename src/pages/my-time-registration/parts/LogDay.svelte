@@ -5,7 +5,6 @@
   import {
     enterKeyPressed,
     selectLog,
-    submitHours,
     updateEditingValue,
   } from '../store/actions';
   import {
@@ -13,7 +12,8 @@
     isGridReadOnly,
     isLogLoading,
     isLogSelected,
-    isLogImported
+    isLogImported,
+    isLogUpdated,
   } from '../store/selectors';
   import { editingValue, enteringMode } from '../store/state';
 
@@ -22,6 +22,7 @@
 
   let isSelected = isLogSelected(taskId, day);
   let isImported = isLogImported(taskId, day);
+  let isUpdated = isLogUpdated(taskId, day);
   let isLoading = isLogLoading(taskId, day);
 
   $: log = getLogInfo(taskId, day);
@@ -32,7 +33,7 @@
   }
   $: containerClass = `log-day${$isSelected ? ' selected' : ''}${
     $isLoading ? ' loading' : ''
-  }${$isImported ? ' imported' : '' }`;
+  }${$isImported ? ' imported' : ''}${$isUpdated ? ' updated' : ''}`;
 
   async function focusInput() {
     await tick();
@@ -83,6 +84,7 @@
       class:loading={$isLoading}
       class:selected={$isSelected}
       class:imported={$isImported}
+      class:updated={$isUpdated}
     >
       {#if $isLoading}
         <Loading withOverlay={false} small />
@@ -123,7 +125,12 @@
   }
 
   .imported {
-    background-color: #FF00FF;
+    background-color: #ff00ff;
+    color: white;
+  }
+
+  .updated {
+    background-color: #f6be00;
     color: white;
   }
 

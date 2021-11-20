@@ -72,7 +72,7 @@ export function isLogSelected(taskId: number, date: Date) {
         (l) =>
           l.taskId === taskId &&
           isSameDay(date, l.day) &&
-          l.isImported === false
+          l.status === 'selected'
       ) !== undefined
     );
   });
@@ -83,7 +83,22 @@ export function isLogImported(taskId: number, date: Date) {
     return (
       logs.find(
         (l) =>
-          l.taskId === taskId && isSameDay(date, l.day) && l.isImported === true
+          l.taskId === taskId &&
+          isSameDay(date, l.day) &&
+          l.status === 'imported'
+      ) !== undefined
+    );
+  });
+}
+
+export function isLogUpdated(taskId: number, date: Date) {
+  return derived(selectedLogs, (logs) => {
+    return (
+      logs.find(
+        (l) =>
+          l.taskId === taskId &&
+          isSameDay(date, l.day) &&
+          l.status === 'updated'
       ) !== undefined
     );
   });
@@ -142,15 +157,15 @@ export const hintMessage = derived(
 );
 
 export const hasImportedData = derived(selectedLogs, (selections) =>
-  selections.some((select) => select.isImported)
+  selections.some((select) => select.status === 'imported')
 );
 
 export const getSelected = derived(selectedLogs, (logs) =>
-  logs.filter((log) => !log.isImported)
+  logs.filter((log) => log.status === 'selected')
 );
 
 export const getImported = derived(selectedLogs, (logs) =>
-  logs.filter((log) => log.isImported)
+  logs.filter((log) => log.status === 'imported')
 );
 
 export const importedEntries = derived(
@@ -191,5 +206,23 @@ export const selectedTypeOfWorkKeyForImport = derived(
       typesOfWork[importinfo.selectedTypeOfWorkIndex]?.key ??
       DEFAULT_TYPE_OF_WORK
     );
+  }
+);
+
+export const affectedLogsDuringImport = derived(selectedLogs, (logs) =>
+  logs?.filter((log) => log.status === 'imported' || log.status === 'updated')
+);
+
+export const affectedEntriesDuringImport = derived(
+  [affectedLogsDuringImport, logEntries],
+  ([logs, entries]) => {
+    const updated = entries.filter((entry) =>
+      logs.some(
+        (imported) =>
+          imported.taskId === entry.taskId &&
+          isSameDay(imported.day, entry.date)
+      )
+    );
+    return updated;
   }
 );

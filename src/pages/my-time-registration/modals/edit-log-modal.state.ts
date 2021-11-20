@@ -57,6 +57,10 @@ isEditLogModalOpen.subscribe((newValue) => {
 
   const allLogs = get(logEntries);
   const logIds = get(getSelected);
+  if (logIds.length < 1) {
+    return;
+  }
+  
   for (const logId of logIds) {
     const log = allLogs.find(
       (t) => t.taskId === logId.taskId && isSameDay(t.date, logId.day)
