@@ -116,19 +116,13 @@ export async function saveImportedData() {
   }
   logEntries.update((oldEntries) => {
     let result = differenceWith(
-      oldEntries,
+      entriesSafeCopy,
       successfulEntries,
-      errors,
       areLogEntriesEqual
     );
 
-    const errorRollback = intersectionWith(
-      entriesSafeCopy,
-      errors,
-      areLogEntriesEqual
-    );
     const notDeletedEntries = successfulEntries.filter((l) => l.hours > 0);
-    return [...result, ...notDeletedEntries, ...errorRollback];
+    return [...result, ...notDeletedEntries];
   });
   loadingLogs.update((old) => {
     return differenceWith(old, affectedLogs, isEqual);
