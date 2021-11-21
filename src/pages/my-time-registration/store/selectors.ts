@@ -13,12 +13,21 @@ import {
   logEntries,
   logEntriesAreLoading,
   selectedLogs,
+  importinfo,
+  typesOfWork,
 } from './state';
 
 export const getDaysRange = derived(currentMonthState, (month) => {
   const start = startOfMonth(month);
   const end = endOfMonth(start);
   return eachDayOfInterval({ start, end });
+});
+
+export const getDisplayedDateRange = derived(currentMonthState, (month) => {
+  return {
+    startDate: startOfMonth(month),
+    endDate: endOfMonth(month),
+  };
 });
 
 export function getLogInfo(taskId: number, date: Date) {
@@ -59,8 +68,38 @@ export const getTotalForMonth = derived(logEntries, (entries) => {
 export function isLogSelected(taskId: number, date: Date) {
   return derived(selectedLogs, (logs) => {
     return (
-      logs.find((l) => l.taskId === taskId && isSameDay(date, l.day)) !==
-      undefined
+      logs.find(
+        (l) =>
+          l.taskId === taskId &&
+          isSameDay(date, l.day) &&
+          l.status === 'selected'
+      ) !== undefined
+    );
+  });
+}
+
+export function isLogImported(taskId: number, date: Date) {
+  return derived(selectedLogs, (logs) => {
+    return (
+      logs.find(
+        (l) =>
+          l.taskId === taskId &&
+          isSameDay(date, l.day) &&
+          l.status === 'imported'
+      ) !== undefined
+    );
+  });
+}
+
+export function isLogUpdated(taskId: number, date: Date) {
+  return derived(selectedLogs, (logs) => {
+    return (
+      logs.find(
+        (l) =>
+          l.taskId === taskId &&
+          isSameDay(date, l.day) &&
+          l.status === 'updated'
+      ) !== undefined
     );
   });
 }
@@ -114,5 +153,78 @@ export const hintMessage = derived(
     }
 
     return 'Click on a cell to start logging your hours';
+  }
+);
+
+export const hasImportedData = derived(selectedLogs, (selections) =>
+  selections.some(
+    (select) => select.status === 'imported' || select.status === 'updated'
+  )
+);
+
+export const getSelected = derived(selectedLogs, (logs) =>
+  logs.filter((log) => log.status === 'selected')
+);
+
+export const getImported = derived(selectedLogs, (logs) =>
+  logs.filter((log) => log.status === 'imported')
+);
+
+export const importedEntries = derived(
+  [getImported, logEntries],
+  ([imported, allEntries]) =>
+    allEntries.filter((entry) =>
+      imported.some(
+        (imported) =>
+          imported.taskId === entry.taskId &&
+          isSameDay(imported.day, entry.date)
+      )
+    )
+);
+
+export const isImportMetadataReady = derived(importinfo, (info) =>
+  info &&
+  info.isWorkFromHome !== undefined &&
+  info.selectedTypeOfWorkIndex !== undefined &&
+  info.isWorkFromHome
+    ? info.workFromHomeStart !== undefined
+    : true
+);
+
+export const selectedTypeOfWorkKeyForImport = derived(
+  [importinfo, typesOfWork],
+  ([importinfo, typesOfWork]) => {
+    const DEFAULT_TYPE_OF_WORK = 'PROG';
+    if ((typesOfWork?.length ?? 0) < 1) return DEFAULT_TYPE_OF_WORK;
+    if ((importinfo?.selectedTypeOfWorkIndex ?? undefined) === undefined) {
+      return DEFAULT_TYPE_OF_WORK;
+    }
+
+    if (importinfo.selectedTypeOfWorkIndex > typesOfWork.length - 1) {
+      return DEFAULT_TYPE_OF_WORK;
+    }
+
+    return (
+      typesOfWork[importinfo.selectedTypeOfWorkIndex]?.key ??
+      DEFAULT_TYPE_OF_WORK
+    );
+  }
+);
+
+export const affectedLogsDuringImport = derived(selectedLogs, (logs) =>
+  logs?.filter((log) => log.status === 'imported' || log.status === 'updated')
+);
+
+export const affectedEntriesDuringImport = derived(
+  [affectedLogsDuringImport, logEntries],
+  ([logs, entries]) => {
+    const updated = entries.filter((entry) =>
+      logs.some(
+        (imported) =>
+          imported.taskId === entry.taskId &&
+          isSameDay(imported.day, entry.date)
+      )
+    );
+    return updated;
   }
 );

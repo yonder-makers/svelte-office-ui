@@ -1,8 +1,10 @@
+import type { WorkTimeDto } from '@svelte-office/api';
 import {
   addDays,
   addMonths,
   format,
   isSameMonth,
+  parseISO,
   subDays,
   subMonths,
 } from 'date-fns';
@@ -17,13 +19,16 @@ import {
   uniqWith,
 } from 'lodash';
 import { get } from 'svelte/store';
-import {
-  BulkUpsertEntry,
-  bulkUpsertTasksLog,
-} from '../../../apis/tasks-log.api';
+import { bulkUpsertTasksLog } from '../../../apis/tasks-log.api';
 import type { TaskDto } from '../../../apis/tasks.api';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 import { addNotification } from '../../../state/notifications/notifications.state';
+import {
+  hasImportedData,
+  importedEntries,
+  getSelected,
+  selectedTypeOfWorkKeyForImport,
+} from './selectors';
 import {
   currentMonthState,
   editingValue,
@@ -33,10 +38,13 @@ import {
   logEntries,
   logEntriesAreLoading,
   LogEntry,
+  LogId,
   selectedLogs,
   Task,
   tasksState,
   typesOfWork,
+  importinfo,
+  importEntriesSafeCopy,
 } from './state';
 
 export function goNextMonth() {
@@ -112,18 +120,101 @@ export function addNewTask(task: TaskDto) {
   });
 }
 
+export function cancelImportFromToggl() {
+  selectedLogs.update((logs) =>
+    logs.filter((log) => log.status === 'selected')
+  );
+
+  const initialEntries = get(importEntriesSafeCopy);
+  logEntries.set([...initialEntries]);
+  importEntriesSafeCopy.set([]);
+}
+
+export function addDataFromToggl(workTimes: WorkTimeDto[]) {
+  const importedLogs: LogId[] = [];
+  const tasks: Record<number, Task> = {};
+  const taskIds: number[] = [];
+  const updatedLogEntries: LogEntry[] = [];
+  const existingLogEntries = get(logEntries);
+  const importMetaData = get(importinfo);
+  const selectedTypeOfWork = get(selectedTypeOfWorkKeyForImport);
+  importEntriesSafeCopy.set([...existingLogEntries]);
+  for (const task of workTimes) {
+    tasks[task.task.taskId] = task.task;
+    taskIds.push(task.task.taskId);
+    for (const day of task.timeEntries) {
+      const date = parseISO(day.entryDay);
+      const existingOne = existingLogEntries.find(
+        (e) => e.taskId === task.task.taskId && isSameDay(date, e.date)
+      );
+
+      if (existingOne?.hours === day.duration) {
+        continue;
+      }
+
+      importedLogs.push({
+        day: date,
+        taskId: task.task.taskId,
+        status: 'imported',
+      });
+      updatedLogEntries.push({
+        hours: day.duration,
+        custRefDescription: task.task.custRefDescription,
+        date: date,
+        description: task.task.description,
+        isWorkFromHome: importMetaData.isWorkFromHome,
+        projectName: task.task.project,
+        taskId: task.task.taskId,
+        typeOfWork: selectedTypeOfWork,
+        workFromHomeStarted: importMetaData.workFromHomeStart,
+        uid: existingOne?.uid,
+      });
+    }
+  }
+
+  logEntries.update((oldEntries) => {
+    let result = differenceWith(
+      oldEntries,
+      updatedLogEntries,
+      (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date)
+    );
+
+    return [...result, ...updatedLogEntries];
+  });
+
+  tasksState.update((state) => {
+    return {
+      byId: {
+        ...state.byId,
+        ...tasks,
+      },
+      allIds: uniq([...state.allIds, ...taskIds]),
+    };
+  });
+  selectedLogs.update((logs) => {
+    let result = differenceWith(
+      logs,
+      importedLogs,
+      (a, b) => a.taskId === b.taskId && isSameDay(a.day, b.day)
+    );
+
+    return [...result, ...importedLogs];
+  });
+}
+
 export function selectLog(taskId: number, day: Date, ctrlPressed: boolean) {
+  const isImport = get(hasImportedData);
   selectedLogs.update((prevSelected) => {
-    if (ctrlPressed) {
+    if (ctrlPressed || isImport) {
       const existingLog = prevSelected.find(
         (s) => s.taskId === taskId && isSameDay(s.day, day)
       );
       if (existingLog !== undefined) {
         return prevSelected.filter((s) => s !== existingLog);
       }
-      return [...prevSelected, { day, taskId }];
+      return [...prevSelected, { day, taskId, status: 'selected' }];
     }
-    return [{ day, taskId }];
+    return [{ day, taskId, status: 'selected' }];
   });
   enteringMode.set('none');
 }
@@ -139,18 +230,36 @@ export async function submitHours(
   isWorkFromHome: boolean,
   workFromHomeStarted: number
 ) {
-  const selected = get(selectedLogs);
-  loadingLogs.update((old) => {
-    return uniqWith([...old, ...selected], isEqual);
-  });
+  const allSelected = get(selectedLogs);
 
-  const lastSelected = last(selected);
-  selectedLogs.set([lastSelected]);
-  enteringMode.set('none');
-
-  // const newHoursValue = parseFloat(get(editingValue));
+  const isDataImported = get(hasImportedData);
+  const manualSeleted = get(getSelected);
   const existingEntries = get(logEntries);
-  const upsertEntries = selected.map<BulkUpsertEntry>((s) => {
+  if (!isDataImported) {
+    loadingLogs.update((old) => {
+      return uniqWith([...old, ...allSelected], isEqual);
+    });
+    const lastSelected = last(allSelected);
+    selectedLogs.set([lastSelected]);
+    enteringMode.set('none');
+  } else {
+    enteringMode.set('hours');
+    selectedLogs.update((prev) => {
+      const updated: LogId[] = manualSeleted.map((log) => {
+        return { ...log, status: 'updated' };
+      });
+
+      const notUpdated = differenceWith(
+        prev,
+        updated,
+        (a, b) => a.taskId === b.taskId && isSameDay(a.day, b.day)
+      );
+
+      return [...notUpdated, ...updated];
+    });
+  }
+
+  const upsertEntries = manualSeleted.map<LogEntry>((s) => {
     const existingOne = existingEntries.find(
       (e) => e.taskId === s.taskId && isSameDay(s.day, e.date)
     );
@@ -163,18 +272,25 @@ export async function submitHours(
       workFromHomeStarted,
       hours,
       description,
+      projectName: '',
+      custRefDescription: '',
     };
   });
-  const bulkResult = await bulkUpsertTasksLog(upsertEntries);
-  const updatedLogs = bulkResult.filter((i) => !i.errorDescription);
-  const errors = bulkResult.filter((i) => i.errorDescription);
 
-  for (const error of errors) {
-    addNotification(
-      'Error from server',
-      error.errorDescription,
-      `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`
-    );
+  let updatedLogs = upsertEntries;
+
+  if (!isDataImported) {
+    const bulkResult = await bulkUpsertTasksLog(upsertEntries);
+    updatedLogs = bulkResult.filter((i) => !i.errorDescription);
+    const errors = bulkResult.filter((i) => i.errorDescription);
+
+    for (const error of errors) {
+      addNotification(
+        'Error from server',
+        error.errorDescription,
+        `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`
+      );
+    }
   }
 
   logEntries.update((oldEntries) => {
@@ -183,12 +299,14 @@ export async function submitHours(
       updatedLogs,
       (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date)
     );
-    const notDeletedEntries = updatedLogs.filter((l) => l.hours > 0);
+    const notDeletedEntries = isDataImported
+      ? updatedLogs
+      : updatedLogs.filter((l) => l.hours > 0);
     return [...result, ...notDeletedEntries];
   });
 
   loadingLogs.update((old) => {
-    return differenceWith(old, selected, isEqual);
+    return differenceWith(old, allSelected, isEqual);
   });
 }
 
@@ -230,6 +348,7 @@ export function navigateKeyPressed(
           {
             day: cursor.day,
             taskId: prevTaskId,
+            status: 'selected',
           },
         ];
       }
@@ -241,6 +360,7 @@ export function navigateKeyPressed(
           {
             day: cursor.day,
             taskId: prevTaskId,
+            status: 'selected',
           },
         ];
       }
@@ -251,6 +371,7 @@ export function navigateKeyPressed(
           {
             day: prevDay,
             taskId: cursor.taskId,
+            status: 'selected',
           },
         ];
       }
@@ -261,6 +382,7 @@ export function navigateKeyPressed(
           {
             day: nextDay,
             taskId: cursor.taskId,
+            status: 'selected',
           },
         ];
       }

@@ -34,12 +34,30 @@ export async function doPost<TResult>(
   return response as TResult;
 }
 
+const getUrlWithParams = (
+  fullUrl: string,
+  params?: Record<string, string>
+): URL => {
+  const url = new URL(fullUrl);
+  if ((params ?? undefined) === undefined) {
+    return url;
+  }
+
+  for (const param in params) {
+    url.searchParams.append(param, params[param]);
+  }
+
+  return url;
+};
+
 export async function doGet<TResult>(
   relativeUrl: string,
+  params?: Record<string, string>,
   signal?: AbortSignal
 ) {
   const fullUrl = resolveApiURL(relativeUrl).href;
-  const result = await fetch(fullUrl, {
+
+  const result = await fetch(getUrlWithParams(fullUrl, params).toString(), {
     method: 'get',
     headers: {
       'Content-Type': 'application/json',

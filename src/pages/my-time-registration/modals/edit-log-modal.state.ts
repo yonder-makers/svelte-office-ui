@@ -1,6 +1,6 @@
 import { isSameDay } from 'date-fns';
-import { loop_guard } from 'svelte/internal';
 import { derived, get, writable } from 'svelte/store';
+import { getSelected } from '../store';
 import { submitHours } from '../store/actions';
 import {
   enteringMode,
@@ -56,7 +56,11 @@ isEditLogModalOpen.subscribe((newValue) => {
   if (!newValue) return;
 
   const allLogs = get(logEntries);
-  const logIds = get(selectedLogs);
+  const logIds = get(getSelected);
+  if (logIds.length < 1) {
+    return;
+  }
+  
   for (const logId of logIds) {
     const log = allLogs.find(
       (t) => t.taskId === logId.taskId && isSameDay(t.date, logId.day)
