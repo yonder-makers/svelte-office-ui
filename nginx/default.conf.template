@@ -1,7 +1,7 @@
 limit_req_zone $binary_remote_addr zone=web-office-limit:10m rate=10r/s;
 server {
 
-  listen 80;
+  listen  ${NGINX_PORT};
 
   location / {
     root /usr/share/nginx/html;
@@ -10,13 +10,13 @@ server {
   }
 
   location /api/ {
-    proxy_pass '${API_URL}';
+    proxy_pass ${API_URL};
     proxy_pass_request_headers on;
   }
 
   location /weboffice/ {
     limit_req zone=web-office-limit burst=15 delay=10;
-    proxy_pass '${WEB_OFFICE_URL}';
+    proxy_pass ${WEB_OFFICE_URL};
     proxy_pass_request_headers on;
   }
 }
