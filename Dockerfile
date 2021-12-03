@@ -39,7 +39,7 @@ CMD ["npm", "start"]
 FROM nginx:alpine as nginx-production
 
 # Copy config nginx
-COPY --from=builder /app/nginx/nginx.conf.template /etc/nginx/templates/
+COPY ./nginx/nginx.conf.template /etc/nginx/templates/
 
 WORKDIR /usr/share/nginx/html
 
@@ -48,7 +48,7 @@ RUN rm -rf ./*
 
 # Copy static assets from builder stage
 COPY --from=production-build /app .
-COPY --from=builder /app/nginx/config.json .
+COPY ./nginx/config.json config.json
 ENV API_URL http://localhost:3000/
 ENV WEB_OFFICE_URL https://weboffice.yonder.local
 
