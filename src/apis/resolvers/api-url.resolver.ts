@@ -13,7 +13,7 @@ function computeUrl(base: string, relativePath: string) {
   try {
     url = new URL(relativePath, base);
   } catch (err) {
-    url = new URL(base + relativePath, window.location.origin);
+    url = new URL(relativePath, window.location.origin + base);
     authState.update((state) => {
       return {
         ...state,
