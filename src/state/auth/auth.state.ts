@@ -44,7 +44,7 @@ export function configurationLoaded(apiUrl: string) {
 export const userSession = derived(authState, (state) => state);
 export const isUserAuthenticatedInToggl = derived(
   userSession,
-  (state) => state.isUserLoggedInToggl
+  (state) => state.isUserLoggedInToggl,
 );
 
 export const isConfigLoaded = derived(authState, (state) => {

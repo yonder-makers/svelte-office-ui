@@ -28,7 +28,7 @@ function mapFromDto(item: any): TaskLogDto {
 export async function fetchTasksLog(
   startDate: Date,
   endDate: Date,
-  signal: AbortSignal
+  signal: AbortSignal,
 ) {
   const body = {
     startDate: toWebOfficeFormat(startDate),
@@ -60,7 +60,7 @@ export async function bulkUpsertTasksLog(entries: BulkUpsertEntry[]) {
 
   const updatedEntries = (await doPost(
     '/api/tasks-log/bulk-upsert',
-    body
+    body,
   )) as any[];
 
   return updatedEntries.map(mapFromDto);

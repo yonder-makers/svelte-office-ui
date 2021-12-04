@@ -13,7 +13,7 @@ function getAuthTokenHeaders() {
 export async function doPost<TResult>(
   relativeUrl: string,
   body: object,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) {
   const fullUrl = resolveApiURL(relativeUrl).href;
   const result = await fetch(fullUrl, {
@@ -36,7 +36,7 @@ export async function doPost<TResult>(
 
 const getUrlWithParams = (
   fullUrl: string,
-  params?: Record<string, string>
+  params?: Record<string, string>,
 ): URL => {
   const url = new URL(fullUrl);
   if ((params ?? undefined) === undefined) {
@@ -53,7 +53,7 @@ const getUrlWithParams = (
 export async function doGet<TResult>(
   relativeUrl: string,
   params?: Record<string, string>,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) {
   const fullUrl = resolveApiURL(relativeUrl).href;
 

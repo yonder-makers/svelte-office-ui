@@ -51,7 +51,7 @@ export async function startTogglImport(signal?: AbortSignal) {
   const worktimes = await getWorkedTimeFromToggl(
     signal,
     interval.startDate,
-    interval.endDate
+    interval.endDate,
   );
   addDataFromToggl(worktimes);
   logEntriesAreLoading.set(false);
@@ -111,14 +111,14 @@ export async function saveImportedData() {
     addNotification(
       'Error from server',
       error.errorDescription,
-      `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`
+      `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`,
     );
   }
   logEntries.update((oldEntries) => {
     let result = differenceWith(
       entriesSafeCopy,
       successfulEntries,
-      areLogEntriesEqual
+      areLogEntriesEqual,
     );
 
     const notDeletedEntries = successfulEntries.filter((l) => l.hours > 0);

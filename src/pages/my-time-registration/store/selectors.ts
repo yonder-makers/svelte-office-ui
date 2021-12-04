@@ -33,7 +33,7 @@ export const getDisplayedDateRange = derived(currentMonthState, (month) => {
 export function getLogInfo(taskId: number, date: Date) {
   return derived(logEntries, (entries) => {
     const log = entries.find(
-      (e) => e.taskId === taskId && isSameDay(e.date, date)
+      (e) => e.taskId === taskId && isSameDay(e.date, date),
     );
     return log;
   });
@@ -72,7 +72,7 @@ export function isLogSelected(taskId: number, date: Date) {
         (l) =>
           l.taskId === taskId &&
           isSameDay(date, l.day) &&
-          l.status === 'selected'
+          l.status === 'selected',
       ) !== undefined
     );
   });
@@ -85,7 +85,7 @@ export function isLogImported(taskId: number, date: Date) {
         (l) =>
           l.taskId === taskId &&
           isSameDay(date, l.day) &&
-          l.status === 'imported'
+          l.status === 'imported',
       ) !== undefined
     );
   });
@@ -98,7 +98,7 @@ export function isLogUpdated(taskId: number, date: Date) {
         (l) =>
           l.taskId === taskId &&
           isSameDay(date, l.day) &&
-          l.status === 'updated'
+          l.status === 'updated',
       ) !== undefined
     );
   });
@@ -153,21 +153,21 @@ export const hintMessage = derived(
     }
 
     return 'Click on a cell to start logging your hours';
-  }
+  },
 );
 
 export const hasImportedData = derived(selectedLogs, (selections) =>
   selections.some(
-    (select) => select.status === 'imported' || select.status === 'updated'
-  )
+    (select) => select.status === 'imported' || select.status === 'updated',
+  ),
 );
 
 export const getSelected = derived(selectedLogs, (logs) =>
-  logs.filter((log) => log.status === 'selected')
+  logs.filter((log) => log.status === 'selected'),
 );
 
 export const getImported = derived(selectedLogs, (logs) =>
-  logs.filter((log) => log.status === 'imported')
+  logs.filter((log) => log.status === 'imported'),
 );
 
 export const importedEntries = derived(
@@ -177,9 +177,9 @@ export const importedEntries = derived(
       imported.some(
         (imported) =>
           imported.taskId === entry.taskId &&
-          isSameDay(imported.day, entry.date)
-      )
-    )
+          isSameDay(imported.day, entry.date),
+      ),
+    ),
 );
 
 export const isImportMetadataReady = derived(importinfo, (info) =>
@@ -188,7 +188,7 @@ export const isImportMetadataReady = derived(importinfo, (info) =>
   info.selectedTypeOfWorkIndex !== undefined &&
   info.isWorkFromHome
     ? info.workFromHomeStart !== undefined
-    : true
+    : true,
 );
 
 export const selectedTypeOfWorkKeyForImport = derived(
@@ -208,11 +208,11 @@ export const selectedTypeOfWorkKeyForImport = derived(
       typesOfWork[importinfo.selectedTypeOfWorkIndex]?.key ??
       DEFAULT_TYPE_OF_WORK
     );
-  }
+  },
 );
 
 export const affectedLogsDuringImport = derived(selectedLogs, (logs) =>
-  logs?.filter((log) => log.status === 'imported' || log.status === 'updated')
+  logs?.filter((log) => log.status === 'imported' || log.status === 'updated'),
 );
 
 export const affectedEntriesDuringImport = derived(
@@ -222,9 +222,9 @@ export const affectedEntriesDuringImport = derived(
       logs.some(
         (imported) =>
           imported.taskId === entry.taskId &&
-          isSameDay(imported.day, entry.date)
-      )
+          isSameDay(imported.day, entry.date),
+      ),
     );
     return updated;
-  }
+  },
 );

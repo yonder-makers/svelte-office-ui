@@ -60,15 +60,15 @@ isEditLogModalOpen.subscribe((newValue) => {
   if (logIds.length < 1) {
     return;
   }
-  
+
   for (const logId of logIds) {
     const log = allLogs.find(
-      (t) => t.taskId === logId.taskId && isSameDay(t.date, logId.day)
+      (t) => t.taskId === logId.taskId && isSameDay(t.date, logId.day),
     );
 
     if (log) {
       const typeOfWorkIndex = get(typesOfWorkComboItems).findIndex(
-        (t) => t.id === log.typeOfWork
+        (t) => t.id === log.typeOfWork,
       );
       editingLog.set({
         hours: log.hours.toString(),

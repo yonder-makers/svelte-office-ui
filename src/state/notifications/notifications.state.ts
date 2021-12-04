@@ -17,7 +17,7 @@ export const notifications = derived(notificationsState, (state) => {
 export function addNotification(
   title: string,
   description: string,
-  footer: string
+  footer: string,
 ) {
   const newId = id++;
   notificationsState.update((state) => {

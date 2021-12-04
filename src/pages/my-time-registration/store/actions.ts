@@ -95,9 +95,9 @@ export function logEntriesLoaded(entries: LogEntry[], types: TypeOfWorkDto[]) {
           description: log.custRefDescription,
           project: log.projectName,
           taskId: log.taskId,
-        } as Task)
+        } as Task),
     ),
-    (p) => p.taskId
+    (p) => p.taskId,
   );
 
   tasksState.set({
@@ -122,7 +122,7 @@ export function addNewTask(task: TaskDto) {
 
 export function cancelImportFromToggl() {
   selectedLogs.update((logs) =>
-    logs.filter((log) => log.status === 'selected')
+    logs.filter((log) => log.status === 'selected'),
   );
 
   const initialEntries = get(importEntriesSafeCopy);
@@ -145,7 +145,7 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
     for (const day of task.timeEntries) {
       const date = parseISO(day.entryDay);
       const existingOne = existingLogEntries.find(
-        (e) => e.taskId === task.task.taskId && isSameDay(date, e.date)
+        (e) => e.taskId === task.task.taskId && isSameDay(date, e.date),
       );
 
       if (existingOne?.hours === day.duration) {
@@ -176,7 +176,7 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
     let result = differenceWith(
       oldEntries,
       updatedLogEntries,
-      (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date)
+      (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date),
     );
 
     return [...result, ...updatedLogEntries];
@@ -195,7 +195,7 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
     let result = differenceWith(
       logs,
       importedLogs,
-      (a, b) => a.taskId === b.taskId && isSameDay(a.day, b.day)
+      (a, b) => a.taskId === b.taskId && isSameDay(a.day, b.day),
     );
 
     return [...result, ...importedLogs];
@@ -207,7 +207,7 @@ export function selectLog(taskId: number, day: Date, ctrlPressed: boolean) {
   selectedLogs.update((prevSelected) => {
     if (ctrlPressed || isImport) {
       const existingLog = prevSelected.find(
-        (s) => s.taskId === taskId && isSameDay(s.day, day)
+        (s) => s.taskId === taskId && isSameDay(s.day, day),
       );
       if (existingLog !== undefined) {
         return prevSelected.filter((s) => s !== existingLog);
@@ -228,7 +228,7 @@ export async function submitHours(
   hours: number,
   description: string,
   isWorkFromHome: boolean,
-  workFromHomeStarted: number
+  workFromHomeStarted: number,
 ) {
   const allSelected = get(selectedLogs);
 
@@ -252,7 +252,7 @@ export async function submitHours(
       const notUpdated = differenceWith(
         prev,
         updated,
-        (a, b) => a.taskId === b.taskId && isSameDay(a.day, b.day)
+        (a, b) => a.taskId === b.taskId && isSameDay(a.day, b.day),
       );
 
       return [...notUpdated, ...updated];
@@ -261,7 +261,7 @@ export async function submitHours(
 
   const upsertEntries = manualSeleted.map<LogEntry>((s) => {
     const existingOne = existingEntries.find(
-      (e) => e.taskId === s.taskId && isSameDay(s.day, e.date)
+      (e) => e.taskId === s.taskId && isSameDay(s.day, e.date),
     );
     return {
       uid: existingOne?.uid,
@@ -288,7 +288,7 @@ export async function submitHours(
       addNotification(
         'Error from server',
         error.errorDescription,
-        `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`
+        `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`,
       );
     }
   }
@@ -297,7 +297,7 @@ export async function submitHours(
     let result = differenceWith(
       oldEntries,
       updatedLogs,
-      (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date)
+      (a, b) => a.taskId === b.taskId && isSameDay(a.date, b.date),
     );
     const notDeletedEntries = isDataImported
       ? updatedLogs
@@ -332,7 +332,7 @@ export function escapeKeyPressed() {
 }
 
 export function navigateKeyPressed(
-  direction: 'up' | 'down' | 'left' | 'right'
+  direction: 'up' | 'down' | 'left' | 'right',
 ) {
   if (get(enteringMode) !== 'none') return;
 

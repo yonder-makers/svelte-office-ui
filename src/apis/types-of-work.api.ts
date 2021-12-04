@@ -7,8 +7,12 @@ export interface TypeOfWorkDto {
 }
 
 export async function fetchTypesOfWork(
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<TypeOfWorkDto[]> {
-  const response = await doGet<TypeOfWorkDto[]>('/api/types-of-work', undefined, signal);
+  const response = await doGet<TypeOfWorkDto[]>(
+    '/api/types-of-work',
+    undefined,
+    signal,
+  );
   return response;
 }

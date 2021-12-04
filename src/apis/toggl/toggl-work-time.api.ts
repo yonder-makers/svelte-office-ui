@@ -13,7 +13,7 @@ import type { WorkTimeDto } from './work-time.dto';
 export async function getWorkedTimeFromToggl(
   signal?: AbortSignal,
   startDate?: Date,
-  endDate?: Date
+  endDate?: Date,
 ): Promise<WorkTimeDto[]> {
   const response = await doGet<WorkTimeDto[]>(
     '/api/work-times',
@@ -21,7 +21,7 @@ export async function getWorkedTimeFromToggl(
       startDate: startDate ? formatShortISO(startOfDay(startDate)) : undefined,
       endDate: endDate ? getEndDate(endOfDay(endDate)) : undefined,
     },
-    signal
+    signal,
   );
 
   return response;

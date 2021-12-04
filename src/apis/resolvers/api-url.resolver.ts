@@ -5,7 +5,7 @@ function computeUrl(base: string, relativePath: string) {
   if (base?.length == 0) {
     base = 'http://localhost:3000/';
     console.warn(
-      'API URL is not configured. Fallback to http://localhost:3000/'
+      'API URL is not configured. Fallback to http://localhost:3000/',
     );
   }
 
