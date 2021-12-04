@@ -17,7 +17,7 @@
   });
 </script>
 
-<Header company="Yonder" platformName="WebOffice">
+<Header company="Yonder" platformName="SvelteOffice">
   <HeaderNav style="display:block">
     <HeaderNavItem href="#/my-tr" text="My Time Registration" />
     <HeaderNavItem href="#/employees" text="Employees" />
