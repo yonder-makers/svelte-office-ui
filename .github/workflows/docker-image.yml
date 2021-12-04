@@ -2,27 +2,35 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Login to Github docker
-      run: |
-        echo $CR_PAT | docker login ghcr.io -u yonder-makers --password-stdin
-      env:
-        CR_PAT: ${{ secrets.CR_PAT }}
-    - name: Build docker image
-      run: |
-        docker build . --tag ghcr.io/yonder-makers/weboffice-ui-svelte:latest
-    - name: Push image to Github container registry
-      run: | 
-        docker push ghcr.io/yonder-makers/weboffice-ui-svelte:latest
-    
+      - uses: actions/checkout@v2
+
+      - name: Print branch name
+        run: |
+          echo "Branch name is: ${{ github.head_ref }}"
+          export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/latest/' )
+          echo "Tag name is: $TAG_NAME"
+
+      - name: Login to Github docker
+        run: |
+          echo $CR_PAT | docker login ghcr.io -u yonder-makers --password-stdin
+        env:
+          CR_PAT: ${{ secrets.CR_PAT }}
+
+      - name: Build docker image
+        run: |
+          export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/latest/' )
+          docker build . --tag ghcr.io/yonder-makers/weboffice-ui-svelte:$TAG_NAME
+
+      - name: Push image to Github container registry
+        run: |
+          export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/latest/' )
+          docker push ghcr.io/yonder-makers/weboffice-ui-svelte:$TAG_NAME

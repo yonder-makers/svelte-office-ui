@@ -9,7 +9,20 @@ function computeUrl(base: string, relativePath: string) {
     );
   }
 
-  return new URL(relativePath, base);
+  let url: URL | null = null;
+  try {
+    url = new URL(relativePath, base);
+  } catch (err) {
+    url = new URL(relativePath, window.location.origin + base);
+    authState.update((state) => {
+      return {
+        ...state,
+        apiUrl: new URL(base, window.location.origin).toString(),
+      };
+    });
+  }
+
+  return url;
 }
 
 export function resolveApiURL(relativePath: string) {
