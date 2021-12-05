@@ -28,9 +28,9 @@ jobs:
       - name: Build docker image
         run: |
           export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/latest/' )
-          docker build . --tag ghcr.io/yonder-makers/weboffice-ui-svelte:$TAG_NAME
+          docker build . --tag ghcr.io/yonder-makers/svelte-office-ui:$TAG_NAME
 
       - name: Push image to Github container registry
         run: |
           export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/latest/' )
-          docker push ghcr.io/yonder-makers/weboffice-ui-svelte:$TAG_NAME
+          docker push ghcr.io/yonder-makers/svelte-office-ui:$TAG_NAME

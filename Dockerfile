@@ -18,7 +18,7 @@ RUN npm run build
 
 FROM node:16-bullseye as production-build
 
-LABEL org.opencontainers.image.source="https://github.com/yonder-makers/weboffice-ui-svelte"
+LABEL org.opencontainers.image.source="https://github.com/yonder-makers/svelte-office-ui"
 
 WORKDIR /app
 
