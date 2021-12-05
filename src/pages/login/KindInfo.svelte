@@ -3,7 +3,7 @@
   import { apiUrlSelectorForPath } from '../../apis/resolvers/api-url.resolver';
   import Contributors from './Contributors.svelte';
 
-  let swaggerApi = apiUrlSelectorForPath('/');
+  let swaggerApi = apiUrlSelectorForPath('/swagger/');
 </script>
 
 <Tile>
