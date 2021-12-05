@@ -1,3 +1,9 @@
 {
-  "recommendations": ["svelte.svelte-vscode"]
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "svelte.svelte-vscode",
+    "shd101wyy.markdown-preview-enhanced",
+    "ms-vscode-remote.remote-containers"
+  ]
 }
