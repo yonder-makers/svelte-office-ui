@@ -22,6 +22,16 @@ export function loggedIn(accessToken: string) {
   });
 }
 
+export function loggedOut() {
+  authState.update((state) => {
+    return {
+      ...state,
+      accessToken: undefined,
+      isUserLoggedInToggl: false,
+    };
+  });
+}
+
 export function loggedInToggl(accessToken: string) {
   authState.update((state) => {
     return {
@@ -42,6 +52,10 @@ export function configurationLoaded(apiUrl: string) {
 }
 
 export const userSession = derived(authState, (state) => state);
+export const isUserAuthenticated = derived(
+  userSession,
+  (state) => state.accessToken !== undefined,
+);
 export const isUserAuthenticatedInToggl = derived(
   userSession,
   (state) => state.isUserLoggedInToggl,

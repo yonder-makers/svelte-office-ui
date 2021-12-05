@@ -26,7 +26,10 @@
       component: MyTimeRegistrationPage,
       conditions: [authCondition],
     }),
-    '/employees': EmployeesListPage,
+    '/employees': wrap({
+      component: EmployeesListPage,
+      conditions: [authCondition],
+    }),
     '*': NotFoundPage,
   };
 

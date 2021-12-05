@@ -7,20 +7,38 @@
   } from 'carbon-components-svelte';
   import 'carbon-components-svelte/css/white.css';
   import { onMount } from 'svelte';
-  import Routing from './Routing.svelte';
+  import { replace } from 'svelte-spa-router';
   import Notifications from './components/Notifications.svelte';
-  import { loadConfiguration } from './state/auth/auth.actions';
-  import { isConfigLoaded } from './state/auth/auth.state';
+  import Routing from './Routing.svelte';
+  import {
+    checkAuthentication,
+    loadConfiguration,
+  } from './state/auth/auth.actions';
+  import {
+    isConfigLoaded,
+    isUserAuthenticated,
+    loggedOut,
+  } from './state/auth/auth.state';
 
-  onMount(() => {
-    loadConfiguration();
+  onMount(async () => {
+    await loadConfiguration();
+    await checkAuthentication();
+  });
+
+  isUserAuthenticated.subscribe((isAuth) => {
+    if (!isAuth) {
+      replace('/login');
+    }
   });
 </script>
 
 <Header company="Yonder" platformName="SvelteOffice">
   <HeaderNav style="display:block">
-    <HeaderNavItem href="#/my-tr" text="My Time Registration" />
-    <HeaderNavItem href="#/employees" text="Employees" />
+    {#if $isUserAuthenticated}
+      <HeaderNavItem href="#/my-tr" text="My Time Registration" />
+      <HeaderNavItem href="#/employees" text="Employees" />
+      <HeaderNavItem on:click={loggedOut} text="Logout" />
+    {/if}
   </HeaderNav>
 </Header>
 <Content>

@@ -9,7 +9,7 @@
 
   async function fetchContributors() {
     const response = await fetch(
-      'https://api.github.com/repos/yonder-makers/weboffice-ui-svelte/contributors'
+      'https://api.github.com/repos/yonder-makers/svelte-office-ui/contributors',
     );
 
     return (await response.json()) as Contributor[];

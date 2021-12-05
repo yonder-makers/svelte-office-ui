@@ -9,15 +9,17 @@
 <Tile>
   <h2>Welcome</h2>
   <p>
-    This project is powered by <strong>Yonder Makers opensource</strong> community.
-    If you want to get involved contact one of the contributors.
+    This project is powered by the <strong>Yonder Makers Opensource</strong> community.
   </p>
   <p>
-    This project is still in the POC stage. It might <span class="crash"
+    It is still in the POC stage. It might <span class="crash"
       >crash or it might lack features</span
-    >. Help us making it better.
+    >. Help us make it better and
+    <a href="https://github.com/yonder-makers/svelte-office-ui">
+      get involved
+    </a>.
   </p>
-  <p>Technologies used:</p>
+  <p>Technologies:</p>
   <ul>
     <li>
       Frontend: Svelte, TypeScript, Prettier, Rollup, date-fns, Fetch API,
