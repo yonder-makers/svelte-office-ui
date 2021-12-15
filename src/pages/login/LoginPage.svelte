@@ -2,14 +2,15 @@
   import {
     Button,
     Column,
+    Form,
     Grid,
     InlineLoading,
     PasswordInput,
     Row,
     TextInput,
   } from 'carbon-components-svelte';
-  import type { ApiError } from '../../apis/core/api-error.model';
   import { login } from '../../apis/auth.api';
+  import type { ApiError } from '../../apis/core/api-error.model';
   import { loggedIn } from '../../state/auth/auth.state';
   import KindInfo from './KindInfo.svelte';
 
@@ -42,6 +43,12 @@
     }, 2000);
   }
 
+  const onPressedKey = (event: KeyboardEvent) => {
+    if (event.code === 'Enter') {
+      submit();
+    }
+  };
+
   async function submit() {
     if (username.length === 0) {
       return;
@@ -69,20 +76,23 @@
   <Row>
     <Column sm={2} lg={5}>
       <h2>Please login</h2>
-
-      <TextInput
-        labelText="Your username"
-        bind:value={username}
-        placeholder="Enter your username"
-      />
-      <PasswordInput
-        labelText="Password"
-        bind:value={password}
-        placeholder="Enter password..."
-      />
-      {#if loadingStatus === 'inactive' || loadingStatus === 'error'}
-        <Button on:click={submit}>Login</Button>
-      {/if}
+      <Form>
+        <TextInput
+          labelText="Your username"
+          bind:value={username}
+          placeholder="Enter your username"
+        />
+        <PasswordInput
+          labelText="Password"
+          bind:value={password}
+          placeholder="Enter password..."
+          autocomplete="on"
+          on:keydown={onPressedKey}
+        />
+        {#if loadingStatus === 'inactive' || loadingStatus === 'error'}
+          <Button on:click={submit}>Login</Button>
+        {/if}
+      </Form>
       {#if loadingStatus !== 'inactive'}
         <InlineLoading
           status={loadingStatus}
