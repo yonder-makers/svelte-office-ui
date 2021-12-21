@@ -21,3 +21,8 @@ export async function getProfile() {
   const result = await doGet<GetProfileResponse>('api/profile');
   return result;
 }
+
+export async function getBau() {
+  const result = await doGet<string>('api/bau');
+  return result;
+}

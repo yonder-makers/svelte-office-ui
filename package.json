@@ -27,6 +27,7 @@
     "typescript": "^3.9.3"
   },
   "dependencies": {
+    "@azure/msal-browser": "^2.20.0",
     "@nestjs/passport": "^7.1.5",
     "carbon-components": "^10.27.0",
     "date-fns": "^2.16.1",

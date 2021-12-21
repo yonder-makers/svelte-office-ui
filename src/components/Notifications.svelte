@@ -1,13 +1,14 @@
 <script lang="ts">
   import { ToastNotification } from 'carbon-components-svelte';
+
   import {
-    closeNotification,
-    notifications,
+    closeNotification, notificationsState,
   } from '../state/notifications/notifications.state';
+
 </script>
 
 <div>
-  {#each $notifications as item}
+  {#each $notificationsState as item}
     <ToastNotification
       lowContrast
       kind="error"
@@ -28,3 +29,4 @@
     right: 0;
   }
 </style>
+ 

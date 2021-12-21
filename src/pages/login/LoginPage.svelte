@@ -9,9 +9,10 @@
     TextInput,
   } from 'carbon-components-svelte';
   import type { ApiError } from '../../apis/core/api-error.model';
-  import { login } from '../../apis/auth.api';
+  import { getBau, login } from '../../apis/auth.api';
   import { loggedIn } from '../../state/auth/auth.state';
   import KindInfo from './KindInfo.svelte';
+  import {getTokenRedirect, signIn} from './authRedirect'
 
   let username = '';
   let password = '';
@@ -32,6 +33,12 @@
       default:
         return error.errorDescription;
     }
+  }
+
+  async function gogo(){
+    const token = await getTokenRedirect();
+    loggedIn((token as any).idToken);
+    await getBau();
   }
 
   function afterLoginSuccessful() {
@@ -68,8 +75,10 @@
 <Grid>
   <Row>
     <Column sm={2} lg={5}>
-      <h2>Please login</h2>
-
+      <Button on:click={signIn}>Hey</Button>
+      <Button on:click={gogo}>bai</Button>
+      <h2>Please login</h2> 
+ 
       <TextInput
         labelText="Your username"
         bind:value={username}

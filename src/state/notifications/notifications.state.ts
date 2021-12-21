@@ -20,21 +20,26 @@ export function addNotification(
   footer: string,
 ) {
   const newId = id++;
-  notificationsState.update((state) => {
+  notificationsState.update((oldItems) => {
+    const newItem: NotificationItem = {
+      id: newId,
+      title,
+      description,
+      footer,
+    };
+
     return [
-      ...state,
-      {
-        id: newId,
-        title,
-        description,
-        footer,
-      },
+      ...oldItems,
+      newItem
     ];
   });
 }
 
 export function closeNotification(id: number) {
-  notificationsState.update((state) => {
-    return state.filter((item) => item.id !== id);
+  notificationsState.update((items) => {
+    return items.filter((item) => item.id !== id);
   });
 }
+
+
+
