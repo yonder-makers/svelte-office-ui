@@ -19,7 +19,7 @@ import {
   uniqWith,
 } from 'lodash';
 import { get } from 'svelte/store';
-import { bulkUpsertTasksLog } from '../../../apis/tasks-log.api';
+import { bulkUpsertTasksLog, TaskLogDto } from '../../../apis/tasks-log.api';
 import type { TaskDto } from '../../../apis/tasks.api';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 import { addNotification } from '../../../state/notifications/notifications.state';
@@ -280,17 +280,11 @@ export async function submitHours(
   let updatedLogs = upsertEntries;
 
   if (!isDataImported) {
-    const bulkResult = await bulkUpsertTasksLog(upsertEntries);
-    updatedLogs = bulkResult.filter((i) => !i.errorDescription);
-    const errors = bulkResult.filter((i) => i.errorDescription);
-
-    for (const error of errors) {
-      addNotification(
-        'Error from server',
-        error.errorDescription,
-        `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`,
-      );
+    for (let upsertEntry of upsertEntries) {
+      await upsertTaskLog(upsertEntry);
     }
+
+    return;
   }
 
   logEntries.update((oldEntries) => {
@@ -307,6 +301,53 @@ export async function submitHours(
 
   loadingLogs.update((old) => {
     return differenceWith(old, allSelected, isEqual);
+  });
+}
+
+async function upsertTaskLog(logEntry: LogEntry) {
+  try {
+    const bulkResult = await bulkUpsertTasksLog([logEntry]);
+    const result = bulkResult[0];
+    if (result.errorDescription) {
+      updateTaskLogFailed(result.errorDescription, logEntry);
+    } else {
+      updateTaskLogSuccessful(result);
+    }
+  } catch {
+    updateTaskLogFailed('Check your internet or your auth session', logEntry);
+  }
+}
+
+async function updateTaskLogSuccessful(taskLog: TaskLogDto) {
+  logEntries.update((oldEntries) => {
+    let newEntries = oldEntries.filter(
+      (e) => e.taskId !== taskLog.taskId || !isSameDay(e.date, taskLog.date),
+    );
+    if (taskLog.hours === 0) {
+      return newEntries;
+    } else {
+      return [...newEntries, taskLog];
+    }
+  });
+
+  loadingLogs.update((old) => {
+    return old.filter(
+      (l) => l.taskId !== taskLog.taskId || !isSameDay(l.day, taskLog.date),
+    );
+  });
+}
+
+async function updateTaskLogFailed(errorMessage: string, taskLog: LogEntry) {
+  addNotification(
+    'Error from server',
+    errorMessage,
+    `TaskId: ${taskLog.taskId}, Date: ${format(taskLog.date, 'yyyy-MM-dd')}`,
+  );
+
+  loadingLogs.update((old) => {
+    return old.filter(
+      (l) => l.taskId !== taskLog.taskId || !isSameDay(l.day, taskLog.date),
+    );
   });
 }
 
