@@ -6,6 +6,7 @@
     "dev": "rollup -c -w",
     "create-config": "echo {\\\"apiUrl\\\":\\\"$API_URL\\\"} > ./public/config.json",
     "start": "npm run create-config && sirv public --host 0.0.0.0",
+    "start1": "sirv public --host 0.0.0.0",
     "validate": "svelte-check"
   },
   "devDependencies": {
