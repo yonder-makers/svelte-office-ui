@@ -3,7 +3,11 @@ import { endOfMonth, format, isSameDay, startOfMonth } from 'date-fns';
 import { differenceWith, intersectionWith, isEqual } from 'lodash';
 import { addNotification } from 'src/state/notifications/notifications.state';
 import { get } from 'svelte/store';
-import { bulkUpsertTasksLog, fetchTasksLog } from '../../../apis/tasks-log.api';
+import {
+  bulkUpsertTasksLog,
+  fetchTasksLog,
+  TaskLogDto,
+} from '../../../apis/tasks-log.api';
 import { fetchTypesOfWork } from '../../../apis/types-of-work.api';
 import { createAbortable } from '../../../utils/create-abortable';
 import {
@@ -26,6 +30,7 @@ import {
   loadingLogs,
   logEntries,
   logEntriesAreLoading,
+  LogEntry,
   selectedLogs,
 } from './state';
 
@@ -103,29 +108,57 @@ export async function saveImportedData() {
     return differenceWith(old, affectedLogs, isEqual);
   });
   loadingLogs.set([...affectedLogs]);
-  const bulkResult = await bulkUpsertTasksLog(affectedEntries);
-  const successfulEntries = bulkResult.filter((i) => !i.errorDescription);
-  const errors = bulkResult.filter((i) => i.errorDescription);
 
-  for (const error of errors) {
-    addNotification(
-      'Error from server',
-      error.errorDescription,
-      `TaskId: ${error.taskId}, Date: ${format(error.date, 'yyyy-MM-dd')}`,
-    );
+  for (let affectedEntry of affectedEntries) {
+    await upsertTaskLog(affectedEntry);
   }
-  logEntries.update((oldEntries) => {
-    let result = differenceWith(
-      entriesSafeCopy,
-      successfulEntries,
-      areLogEntriesEqual,
-    );
 
-    const notDeletedEntries = successfulEntries.filter((l) => l.hours > 0);
-    return [...result, ...notDeletedEntries];
-  });
-  loadingLogs.update((old) => {
-    return differenceWith(old, affectedLogs, isEqual);
-  });
   importEntriesSafeCopy.set([]);
+}
+
+async function upsertTaskLog(logEntry: LogEntry) {
+  try {
+    const bulkResult = await bulkUpsertTasksLog([logEntry]);
+    const result = bulkResult[0];
+    if (result.errorDescription) {
+      updateTaskLogFailed(result.errorDescription, logEntry);
+    } else {
+      updateTaskLogSuccessful(result);
+    }
+  } catch {
+    updateTaskLogFailed('Check your internet or your auth session', logEntry);
+  }
+}
+
+async function updateTaskLogSuccessful(taskLog: TaskLogDto) {
+  logEntries.update((oldEntries) => {
+    let newEntries = oldEntries.filter(
+      (e) => e.taskId !== taskLog.taskId || !isSameDay(e.date, taskLog.date),
+    );
+    if (taskLog.hours === 0) {
+      return newEntries;
+    } else {
+      return [...newEntries, taskLog];
+    }
+  });
+
+  loadingLogs.update((old) => {
+    return old.filter(
+      (l) => l.taskId !== taskLog.taskId || !isSameDay(l.day, taskLog.date),
+    );
+  });
+}
+
+async function updateTaskLogFailed(errorMessage: string, taskLog: LogEntry) {
+  addNotification(
+    'Error from server',
+    errorMessage,
+    `TaskId: ${taskLog.taskId}, Date: ${format(taskLog.date, 'yyyy-MM-dd')}`,
+  );
+
+  loadingLogs.update((old) => {
+    return old.filter(
+      (l) => l.taskId !== taskLog.taskId || !isSameDay(l.day, taskLog.date),
+    );
+  });
 }
