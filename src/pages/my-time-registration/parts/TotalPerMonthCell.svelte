@@ -7,7 +7,7 @@
 </script>
 
 <TableCell class="log-day">
-  <span>{$getTotalForMonth}</span> of {$getTotalForMonthNeeded}
+  <span>{$getTotalForMonth}</span> of {$getTotalForMonthNeeded}*
 </TableCell>
 
 <style>

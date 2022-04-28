@@ -24,6 +24,9 @@
   <ImportTogglButton />
 </div>
 
+<p>* in case you are working 8h per day. If you work part time ... do the math :P</p>
+
+
 <EditLogModal />
 
 <style>

@@ -148,6 +148,22 @@ export function isLogLoading(taskId: number, date: Date) {
   });
 }
 
+export function isLogInvalid(taskId: number, date: Date) {
+  return derived(logEntries, (entries) => {
+    if (taskId === 193 || taskId === 194) return false;
+
+    const logsInTheDay = entries.filter((e) => isSameDay(e.date, date));
+    const logForTheTask = logsInTheDay.find((l) => l.taskId === taskId);
+    if (!logForTheTask) return false;
+
+    const hasHoliday = logsInTheDay.some(
+      (e) => e.taskId === 193 || e.taskId == 194,
+    );
+
+    return hasHoliday;
+  });
+}
+
 export const isGridReadOnly = derived(currentMonthState, (month) => {
   return isBefore(month, startOfMonth(new Date()));
 });

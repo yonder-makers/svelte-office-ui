@@ -14,6 +14,7 @@
     isLogSelected,
     isLogImported,
     isLogUpdated,
+    isLogInvalid,
   } from '../store/selectors';
   import { editingValue, enteringMode } from '../store/state';
 
@@ -26,6 +27,8 @@
   $: isImported = isLogImported(taskId, day);
   $: isUpdated = isLogUpdated(taskId, day);
   $: isLoading = isLogLoading(taskId, day);
+  $: isInvalid = isLogInvalid(taskId, day);
+
 
   $: log = getLogInfo(taskId, day);
   $: {
@@ -35,7 +38,9 @@
   }
   $: containerClass = `log-day${$isSelected ? ' selected' : ''}${
     $isLoading ? ' loading' : ''
-  }${$isImported ? ' imported' : ''}${$isUpdated ? ' updated' : ''} ${dayOfTheWeek}`;
+  }${$isImported ? ' imported' : ''}${
+    $isUpdated ? ' updated' : ''
+  } ${dayOfTheWeek} ${$isInvalid ? ' invalid' : ''}`;
 
   async function focusInput() {
     await tick();
