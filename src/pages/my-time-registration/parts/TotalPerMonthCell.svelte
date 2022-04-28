@@ -1,11 +1,13 @@
 <script lang="ts">
   import { TableCell } from 'carbon-components-svelte';
 
-  import { getTotalForMonth } from '../store/selectors';
+  import { getTotalForMonth, getTotalForMonthNeeded } from '../store/selectors';
+
+
 </script>
 
 <TableCell class="log-day">
-  <span>{$getTotalForMonth}</span>
+  <span>{$getTotalForMonth}</span> of {$getTotalForMonthNeeded}
 </TableCell>
 
 <style>

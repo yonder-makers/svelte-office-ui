@@ -80,6 +80,16 @@ export function getTotalHoursForTask(taskId: number) {
   });
 }
 
+export const getTotalForMonthNeeded = derived(currentMonthState, (month) => {
+  const start = startOfMonth(month);
+  const end = endOfMonth(start);
+  const allDays = eachDayOfInterval({ start, end });
+  const weekDays = allDays.filter((day) => !isWeekend(day));
+
+  // TODO: Where do we get the required number of hours from?
+  return weekDays.length * 8;
+});
+
 export const getTotalForMonth = derived(logEntries, (entries) => {
   return entries.reduce((sum, log) => {
     return sum + log.hours;
