@@ -18,7 +18,7 @@
 </script>
 
 <Table stickyHeader={true}>
-  <TableRow>
+  <TableRow >
     <TableHead class="row-header" />
     <TableHead class="log-day" />
     {#each $getDaysRange as day}
@@ -86,6 +86,14 @@
     position: sticky;
     left:200px;
     z-index: 10;
+  }
+
+  :global(td.log-day.day-1){
+    border-left: 3px solid black;
+  }
+
+  :global(td.log-day.day-0, td.log-day.day-6){
+    background-color: rgb(202, 202, 246);
   }
 
   .total {

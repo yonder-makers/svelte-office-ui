@@ -20,10 +20,12 @@
   export let day: Date;
   export let taskId: number;
 
-  let isSelected = isLogSelected(taskId, day);
-  let isImported = isLogImported(taskId, day);
-  let isUpdated = isLogUpdated(taskId, day);
-  let isLoading = isLogLoading(taskId, day);
+  $: dayOfTheWeek = `day-${day.getDay()}`;
+
+  $: isSelected = isLogSelected(taskId, day);
+  $: isImported = isLogImported(taskId, day);
+  $: isUpdated = isLogUpdated(taskId, day);
+  $: isLoading = isLogLoading(taskId, day);
 
   $: log = getLogInfo(taskId, day);
   $: {
@@ -33,7 +35,7 @@
   }
   $: containerClass = `log-day${$isSelected ? ' selected' : ''}${
     $isLoading ? ' loading' : ''
-  }${$isImported ? ' imported' : ''}${$isUpdated ? ' updated' : ''}`;
+  }${$isImported ? ' imported' : ''}${$isUpdated ? ' updated' : ''} ${dayOfTheWeek}`;
 
   async function focusInput() {
     await tick();
