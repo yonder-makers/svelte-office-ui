@@ -3,9 +3,11 @@
   import { format } from 'date-fns';
 
   export let day: Date;
+
+  $: dayOfTheWeek = `day-${day.getDay()}`;
 </script>
 
-<TableHead class="log-day">
+<TableHead class="log-day {dayOfTheWeek}">
   <span>
     {format(day, 'd')}
   </span>

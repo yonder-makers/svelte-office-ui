@@ -5,10 +5,12 @@
 
   export let day: Date;
 
+  $: dayOfTheWeek = `day-${day.getDay()}`;
+
   $: total = getTotalHoursForDay(day);
 </script>
 
-<TableCell class="log-day">
+<TableCell class="log-day {dayOfTheWeek}">
   <span>{$total}</span>
 </TableCell>
 

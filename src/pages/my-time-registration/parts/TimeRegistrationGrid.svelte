@@ -99,11 +99,11 @@
     z-index: 10;
   }
 
-  :global(td.log-day.day-1){
+  :global(td.log-day.day-1,thead.log-day.day-1){
     border-left: 3px solid black;
   }
 
-  :global(td.log-day.day-0, td.log-day.day-6){
+  :global(td.log-day.day-0, td.log-day.day-6, thead.log-day.day-0, thead.log-day.day-6) {
     background-color: rgb(202, 202, 246);
   }
 
