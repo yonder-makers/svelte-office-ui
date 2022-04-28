@@ -18,7 +18,7 @@
 
 </script>
 
-<TableHead class="log-day {dayOfTheWeek}">
+<TableHead class="log-day {dayOfTheWeek} {isIndeterminate && !$isAnyLoading ? 'invalid': ''}">
   <div class="container">
     <Checkbox disabled={$isAnyLoading} indeterminate={isIndeterminate} checked={$isWorkFromHome} on:change={onToggle} />
   </div>

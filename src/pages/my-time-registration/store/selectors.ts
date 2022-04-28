@@ -187,7 +187,7 @@ export const hintMessage = derived(
       return 'You are not allowed to change data in the past, but you can look at it and be proud of your work!';
     }
 
-    return 'Click on a cell to start logging your hours';
+    return 'Double click on a cell to edit. Use value 0 to delete the entry';
   },
 );
 

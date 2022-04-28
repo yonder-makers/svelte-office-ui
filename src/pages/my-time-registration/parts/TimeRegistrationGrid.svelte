@@ -103,6 +103,10 @@
     border-left: 3px solid black;
   }
 
+  :global(td.log-day.invalid,thead.log-day.invalid){
+    background-color: rgb(254, 106, 106);
+  }
+
   :global(td.log-day.day-0, td.log-day.day-6, thead.log-day.day-0, thead.log-day.day-6) {
     background-color: rgb(202, 202, 246);
   }
