@@ -1,3 +1,4 @@
+import { displayWeekend } from 'src/pages/my-time-registration/store';
 import type { Writable } from 'svelte/store';
 import { authState } from './auth/auth.state';
 
@@ -14,4 +15,5 @@ function init(key: string, state: Writable<any>) {
 
 export function startPersistance() {
   init('AuthState', authState);
+  init('DisplayWeekends', displayWeekend);
 }

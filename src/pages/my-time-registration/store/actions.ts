@@ -45,7 +45,12 @@ import {
   typesOfWork,
   importinfo,
   importEntriesSafeCopy,
+  displayWeekend,
 } from './state';
+
+export function changeDisplayWeekend(newValue: boolean) {
+  displayWeekend.set(newValue);
+}
 
 export function goNextMonth() {
   currentMonthState.update((state) => {

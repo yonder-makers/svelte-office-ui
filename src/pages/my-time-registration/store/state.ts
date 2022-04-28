@@ -49,6 +49,8 @@ export const editingValue = writable<string>('');
 
 export const typesOfWork = writable<TypeOfWorkDto[]>([]);
 
+export const displayWeekend = writable<boolean>(false);
+
 export interface ImportLogAttributes {
   selectedTypeOfWorkIndex?: number;
   isWorkFromHome?: boolean;

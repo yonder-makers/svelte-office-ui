@@ -4,6 +4,7 @@ import {
   isBefore,
   isSameDay,
   startOfMonth,
+  isWeekend,
 } from 'date-fns';
 import { derived } from 'svelte/store';
 import {
@@ -15,13 +16,20 @@ import {
   selectedLogs,
   importinfo,
   typesOfWork,
+  displayWeekend,
 } from './state';
 
-export const getDaysRange = derived(currentMonthState, (month) => {
-  const start = startOfMonth(month);
-  const end = endOfMonth(start);
-  return eachDayOfInterval({ start, end });
-});
+export const getDaysRange = derived(
+  [currentMonthState, displayWeekend],
+  ([month, includeWeekends]) => {
+    const start = startOfMonth(month);
+    const end = endOfMonth(start);
+    if (!includeWeekends) {
+      return eachDayOfInterval({ start, end }).filter((day) => !isWeekend(day));
+    }
+    return eachDayOfInterval({ start, end });
+  },
+);
 
 export const getDisplayedDateRange = derived(currentMonthState, (month) => {
   return {

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import AddTaskModal from './modals/AddTaskModal.svelte';
   import EditLogModal from './modals/EditLogModal.svelte';
+  import GridConfig from './parts/GridConfig.svelte';
   import ImportTogglButton from './parts/ImportTogglButton.svelte';
   import MonthNavigator from './parts/MonthNavigator.svelte';
   import TimeRegistrationGrid from './parts/TimeRegistrationGrid.svelte';
@@ -14,6 +15,7 @@
 
 <h1>My Time Registration</h1>
 
+<GridConfig />
 <MonthNavigator />
 <TimeRegistrationGrid />
 
