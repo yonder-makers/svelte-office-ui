@@ -125,6 +125,10 @@ export function isLogUpdated(taskId: number, date: Date) {
   });
 }
 
+export const isAnyOfTheLogLoading = derived(loadingLogs, (logs) => {
+  return logs.length > 0;
+});
+
 export function isLogLoading(taskId: number, date: Date) {
   return derived(loadingLogs, (logs) => {
     return (

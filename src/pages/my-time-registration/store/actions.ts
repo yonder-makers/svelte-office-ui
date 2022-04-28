@@ -125,6 +125,32 @@ export function addNewTask(task: TaskDto) {
   });
 }
 
+export async function setWorkFromHomeForDay(date: Date, value: boolean) {
+  const existingEntries = get(logEntries);
+  const logsOfTheDay = existingEntries.filter((e) => isSameDay(e.date, date));
+  const logsToBeUpdated = logsOfTheDay.filter((e) => e.isWorkFromHome != value);
+  const logIdsToBeUpdate = logsToBeUpdated.map((e) => {
+    return {
+      day: e.date,
+      status: 'selected',
+      taskId: e.taskId,
+    } as LogId;
+  });
+
+  loadingLogs.update((old) => {
+    return uniqWith([...old, ...logIdsToBeUpdate], isEqual);
+  });
+
+  for (let upsertEntry of logsToBeUpdated) {
+    const entry: LogEntry = {
+      ...upsertEntry,
+      isWorkFromHome: value,
+    };
+
+    await upsertTaskLog(entry);
+  }
+}
+
 export function cancelImportFromToggl() {
   selectedLogs.update((logs) =>
     logs.filter((log) => log.status === 'selected'),
