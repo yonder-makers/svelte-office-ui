@@ -6,7 +6,7 @@ import {
   startOfMonth,
   isWeekend,
 } from 'date-fns';
-import { derived } from 'svelte/store';
+import { derived, Readable } from 'svelte/store';
 import {
   currentMonthState,
   enteringMode,
@@ -54,6 +54,19 @@ export function getTotalHoursForDay(date: Date) {
     return logs.reduce((sum, log) => {
       return sum + log.hours;
     }, 0);
+  });
+}
+
+export function getIsWorkFromHome(date: Date): Readable<boolean | null> {
+  return derived(logEntries, (entries) => {
+    const logs = entries.filter((e) => isSameDay(e.date, date));
+    const isAnyFromHome = logs.find((l) => l.isWorkFromHome);
+    const isAnyFromOffice = logs.find((l) => !l.isWorkFromHome);
+    if (isAnyFromHome && isAnyFromOffice) {
+      return null;
+    }
+
+    return isAnyFromHome !== undefined;
   });
 }
 

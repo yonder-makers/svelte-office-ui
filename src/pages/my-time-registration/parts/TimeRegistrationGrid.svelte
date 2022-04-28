@@ -15,6 +15,7 @@
   import TotalPerDayCell from './TotalPerDayCell.svelte';
   import TotalPerMonthCell from './TotalPerMonthCell.svelte';
   import TotalPerTaskCell from './TotalPerTaskCell.svelte';
+  import WfhHeader from './WfhHeader.svelte';
 </script>
 
 <Table stickyHeader={true}>
@@ -25,7 +26,17 @@
       <LogColumnHeader {day} />
     {/each}
   </TableRow>
+
   <TableBody style="overflow-x: unset;">
+    
+    <TableRow>
+      <TableHead class="row-header"></TableHead>
+      <TableHead class="log-day">WFH?</TableHead>
+      {#each $getDaysRange as day}
+        <WfhHeader {day} />
+     {/each}
+    </TableRow>
+
     {#each $tasksState.allIds as taskId}
       <TableRow>
         <LogDayHeader {taskId} />
