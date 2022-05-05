@@ -32,11 +32,15 @@
     dispatch("onTasksAdded", selectedIds);
   }
 </script>
-{#each $favoritesTasks as favorite }
+{#if $favoritesTasks.length === 0}
+  <p>You don't have any favorite tasks. Click the 'star' icon next to a task in the TR Grid. </p>
+{:else}  
+  {#each $favoritesTasks as favorite }
   <Checkbox indeterminate={$tasksState.byId[favorite.taskNumber] !== undefined} disabled={$tasksState.byId[favorite.taskNumber] !== undefined} on:check={onToggle} bind:checked={selected[favorite.taskNumber]} labelText={`${favorite.taskNumber} - ${favorite.projectName}, ${favorite.description}`} />
-{/each}
-
-<Button disabled={hasAnySelection === false} on:click={onSubmit}>Add</Button>
+  {/each}
+  
+  <Button disabled={hasAnySelection === false} on:click={onSubmit}>Add</Button>
+{/if}
 
 
 

@@ -4,7 +4,7 @@ FROM node:16-bullseye as builder
 WORKDIR /app
 
 COPY ./package*.json ./
-RUN npm i 
+RUN npm ci
 
 ENV NODE_ENV build
 COPY ./src ./src
@@ -23,7 +23,7 @@ LABEL org.opencontainers.image.source="https://github.com/yonder-makers/svelte-o
 WORKDIR /app
 
 COPY --from=builder /app/package*.json /app/
-RUN npm i --production
+RUN npm ci --production
 
 COPY --from=builder /app/public/ /app/public/
 
