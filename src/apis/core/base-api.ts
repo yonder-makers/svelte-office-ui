@@ -34,6 +34,22 @@ export async function doPost<TResult>(
   return response as TResult;
 }
 
+export async function doPostWithoutResponse(
+  relativeUrl: string,
+  body: object,
+  signal?: AbortSignal,
+) {
+  const fullUrl = resolveApiURL(relativeUrl).href;
+  const result = await fetch(fullUrl, {
+    body: JSON.stringify(body),
+    method: 'post',
+    headers: {
+      ...getAuthTokenHeaders(),
+    },
+    signal,
+  });
+}
+
 const getUrlWithParams = (
   fullUrl: string,
   params?: Record<string, string>,
@@ -59,6 +75,30 @@ export async function doGet<TResult>(
 
   const result = await fetch(getUrlWithParams(fullUrl, params).toString(), {
     method: 'get',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthTokenHeaders(),
+    },
+    signal,
+  });
+
+  const response = await result.json();
+  if (response.errorCode) {
+    throw response;
+  }
+
+  return response as TResult;
+}
+
+export async function doDelete<TResult>(
+  relativeUrl: string,
+  params?: Record<string, string>,
+  signal?: AbortSignal,
+) {
+  const fullUrl = resolveApiURL(relativeUrl).href;
+
+  const result = await fetch(getUrlWithParams(fullUrl, params).toString(), {
+    method: 'delete',
     headers: {
       'Content-Type': 'application/json',
       ...getAuthTokenHeaders(),

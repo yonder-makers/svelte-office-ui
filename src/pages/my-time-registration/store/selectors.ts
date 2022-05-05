@@ -17,6 +17,7 @@ import {
   importinfo,
   typesOfWork,
   displayWeekend,
+  favoritesTasks,
 } from './state';
 
 export const getDaysRange = derived(
@@ -279,3 +280,13 @@ export const affectedEntriesDuringImport = derived(
     return updated;
   },
 );
+
+export const favoriteTasksIds = derived(favoritesTasks, (favoritesTasks) => {
+  return favoritesTasks.map((task) => task.taskNumber);
+});
+
+export function isTaskFavorite(taskId: number) {
+  return derived(favoriteTasksIds, (ids) => {
+    return ids.includes(taskId);
+  });
+}

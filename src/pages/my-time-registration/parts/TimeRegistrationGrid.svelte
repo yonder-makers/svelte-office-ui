@@ -80,7 +80,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 1rem !important;
+    padding: 0 0.5rem !important;
     z-index: 2;
     border-right: 1px solid gray;
   }

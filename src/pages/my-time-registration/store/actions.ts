@@ -18,6 +18,11 @@ import {
   uniqBy,
   uniqWith,
 } from 'lodash';
+import {
+  addFavoriteTask,
+  FavoriteTaskDto,
+  removeFavoriteTask,
+} from 'src/apis/favorite-tasks.api';
 import { get } from 'svelte/store';
 import { bulkUpsertTasksLog, TaskLogDto } from '../../../apis/tasks-log.api';
 import type { TaskDto } from '../../../apis/tasks.api';
@@ -46,6 +51,7 @@ import {
   importinfo,
   importEntriesSafeCopy,
   displayWeekend,
+  favoritesTasks,
 } from './state';
 
 export function changeDisplayWeekend(newValue: boolean) {
@@ -72,6 +78,51 @@ export function goPreviousMonth() {
   lastRefreshDateState.set(new Date());
 }
 
+export async function addTaskToFavorites(taskId: number) {
+  const allTasks = get(tasksState);
+  const task = allTasks.byId[taskId];
+  const favTask: FavoriteTaskDto = {
+    custRefDescription: task.custRefDescription,
+    description: task.description,
+    projectName: task.project,
+    taskNumber: task.taskId,
+  };
+
+  favoritesTasks.update((old) => {
+    const newFavorites = [...old, favTask];
+    const result = uniqBy(newFavorites, (t) => t.taskNumber);
+    return result;
+  });
+
+  try {
+    await addFavoriteTask(taskId);
+  } catch (er) {
+    console.log(er);
+    favoritesTasks.update((old) => {
+      return old.filter((t) => t.taskNumber !== taskId);
+    });
+  }
+}
+
+export async function removeTaskFromFavorites(taskId: number) {
+  const favorites = get(favoritesTasks);
+  const favTask = favorites.find((f) => f.taskNumber === taskId);
+  favoritesTasks.update((old) => {
+    return old.filter((t) => t.taskNumber !== taskId);
+  });
+
+  try {
+    await removeFavoriteTask(taskId);
+  } catch (er) {
+    console.log(er);
+    favoritesTasks.update((old) => {
+      const newFavorites = [...old, favTask];
+      const result = uniqBy(newFavorites, (t) => t.taskNumber);
+      return result;
+    });
+  }
+}
+
 export function refreshData() {
   lastRefreshDateState.set(new Date());
 }
@@ -89,9 +140,14 @@ export function logEntriesLoadingStarted() {
   editingValue.set('');
 }
 
-export function logEntriesLoaded(entries: LogEntry[], types: TypeOfWorkDto[]) {
+export function logEntriesLoaded(
+  entries: LogEntry[],
+  types: TypeOfWorkDto[],
+  favs: FavoriteTaskDto[],
+) {
   logEntries.set(entries);
   typesOfWork.set(types);
+  favoritesTasks.set(favs);
 
   const tasks = uniqBy(
     entries.map(

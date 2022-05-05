@@ -1,6 +1,7 @@
 import { getWorkedTimeFromToggl } from '@svelte-office/api';
 import { endOfMonth, format, isSameDay, startOfMonth } from 'date-fns';
 import { differenceWith, intersectionWith, isEqual } from 'lodash';
+import { fetchFavoriteTasks } from 'src/apis/favorite-tasks.api';
 import { addNotification } from 'src/state/notifications/notifications.state';
 import { get } from 'svelte/store';
 import {
@@ -42,12 +43,13 @@ async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {
   const month = get(currentMonthState);
   logEntriesLoadingStarted();
 
-  const [tasksLog, typesOfWork] = await Promise.all([
+  const [tasksLog, typesOfWork, favoriteTasks] = await Promise.all([
     fetchTasksLog(startOfMonth(month), endOfMonth(month), signal),
     fetchTypesOfWork(signal),
+    fetchFavoriteTasks(signal),
   ]);
 
-  logEntriesLoaded(tasksLog, typesOfWork);
+  logEntriesLoaded(tasksLog, typesOfWork, favoriteTasks);
 }
 
 export async function startTogglImport(signal?: AbortSignal) {
