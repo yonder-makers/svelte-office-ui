@@ -50,7 +50,17 @@
 
 <style>
   :global(.bx--data-table--sticky-header) {
-    max-height: 40rem !important; /* random value for now, it can fit around 20 rows */
+    max-height: calc(100vh - 270px) !important;
+  }
+  :global(.bx--data-table--sticky-header > tr) {
+      position: sticky;
+      top:0px;
+      z-index: 10;
+  }
+  :global(.bx--data-table--sticky-header > tbody > tr:last-child) {
+      position: sticky;
+      bottom:0px;
+      z-index: 10;
   }
   :global(td.row-header, thead.row-header) {
     min-width: 200px !important;
@@ -71,6 +81,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+  }
+  :global(td.row-header + td.log-day, thead.row-header + thead.log-day) {
+    position: sticky;
+    left:200px;
+    z-index: 10;
   }
 
   .total {
