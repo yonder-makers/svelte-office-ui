@@ -1,6 +1,6 @@
 <script lang="ts">
   import { TableHead, Checkbox } from 'carbon-components-svelte';
-  import { getIsWorkFromHome, isAnyOfTheLogLoading, setWorkFromHomeForDay } from '../store';
+  import { getIsWorkFromHome, isAnyOfTheLogLoading, isGridReadOnly, setWorkFromHomeForDay } from '../store';
 
   export let day: Date;
   
@@ -9,8 +9,6 @@
   $: isWorkFromHome = getIsWorkFromHome(day);
   $: isIndeterminate = $isWorkFromHome === null;
 
-  let isAnyLoading = isAnyOfTheLogLoading;
-
   function onToggle(e: Event) {
     const { checked  } = e.target as any;
     setWorkFromHomeForDay(day, checked);
@@ -18,9 +16,13 @@
 
 </script>
 
-<TableHead class="log-day {dayOfTheWeek} {isIndeterminate && !$isAnyLoading ? 'invalid': ''}">
+<TableHead class="log-day {dayOfTheWeek} {isIndeterminate && !$isAnyOfTheLogLoading ? 'invalid': ''}">
   <div class="container">
-    <Checkbox disabled={$isAnyLoading} indeterminate={isIndeterminate} checked={$isWorkFromHome} on:change={onToggle} />
+    <Checkbox 
+      disabled={$isGridReadOnly || $isAnyOfTheLogLoading} 
+      indeterminate={isIndeterminate} 
+      checked={$isWorkFromHome} 
+      on:change={onToggle} />
   </div>
 </TableHead>
 
