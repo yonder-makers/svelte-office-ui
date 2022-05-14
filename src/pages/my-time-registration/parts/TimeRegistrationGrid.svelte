@@ -26,17 +26,15 @@
       <LogColumnHeader {day} />
     {/each}
   </TableRow>
+  <TableRow class="wfh-header">
+    <TableHead class="row-header"></TableHead>
+    <TableHead class="log-day">WFH?</TableHead>
+    {#each $getDaysRange as day}
+      <WfhHeader {day} />
+   {/each}
+  </TableRow>
 
   <TableBody style="overflow-x: unset;">
-    
-    <TableRow>
-      <TableHead class="row-header"></TableHead>
-      <TableHead class="log-day">WFH?</TableHead>
-      {#each $getDaysRange as day}
-        <WfhHeader {day} />
-     {/each}
-    </TableRow>
-
     {#each $tasksState.allIds as taskId}
       <TableRow>
         <LogDayHeader {taskId} />
@@ -61,12 +59,15 @@
 
 <style>
   :global(.bx--data-table--sticky-header) {
-    max-height: calc(100vh - 270px) !important;
+    max-height: calc(100vh - 342px) !important;
   }
   :global(.bx--data-table--sticky-header > tr) {
       position: sticky;
       top:0px;
       z-index: 10;
+  }
+  :global(.bx--data-table--sticky-header > tr.wfh-header) {
+      top:48px; /* the height of the first header-row */
   }
   :global(.bx--data-table--sticky-header > tbody > tr:last-child) {
       position: sticky;
