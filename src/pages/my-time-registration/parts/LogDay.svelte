@@ -75,7 +75,7 @@
 </script>
 
 {#if $isGridReadOnly}
-  <TableCell class="log-day">
+  <TableCell class="log-day {dayOfTheWeek}">
     <div class="read-only">
       {#if $log === undefined}
         -
