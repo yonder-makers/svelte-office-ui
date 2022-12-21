@@ -195,7 +195,7 @@ export const hintMessage = derived(
     }
 
     if (selected.length == 1) {
-      return 'Hit CTRL+ENTER to edit. Or hold CTRL (or CMD) and click on other cells to select more';
+      return 'Hit CTRL+ENTER to edit. Or hold CTRL (or CMD) and click on other cells to select more. Or hold SHIFT and click on other cell to select the range of dates';
     } else if (selected.length > 1) {
       return `${selected.length} days selected. Hit CTRL+ENTER to edit or ESC to cancel`;
     }

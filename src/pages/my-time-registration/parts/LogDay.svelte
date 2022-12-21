@@ -2,6 +2,7 @@
   import { TableCell, Loading } from 'carbon-components-svelte';
 
   import { tick } from 'svelte';
+  import { DaySelectionType } from '../enums';
   import {
     enterKeyPressed,
     selectLog,
@@ -28,7 +29,6 @@
   $: isUpdated = isLogUpdated(taskId, day);
   $: isLoading = isLogLoading(taskId, day);
   $: isInvalid = isLogInvalid(taskId, day);
-
 
   $: log = getLogInfo(taskId, day);
   $: {
@@ -63,11 +63,17 @@
     if ($isLoading) return;
 
     const ctrlPressed = event.metaKey || event.ctrlKey;
-    selectLog(taskId, day, ctrlPressed);
+    const shiftPressed = event.shiftKey;
+    const daySelectionType = shiftPressed
+      ? DaySelectionType.Row
+      : ctrlPressed
+      ? DaySelectionType.Scattered
+      : DaySelectionType.Single;
+    selectLog(taskId, day, daySelectionType);
   }
 
   function onDbClick(event: MouseEvent) {
-    selectLog(taskId, day, false);
+    selectLog(taskId, day, DaySelectionType.Single);
     enterKeyPressed();
   }
 
@@ -121,6 +127,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
   }
   div.read-only {
     cursor: default;

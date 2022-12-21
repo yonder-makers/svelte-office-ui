@@ -1,7 +1,9 @@
 import type { WorkTimeDto } from '@svelte-office/api';
 import {
+  add,
   addDays,
   addMonths,
+  differenceInCalendarDays,
   format,
   isSameMonth,
   parseISO,
@@ -28,6 +30,7 @@ import { bulkUpsertTasksLog, TaskLogDto } from '../../../apis/tasks-log.api';
 import type { TaskDto } from '../../../apis/tasks.api';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 import { addNotification } from '../../../state/notifications/notifications.state';
+import { DaySelectionType } from '../enums';
 import {
   hasImportedData,
   importedEntries,
@@ -152,11 +155,11 @@ export function logEntriesLoaded(
   const tasks = uniqBy(
     entries.map(
       (log) =>
-        ({
-          description: log.custRefDescription,
-          project: log.projectName,
-          taskId: log.taskId,
-        } as Task),
+      ({
+        description: log.custRefDescription,
+        project: log.projectName,
+        taskId: log.taskId,
+      } as Task),
     ),
     (p) => p.taskId,
   );
@@ -289,10 +292,46 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
   });
 }
 
-export function selectLog(taskId: number, day: Date, ctrlPressed: boolean) {
+function isBusinessDay(date: Date): boolean {
+  const dayOfWeek = date.getDay();
+  return dayOfWeek > 0 && dayOfWeek < 6;
+}
+
+function getRowSelectionDates(taskId: number, startDay: Date, endDay: Date): LogId[] {
+  const selectionRow: LogId[] = [];
+  if (startDay > endDay) {
+    [startDay, endDay] = [endDay, startDay];
+  }
+  const numberOfDays = differenceInCalendarDays(endDay, startDay) + 1;
+  [...Array(numberOfDays)].forEach((_, index) => {
+    const day = add(startDay, { days: index });
+    if (isBusinessDay(day)) {
+      selectionRow.push({ taskId, day, status: 'selected' });
+    }
+  });
+  return selectionRow;
+}
+
+function isInRowSelection(rowSelection: LogId[], log: LogId): boolean {
+  return rowSelection.find(selectedLog =>
+    selectedLog.taskId === log.taskId && selectedLog.day.getDate() === log.day.getDate()
+  ) !== undefined;
+}
+
+export function selectLog(taskId: number, day: Date, daySelectionType: DaySelectionType): void {
   const isImport = get(hasImportedData);
   selectedLogs.update((prevSelected) => {
-    if (ctrlPressed || isImport) {
+    
+    if (daySelectionType === DaySelectionType.Single || prevSelected.length === 0) {
+      return [{ day, taskId, status: 'selected' }];
+    }
+    if (daySelectionType === DaySelectionType.Row && prevSelected.at(-1).taskId === taskId) {
+      const startDaySelection = prevSelected.at(-1);
+      const rowSelection = getRowSelectionDates(taskId, startDaySelection.day, day);
+      const previousDatesFiltered = prevSelected.filter(prevDay => !isInRowSelection(rowSelection, prevDay));
+      return [...previousDatesFiltered, ...rowSelection];
+    }
+    if (daySelectionType === DaySelectionType.Scattered || isImport) {
       const existingLog = prevSelected.find(
         (s) => s.taskId === taskId && isSameDay(s.day, day),
       );
@@ -301,7 +340,8 @@ export function selectLog(taskId: number, day: Date, ctrlPressed: boolean) {
       }
       return [...prevSelected, { day, taskId, status: 'selected' }];
     }
-    return [{ day, taskId, status: 'selected' }];
+
+    return prevSelected;
   });
   enteringMode.set('none');
 }
