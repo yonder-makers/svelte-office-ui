@@ -5,6 +5,7 @@
   "exclude": ["node_modules/*", "__sapper__/*", "public/*"],
   "compilerOptions": {
     "baseUrl": "./",
+    "lib": ["ES5","DOM","ES2022"],
     "paths": {
       "@svelte-office/state": ["src/state/index"],
       "@svelte-office/api": ["src/apis/index"]
