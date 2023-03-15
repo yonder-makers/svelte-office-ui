@@ -1,5 +1,5 @@
 import { startOfMonth } from 'date-fns';
-import type { FavoriteTaskDto } from 'src/apis/favorite-tasks.api';
+import type { FavoriteTaskDto } from '../../../apis/favorite-tasks.api';
 import { writable } from 'svelte/store';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 

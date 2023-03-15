@@ -1,4 +1,4 @@
-import { displayWeekend } from 'src/pages/my-time-registration/store';
+import { displayWeekend } from '../pages/my-time-registration/store';
 import type { Writable } from 'svelte/store';
 import { authState } from './auth/auth.state';
 
