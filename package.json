@@ -1,31 +1,26 @@
 {
   "name": "svelte-app",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
     "create-config": "echo {\\\"apiUrl\\\":\\\"$API_URL\\\"} > ./public/config.json",
-    "start": "npm run create-config && sirv public --host 0.0.0.0",
-    "start1": "sirv public --host 0.0.0.0",
+    "dev": "vite",
+    "build": "vite build",
+    "start": "npm run create-config && vite preview",
     "validate": "svelte-check"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^17.0.0",
-    "@rollup/plugin-node-resolve": "^11.0.0",
-    "@rollup/plugin-typescript": "^6.0.0",
+    "@sveltejs/vite-plugin-svelte": "^2.0.3",
     "@tsconfig/svelte": "^1.0.0",
     "@types/lodash": "^4.14.168",
+    "@vitejs/plugin-legacy": "^4.0.1",
     "carbon-components-svelte": "^0.45.1",
-    "rollup": "^2.3.4",
-    "rollup-plugin-css-only": "^3.1.0",
-    "rollup-plugin-livereload": "^2.0.0",
-    "rollup-plugin-svelte": "^7.0.0",
-    "rollup-plugin-terser": "^7.0.0",
     "svelte": "^3.0.0",
     "svelte-check": "^1.0.0",
     "svelte-preprocess": "^4.0.0",
     "tslib": "^2.0.0",
-    "typescript": "^4.5.5"
+    "typescript": "^4.5.5",
+    "vite": "^4.1.4"
   },
   "dependencies": {
     "carbon-components": "^10.27.0",
@@ -33,7 +28,6 @@
     "lodash": "^4.17.20",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
-    "sirv-cli": "^1.0.0",
     "svelte-spa-router": "^3.1.0"
   }
 }

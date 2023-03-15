@@ -1,8 +1,8 @@
 import { getWorkedTimeFromToggl } from '@svelte-office/api';
 import { endOfMonth, format, isSameDay, startOfMonth } from 'date-fns';
 import { differenceWith, intersectionWith, isEqual } from 'lodash';
-import { fetchFavoriteTasks } from 'src/apis/favorite-tasks.api';
-import { addNotification } from 'src/state/notifications/notifications.state';
+import { fetchFavoriteTasks } from '../../../apis/favorite-tasks.api';
+import { addNotification } from '../../../state/notifications/notifications.state';
 import { get } from 'svelte/store';
 import {
   bulkUpsertTasksLog,

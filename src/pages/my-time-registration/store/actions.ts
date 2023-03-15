@@ -24,7 +24,7 @@ import {
   addFavoriteTask,
   FavoriteTaskDto,
   removeFavoriteTask,
-} from 'src/apis/favorite-tasks.api';
+} from '../../../apis/favorite-tasks.api';
 import { get } from 'svelte/store';
 import { bulkUpsertTasksLog, TaskLogDto } from '../../../apis/tasks-log.api';
 import type { TaskDto } from '../../../apis/tasks.api';

@@ -1,4 +1,4 @@
-import { getProfile } from 'src/apis/auth.api';
+import { getProfile } from '../../apis/auth.api';
 import { getConfig } from '../../apis/config.api';
 import { configurationLoaded, loggedOut } from './auth.state';
 
