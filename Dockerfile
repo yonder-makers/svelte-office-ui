@@ -9,8 +9,10 @@ RUN npm ci
 ENV NODE_ENV build
 COPY ./src ./src
 COPY ./public ./public
+COPY ./index.html ./
 COPY ./tsconfig*.json ./
-COPY ./rollup*.js ./
+COPY ./svelte.config.js ./
+COPY ./vite*.js ./
 
 RUN npm run build
 
