@@ -27,7 +27,7 @@ WORKDIR /app
 COPY --from=builder /app/package*.json /app/
 RUN npm ci --production
 
-COPY --from=builder /app/public/ /app/public/
+COPY --from=builder /app/dist/ /app/dist/
 
 ENV NODE_ENV production
 ENV API_URL http://localhost:3000/
@@ -47,7 +47,7 @@ RUN rm -rf ./* && rm /etc/nginx/conf.d/default.conf
 # Copy config nginx
 COPY --chown=nginx:nginx ./nginx/default.conf.template /etc/nginx/templates/
 # Copy static assets from builder stage
-COPY --chown=nginx:nginx --from=production-build /app/public .
+COPY --chown=nginx:nginx --from=production-build /app/dist .
 COPY --chown=nginx:nginx ./nginx/config.json config.json
 ENV API_URL http://localhost:3000
 ENV WEB_OFFICE_URL https://weboffice.yonder.local
