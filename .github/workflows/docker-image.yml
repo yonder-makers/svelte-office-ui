@@ -17,8 +17,10 @@ jobs:
       - name: Print branch name
         run: |
           echo "Branch name is: ${{ github.head_ref }}"
-          echo "Ref name is: ${{ github.ref_name }}"
-          export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/${{ github.ref_name }}/' )
+          export DEFAULT_NAME=$(echo ${{ github.ref_name }} | tr / - )
+          echo "Ref name is: $DEFAULT_NAME"
+
+          export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/${{ DEFAULT_NAME }}/' )
           echo "Tag name is: $TAG_NAME"
 
       - name: Login to Github docker
@@ -29,10 +31,12 @@ jobs:
 
       - name: Build docker image
         run: |
-          export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/${{ github.ref_name }}/' )
+          export DEFAULT_NAME=$(echo ${{ github.ref_name }} | tr / - )
+          export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/${{ DEFAULT_NAME }}/' )
           docker build . --tag ghcr.io/yonder-makers/svelte-office-ui:$TAG_NAME
 
       - name: Push image to Github container registry
         run: |
-          export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/${{ github.ref_name }}/' )
+          export DEFAULT_NAME=$(echo ${{ github.ref_name }} | tr / - )
+          export TAG_NAME=$(echo "${{ github.head_ref }}" | tr / - | sed 's/^$/${{ DEFAULT_NAME }}/' )
           docker push ghcr.io/yonder-makers/svelte-office-ui:$TAG_NAME
