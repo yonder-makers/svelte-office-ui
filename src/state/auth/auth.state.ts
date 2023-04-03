@@ -3,12 +3,14 @@ import { derived, writable } from 'svelte/store';
 interface AuthState {
   accessToken: string;
   apiUrl: string;
+  webOfficeUrl: string;
   isUserLoggedInToggl: boolean;
 }
 
 export const authState = writable<AuthState>({
   accessToken: undefined,
   apiUrl: undefined,
+  webOfficeUrl: undefined,
   isUserLoggedInToggl: false,
 });
 
@@ -42,11 +44,12 @@ export function loggedInToggl(accessToken: string) {
   });
 }
 
-export function configurationLoaded(apiUrl: string) {
+export function configurationLoaded(apiUrl: string, webOfficeUrl: string) {
   authState.update((state) => {
     return {
       ...state,
       apiUrl,
+      webOfficeUrl
     };
   });
 }

@@ -1,3 +1,5 @@
+import { authState } from '@svelte-office/state';
+import { get } from 'svelte/store';
 import { doGet } from './core/base-api';
 
 export interface EmployeeDto {
@@ -13,6 +15,12 @@ export interface EmployeeDto {
 }
 
 export async function fetchEmployees(): Promise<EmployeeDto[]> {
+  const webOfficeUrl = get(authState).webOfficeUrl;
   const response = await doGet<EmployeeDto[]>('/api/employees');
-  return response;
+  return response.map((employee) => { 
+    return {
+      ...employee,
+      picture: employee.picture.includes('/.jpg') ? '/assets/images/user-avatar.png' : `${webOfficeUrl}${employee.picture}`
+    }
+  });
 }

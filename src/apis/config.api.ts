@@ -1,5 +1,6 @@
 interface GetConfigResponse {
   apiUrl: string;
+  webOfficeUrl: string;
 }
 
 export async function getConfig() {
