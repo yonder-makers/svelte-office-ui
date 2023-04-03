@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "create-config": "echo {\\\"apiUrl\\\":\\\"$API_URL\\\"} > ./dist/config.json",
+    "create-config": "echo {\\\"apiUrl\\\":\\\"$API_URL\\\", \\\"webOfficeUrl\\\":\\\"$WEB_OFFICE_URL\\\"} > ./dist/config.json",
     "dev": "vite",
     "build": "vite build",
     "start": "npm run create-config && vite preview --host 0.0.0.0",
