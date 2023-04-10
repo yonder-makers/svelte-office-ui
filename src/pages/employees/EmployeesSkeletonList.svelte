@@ -15,7 +15,7 @@
 </script>
 
 <SkeletonPlaceholder
-  style="height: 3rem; width: 100%; margin-bottom: 0.5rem;"
+  style="height: 3rem; width: 100%; margin-bottom: 1.75rem;"
 />
 <section class="employee__container">
   {#each fakeEmployeeList as _}

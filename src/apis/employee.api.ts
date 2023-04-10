@@ -17,10 +17,12 @@ export interface EmployeeDto {
 export async function fetchEmployees(): Promise<EmployeeDto[]> {
   const webOfficeUrl = get(authState).webOfficeUrl;
   const response = await doGet<EmployeeDto[]>('/api/employees');
-  return response.map((employee) => { 
-    return {
-      ...employee,
-      picture: employee.picture.includes('/.jpg') ? '/assets/images/user-avatar.png' : `${webOfficeUrl}${employee.picture}`
-    }
-  });
+  return response
+    .sort((a, b) => a.firstName.localeCompare(b.firstName) || a.lastName.localeCompare(b.lastName))
+    .map((employee) => { 
+      return {
+        ...employee,
+        picture: employee.picture.includes('/.jpg') ? '/assets/images/user-avatar.png' : `${webOfficeUrl}${employee.picture}`
+      }
+    });
 }

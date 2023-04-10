@@ -1,20 +1,28 @@
 <script lang="ts">
-  import { ToolbarSearch, Tile } from 'carbon-components-svelte';
+  import { Tile, Search } from 'carbon-components-svelte';
   import LazyLoadedImage from '../../components/LazyLoadedImage.svelte';
   import { onMount } from 'svelte';
   import type { EmployeeDto } from '../../apis/employee.api';
   import { fetchEmployees } from '../../apis/employee.api';
   import EmployeesSkeletonList from './EmployeesSkeletonList.svelte';
+  import type { ActiveFilters } from './interfaces/filter.interface';
+  import EmployeesFilter from './EmployeesFilter.svelte';
 
+  let value = '';
   let employees: EmployeeDto[] = undefined;
+  let activeFilters: ActiveFilters = {
+    position: [],
+    hireYear: [],
+    hireMonth: [],
+    birthYear: [],
+    birthMonth: [],
+  };
 
   onMount(async () => {
     employees = await fetchEmployees();
   });
 
-  let value = '';
-
-  $: filteredEmployees =
+  $: queriedEmployees =
     employees === undefined
       ? employees
       : employees.filter((employee) => {
@@ -27,22 +35,76 @@
               .includes(value.toLowerCase()) ||
             employee.lastName
               .toLowerCase()
-              .concat(' ', employee.firstName.toLowerCase().toLowerCase())
+              .concat(' ', employee.firstName.toLowerCase())
               .includes(value.toLowerCase()) ||
             employee.birthDate.toLowerCase().includes(value.toLowerCase()) ||
             employee.hireDate.toLowerCase().includes(value.toLowerCase()) ||
             employee.position.toLowerCase().includes(value.toLowerCase())
           );
         });
+
+  $: allActiveFiltersLength =
+    activeFilters.position.length +
+    activeFilters.birthYear.length +
+    activeFilters.birthMonth.length +
+    activeFilters.hireYear.length +
+    activeFilters.hireMonth.length;
+
+  $: filteredEmployees =
+    allActiveFiltersLength === 0
+      ? queriedEmployees
+      : queriedEmployees
+          .filter((employee) =>
+            activeFilters.position.length === 0
+              ? true
+              : activeFilters.position
+                  .map((item) => item.value)
+                  .includes(employee.position),
+          )
+          .filter((employee) =>
+            activeFilters.hireYear.length === 0
+              ? true
+              : activeFilters.hireYear
+                  .map((item) => item.value)
+                  .includes(employee.hireDate.substring(6, 10)),
+          )
+          .filter((employee) =>
+            activeFilters.hireMonth.length === 0
+              ? true
+              : activeFilters.hireMonth
+                  .map((item) => item.value)
+                  .includes(employee.hireDate.substring(3, 5)),
+          )
+          .filter((employee) =>
+            activeFilters.birthYear.length === 0
+              ? true
+              : activeFilters.birthYear
+                  .map((item) => item.value)
+                  .includes(employee.birthDate.substring(6, 10)),
+          )
+          .filter((employee) =>
+            activeFilters.birthMonth.length === 0
+              ? true
+              : activeFilters.birthMonth
+                  .map((item) => item.value)
+                  .includes(employee.birthDate.substring(3, 5)),
+          );
 </script>
 
 {#if !employees}
   <EmployeesSkeletonList elements={20} />
 {:else}
-  <ToolbarSearch
-    bind:value
-    placeholder="Search here for names, birth dates, hire dates and so on."
-  />
+  <section class="employee__toolbar">
+    <h1>{filteredEmployees.length} Employees</h1>
+    <Search
+      bind:value
+      size="lg"
+      searchClass="employee__search"
+      placeholder="Search here for names, birth dates, hire dates and so on."
+    />
+    <EmployeesFilter bind:activeFilters bind:employees />
+  </section>
+
   <section class="employee__container">
     {#each filteredEmployees as employee}
       <Tile class="employee">
@@ -88,6 +150,17 @@
 {/if}
 
 <style>
+  .employee__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 25px;
+  }
+
+  :global(.employee__search) {
+    width: 500px;
+  }
+
   .employee__container {
     display: flex;
     gap: 25px 15px;

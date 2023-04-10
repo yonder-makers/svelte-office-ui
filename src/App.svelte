@@ -52,4 +52,7 @@
 <Notifications />
 
 <style>
+  :global(.bx--search-input) {
+    margin: 0;
+  }
 </style>
