@@ -15,6 +15,7 @@
     "@types/lodash": "^4.14.168",
     "@vitejs/plugin-legacy": "^4.0.1",
     "carbon-components-svelte": "^0.45.1",
+    "carbon-icons-svelte": "^11.4.0",
     "svelte": "^3.0.0",
     "svelte-check": "^1.0.0",
     "svelte-preprocess": "^4.0.0",
