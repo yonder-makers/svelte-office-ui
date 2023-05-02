@@ -14,7 +14,14 @@ export interface EmployeeDto {
   picture: string;
 }
 
-export async function fetchEmployees(): Promise<EmployeeDto[]> {
+export interface Employee extends EmployeeDto {
+  hireYear: string;
+  hireMonth: string;
+  birthYear: string;
+  birthMonth: string;
+}
+
+export async function fetchEmployees(): Promise<Employee[]> {
   const webOfficeUrl = get(authState).webOfficeUrl;
   const response = await doGet<EmployeeDto[]>('/api/employees');
   return response
@@ -22,7 +29,11 @@ export async function fetchEmployees(): Promise<EmployeeDto[]> {
     .map((employee) => { 
       return {
         ...employee,
-        picture: employee.picture.includes('/.jpg') ? '/assets/images/user-avatar.png' : `${webOfficeUrl}${employee.picture}`
+        picture: employee.picture.includes('/.jpg') ? '/assets/images/user-avatar.png' : `${webOfficeUrl}${employee.picture}`,
+        hireYear: employee.hireDate.substring(6, 10),
+        hireMonth: employee.hireDate.substring(3, 5),
+        birthYear: employee.birthDate.substring(6, 10),
+        birthMonth: employee.birthDate.substring(3, 5),
       }
     });
 }

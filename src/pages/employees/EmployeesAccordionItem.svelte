@@ -9,6 +9,7 @@
   export let filters: FilterItem[];
   export let filterAttr: string;
   export let filterCategory: string;
+  export let prevFilter: string;
 
   const clearSelectedFilters = (source: FilterItem[]) => {
     return source.map((item) => {
@@ -29,6 +30,7 @@
           type="high-contrast"
           filter
           on:close={() => {
+            prevFilter = '';
             filters = clearSelectedFilters(filters);
           }}>{activeFilters[filterAttr].length}</Tag
         >
@@ -42,6 +44,7 @@
         value={item.value}
         bind:checked={item.selected}
         on:blur={(e) => e.preventDefault()}
+        on:change={() => (prevFilter = filterAttr)}
       />
     {/each}
   </div>
