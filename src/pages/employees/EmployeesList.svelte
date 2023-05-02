@@ -2,14 +2,14 @@
   import { Tile, Search } from 'carbon-components-svelte';
   import LazyLoadedImage from '../../components/LazyLoadedImage.svelte';
   import { onMount } from 'svelte';
-  import type { EmployeeDto } from '../../apis/employee.api';
+  import type { Employee } from '../../apis/employee.api';
   import { fetchEmployees } from '../../apis/employee.api';
   import EmployeesSkeletonList from './EmployeesSkeletonList.svelte';
   import type { ActiveFilters } from './interfaces/filter.interface';
   import EmployeesFilter from './EmployeesFilter.svelte';
 
   let value = '';
-  let employees: EmployeeDto[] = undefined;
+  let employees: Employee[] = undefined;
   let activeFilters: ActiveFilters = {
     position: [],
     hireYear: [],
@@ -66,28 +66,28 @@
               ? true
               : activeFilters.hireYear
                   .map((item) => item.value)
-                  .includes(employee.hireDate.substring(6, 10)),
+                  .includes(employee.hireYear),
           )
           .filter((employee) =>
             activeFilters.hireMonth.length === 0
               ? true
               : activeFilters.hireMonth
                   .map((item) => item.value)
-                  .includes(employee.hireDate.substring(3, 5)),
+                  .includes(employee.hireMonth),
           )
           .filter((employee) =>
             activeFilters.birthYear.length === 0
               ? true
               : activeFilters.birthYear
                   .map((item) => item.value)
-                  .includes(employee.birthDate.substring(6, 10)),
+                  .includes(employee.birthYear),
           )
           .filter((employee) =>
             activeFilters.birthMonth.length === 0
               ? true
               : activeFilters.birthMonth
                   .map((item) => item.value)
-                  .includes(employee.birthDate.substring(3, 5)),
+                  .includes(employee.birthMonth),
           );
 </script>
 

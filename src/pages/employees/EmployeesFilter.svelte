@@ -1,19 +1,17 @@
 <script lang="ts">
   import { Accordion, Button, Popover } from 'carbon-components-svelte';
   import { Filter } from 'carbon-icons-svelte';
-  import type { EmployeeDto } from 'src/apis/employee.api';
-  import {
-    createFilterItemsFromPartialString,
-    createFilterItemsFromString,
-  } from '../../utils/filter-utils';
+  import type { Employee } from 'src/apis/employee.api';
+  import { createFilterItemsFromString } from '../../utils/filter-utils';
   import { onMount } from 'svelte';
   import type {
     ActiveFilters,
     FilterItem,
   } from './interfaces/filter.interface';
   import EmployeesAccordionItem from './EmployeesAccordionItem.svelte';
+  import Fuse from 'fuse.js';
 
-  export let employees: EmployeeDto[];
+  export let employees: Employee[];
   export let activeFilters: ActiveFilters;
 
   let monthStrings = {
@@ -39,8 +37,34 @@
   let birthYearFilters: FilterItem[] = [];
   let birthMonthFilters: FilterItem[] = [];
 
+  let prevFilter: string = '';
+  let activeFilterKeys: string[] = [];
+  let decreasedToOneFilter: boolean = false;
+  let activeFilterNumber: number = 0;
+  let prevActiveFilterNumber: number = 0;
+
+  const options = {
+    // isCaseSensitive: false,
+    // includeScore: false,
+    // shouldSort: true,
+    // includeMatches: false,
+    // findAllMatches: false,
+    // minMatchCharLength: 1,
+    // location: 0,
+    threshold: 0,
+    // distance: 100,
+    // useExtendedSearch: false,
+    // ignoreLocation: false,
+    // ignoreFieldNorm: false,
+    // fieldNormWeight: 1,
+    keys: ['position', 'hireYear', 'hireMonth', 'birthYear', 'birthMonth'],
+  };
+
+  let fuse: Fuse<Employee> = undefined;
+
   onMount(() => {
     generateFilters(employees);
+    fuse = new Fuse(employees, options);
   });
 
   $: activeFilters.position = positionFilters.filter((item) => item.selected);
@@ -51,51 +75,120 @@
     (item) => item.selected,
   );
 
-  function generateFilters(source: EmployeeDto[]) {
-    positionFilters = createFilterItemsFromString(
-      source,
-      'position',
-      '?',
-      activeFilters.position,
-    );
+  $: activeFilters, computeFuse();
+  $: activeFilterKeys, updateActiveFilterNumber();
 
-    hireYearFilters = createFilterItemsFromPartialString(
-      source,
-      'hireDate',
-      6,
-      10,
-      '?',
-      activeFilters.hireYear,
-    );
+  function generateFilters(source: Employee[]) {
+    if (
+      prevFilter !== 'position' ||
+      (prevFilter === 'position' && !activeFilterKeys.includes('position'))
+    ) {
+      positionFilters = createFilterItemsFromString(
+        decreasedToOneFilter && activeFilterKeys.includes('position')
+          ? employees
+          : source,
+        'position',
+        '?',
+        activeFilters.position,
+      );
+    }
 
-    hireMonthFilters = createFilterItemsFromPartialString(
-      source,
-      'hireDate',
-      3,
-      5,
-      '?',
-      activeFilters.hireMonth,
-      monthStrings,
-    );
+    if (
+      prevFilter !== 'hireYear' ||
+      (prevFilter === 'hireYear' && !activeFilterKeys.includes('hireYear'))
+    ) {
+      hireYearFilters = createFilterItemsFromString(
+        decreasedToOneFilter && activeFilterKeys.includes('hireYear')
+          ? employees
+          : source,
+        'hireYear',
+        '?',
+        activeFilters.hireYear,
+      );
+    }
 
-    birthYearFilters = createFilterItemsFromPartialString(
-      source,
-      'birthDate',
-      6,
-      10,
-      '?',
-      activeFilters.birthYear,
-    );
+    if (
+      prevFilter !== 'hireMonth' ||
+      (prevFilter === 'hireMonth' && !activeFilterKeys.includes('hireMonth'))
+    ) {
+      hireMonthFilters = createFilterItemsFromString(
+        decreasedToOneFilter && activeFilterKeys.includes('hireMonth')
+          ? employees
+          : source,
+        'hireMonth',
+        '?',
+        activeFilters.hireMonth,
+        monthStrings,
+      );
+    }
 
-    birthMonthFilters = createFilterItemsFromPartialString(
-      source,
-      'birthDate',
-      3,
-      5,
-      '?',
-      activeFilters.birthMonth,
-      monthStrings,
-    );
+    if (
+      prevFilter !== 'birthYear' ||
+      (prevFilter === 'birthYear' && !activeFilterKeys.includes('birthYear'))
+    ) {
+      birthYearFilters = createFilterItemsFromString(
+        decreasedToOneFilter && activeFilterKeys.includes('birthYear')
+          ? employees
+          : source,
+        'birthYear',
+        '?',
+        activeFilters.birthYear,
+      );
+    }
+
+    if (
+      prevFilter !== 'birthMonth' ||
+      (prevFilter === 'birthMonth' && !activeFilterKeys.includes('birthMonth'))
+    ) {
+      birthMonthFilters = createFilterItemsFromString(
+        decreasedToOneFilter && activeFilterKeys.includes('birthMonth')
+          ? employees
+          : source,
+        'birthMonth',
+        '?',
+        activeFilters.birthMonth,
+        monthStrings,
+      );
+    }
+  }
+
+  function computeFuse() {
+    let fuseQuery = { $and: [] };
+    activeFilterKeys = [];
+    for (const property in activeFilters) {
+      if (activeFilters[property].length > 0) {
+        activeFilterKeys.push(property);
+
+        const currentIndex = fuseQuery.$and.length;
+        fuseQuery.$and.push({ $or: [] });
+
+        activeFilters[property].forEach((item: FilterItem) => {
+          fuseQuery.$and[currentIndex].$or.push({ [property]: item.value });
+        });
+      }
+    }
+
+    if (fuseQuery.$and.length !== 0) {
+      const result = fuse.search(fuseQuery);
+
+      generateFilters(result.map((res) => res.item));
+    } else {
+      generateFilters(employees);
+    }
+  }
+
+  function updateActiveFilterNumber() {
+    prevActiveFilterNumber = activeFilterNumber;
+    activeFilterNumber = activeFilterKeys.length;
+
+    if (
+      activeFilterNumber === 1 &&
+      activeFilterNumber < prevActiveFilterNumber
+    ) {
+      decreasedToOneFilter = true;
+    } else {
+      decreasedToOneFilter = false;
+    }
   }
 </script>
 
@@ -119,30 +212,35 @@
         filterAttr="position"
         bind:activeFilters
         bind:filters={positionFilters}
+        bind:prevFilter
       />
       <EmployeesAccordionItem
         filterCategory="Hire Year"
         filterAttr="hireYear"
         bind:activeFilters
         bind:filters={hireYearFilters}
+        bind:prevFilter
       />
       <EmployeesAccordionItem
         filterCategory="Hire Month"
         filterAttr="hireMonth"
         bind:activeFilters
         bind:filters={hireMonthFilters}
+        bind:prevFilter
       />
       <EmployeesAccordionItem
         filterCategory="Birth Year"
         filterAttr="birthYear"
         bind:activeFilters
         bind:filters={birthYearFilters}
+        bind:prevFilter
       />
       <EmployeesAccordionItem
         filterCategory="Birth Month"
         filterAttr="birthMonth"
         bind:activeFilters
         bind:filters={birthMonthFilters}
+        bind:prevFilter
       />
     </Accordion>
   </Popover>
