@@ -37,6 +37,7 @@
     {#if $isUserAuthenticated}
       <HeaderNavItem href="#/my-tr" text="My Time Registration" />
       <HeaderNavItem href="#/employees" text="Employees" />
+      <HeaderNavItem href="#/holidays" text="Holidays" />
       <HeaderNavItem on:click={loggedOut} text="Logout" />
     {/if}
   </HeaderNav>

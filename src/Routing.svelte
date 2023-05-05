@@ -3,6 +3,7 @@
   import { wrap } from 'svelte-spa-router/wrap';
   import { getProfile } from './apis/auth.api';
   import EmployeesListPage from './pages/employees/EmployeesList.svelte';
+  import HolidaysPage from './pages/holidays/HolidaysPage.svelte';
   import LoginPage from './pages/login/LoginPage.svelte';
   import MyTimeRegistrationPage from './pages/my-time-registration/MyTimeRegistrationPage.svelte';
   import NotFoundPage from './pages/not-found/NotFoundPage.svelte';
@@ -28,6 +29,10 @@
     }),
     '/employees': wrap({
       component: EmployeesListPage,
+      conditions: [authCondition],
+    }),
+    '/holidays': wrap({
+      component: HolidaysPage,
       conditions: [authCondition],
     }),
     '*': NotFoundPage,
