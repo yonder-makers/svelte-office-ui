@@ -1,15 +1,14 @@
 <script lang="ts">
-  import { Accordion, Button, Popover } from 'carbon-components-svelte';
-  import { Filter } from 'carbon-icons-svelte';
+  import { Accordion } from 'carbon-components-svelte';
+  import Fuse from 'fuse.js';
   import type { Employee } from 'src/apis/employee.api';
-  import { createFilterItemsFromString } from '../../utils/filter-utils';
   import { onMount } from 'svelte';
+  import { createFilterItemsFromString } from '../../utils/filter-utils';
+  import EmployeesAccordionItem from './EmployeesAccordionItem.svelte';
   import type {
     ActiveFilters,
     FilterItem,
   } from './interfaces/filter.interface';
-  import EmployeesAccordionItem from './EmployeesAccordionItem.svelte';
-  import Fuse from 'fuse.js';
 
   export let employees: Employee[];
   export let activeFilters: ActiveFilters;
@@ -29,7 +28,6 @@
     '12': 'December',
     '': '?',
   };
-  let open = false;
 
   let positionFilters: FilterItem[] = [];
   let hireYearFilters: FilterItem[] = [];
@@ -193,57 +191,43 @@
 </script>
 
 <div class="employee__filter">
-  <Button
-    class="employee__filter-button"
-    size="field"
-    on:click={() => (open = !open)}>Filters <Filter /></Button
-  >
-  <Popover
-    closeOnOutsideClick
-    bind:open
-    align="bottom-left"
-    on:click:outside={() => {
-      open = false;
-    }}
-  >
-    <Accordion style="width: 350px;">
-      <EmployeesAccordionItem
-        filterCategory="Roles"
-        filterAttr="position"
-        bind:activeFilters
-        bind:filters={positionFilters}
-        bind:prevFilter
-      />
-      <EmployeesAccordionItem
-        filterCategory="Hire Year"
-        filterAttr="hireYear"
-        bind:activeFilters
-        bind:filters={hireYearFilters}
-        bind:prevFilter
-      />
-      <EmployeesAccordionItem
-        filterCategory="Hire Month"
-        filterAttr="hireMonth"
-        bind:activeFilters
-        bind:filters={hireMonthFilters}
-        bind:prevFilter
-      />
-      <EmployeesAccordionItem
-        filterCategory="Birth Year"
-        filterAttr="birthYear"
-        bind:activeFilters
-        bind:filters={birthYearFilters}
-        bind:prevFilter
-      />
-      <EmployeesAccordionItem
-        filterCategory="Birth Month"
-        filterAttr="birthMonth"
-        bind:activeFilters
-        bind:filters={birthMonthFilters}
-        bind:prevFilter
-      />
-    </Accordion>
-  </Popover>
+  <Accordion>
+    <EmployeesAccordionItem
+      filterCategory="Roles"
+      filterAttr="position"
+      bind:activeFilters
+      bind:filters={positionFilters}
+      bind:prevFilter
+    />
+    <EmployeesAccordionItem
+      filterCategory="Hire Year"
+      filterAttr="hireYear"
+      bind:activeFilters
+      bind:filters={hireYearFilters}
+      bind:prevFilter
+    />
+    <EmployeesAccordionItem
+      filterCategory="Hire Month"
+      filterAttr="hireMonth"
+      bind:activeFilters
+      bind:filters={hireMonthFilters}
+      bind:prevFilter
+    />
+    <EmployeesAccordionItem
+      filterCategory="Birth Year"
+      filterAttr="birthYear"
+      bind:activeFilters
+      bind:filters={birthYearFilters}
+      bind:prevFilter
+    />
+    <EmployeesAccordionItem
+      filterCategory="Birth Month"
+      filterAttr="birthMonth"
+      bind:activeFilters
+      bind:filters={birthMonthFilters}
+      bind:prevFilter
+    />
+  </Accordion>
 </div>
 
 <style>

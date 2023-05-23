@@ -96,57 +96,62 @@
 {:else}
   <section class="employee__toolbar">
     <h1>{filteredEmployees.length} Employees</h1>
-    <Search
-      bind:value
-      size="lg"
-      searchClass="employee__search"
-      placeholder="Search here for names, birth dates, hire dates and so on."
-    />
-    <EmployeesFilter bind:activeFilters bind:employees />
   </section>
 
-  <section class="employee__container">
-    {#each filteredEmployees as employee}
-      <Tile class="employee">
-        <div class="employee--image">
-          <LazyLoadedImage
-            src={employee.picture}
-            alt={`${employee.yoShort}'s image'`}
-            fallback={'/assets/images/user-avatar.png'}
-            class="employee--lazy-image"
-          />
-        </div>
+  <div class="employee__content">
+    <section class="employee__filters">
+      <Search
+        bind:value
+        size="lg"
+        searchClass="employee__search"
+        placeholder="Search here for names, birth dates, hire dates and so on."
+      />
+      <EmployeesFilter bind:activeFilters bind:employees />
+    </section>
 
-        <div class="employee__info--primary">
-          <div class="employee--name">
-            {`${employee.firstName} ${employee.lastName}`}
+    <section class="employee__container">
+      {#each filteredEmployees as employee}
+        <Tile class="employee">
+          <div class="employee--image">
+            <LazyLoadedImage
+              src={employee.picture}
+              alt={`${employee.yoShort}'s image'`}
+              fallback={'/assets/images/user-avatar.png'}
+              class="employee--lazy-image"
+            />
           </div>
-          <div class="employee--role">
-            {employee.position}
-          </div>
-        </div>
 
-        <div class="employee__info--secondary">
-          <div class="employee__info--details">
-            <div>
-              <span class="label">Employee Code</span>
-              <span>{employee.yoShort}</span>
+          <div class="employee__info--primary">
+            <div class="employee--name">
+              {`${employee.firstName} ${employee.lastName}`}
             </div>
-            <div>
-              <span class="label">Hire Date</span>
-              <span>{employee.hireDate}</span>
+            <div class="employee--role">
+              {employee.position}
             </div>
           </div>
-          <div class="employee__info--details">
-            <div>
-              <span class="label">Birthday</span>
-              <span>{employee.birthDate}</span>
+
+          <div class="employee__info--secondary">
+            <div class="employee__info--details">
+              <div>
+                <span class="label">Employee Code</span>
+                <span>{employee.yoShort}</span>
+              </div>
+              <div>
+                <span class="label">Hire Date</span>
+                <span>{employee.hireDate}</span>
+              </div>
+            </div>
+            <div class="employee__info--details">
+              <div>
+                <span class="label">Birthday</span>
+                <span>{employee.birthDate}</span>
+              </div>
             </div>
           </div>
-        </div>
-      </Tile>
-    {/each}
-  </section>
+        </Tile>
+      {/each}
+    </section>
+  </div>
 {/if}
 
 <style>
@@ -157,15 +162,22 @@
     margin-bottom: 25px;
   }
 
-  :global(.employee__search) {
-    width: 500px;
+  .employee__content {
+    display: flex;
+    gap: 25px;
+  }
+
+  .employee__filters {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    flex: 0 0 250px;
   }
 
   .employee__container {
     display: flex;
     gap: 25px 15px;
     flex-wrap: wrap;
-    justify-content: center;
   }
 
   .employee--image {
