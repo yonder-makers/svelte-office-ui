@@ -21,7 +21,7 @@
   };
 </script>
 
-<AccordionItem class="filter__content">
+<AccordionItem open class="filter__content">
   <svelte:fragment slot="title">
     <div class="filter__title">
       <div>{filterCategory}</div>
