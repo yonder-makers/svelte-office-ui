@@ -1,4 +1,3 @@
-limit_req_zone $binary_remote_addr zone=web-office-limit:10m rate=10r/s;
 server {
 
   listen  ${NGINX_PORT};
@@ -8,21 +7,5 @@ server {
     index index.html index.htm;
     try_files $uri /index.html =404;
     add_header Cache-Control 'max-age=3600';
-  }
-
-  location /api/ {
-    proxy_pass ${API_URL};
-    proxy_pass_request_headers on;
-  }
-
-  location /swagger/ {
-    proxy_pass ${API_URL};
-    proxy_pass_request_headers on;
-  }
-
-  location /weboffice/ {
-    limit_req zone=web-office-limit burst=15 delay=10;
-    proxy_pass ${WEB_OFFICE_URL};
-    proxy_pass_request_headers on;
   }
 }

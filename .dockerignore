@@ -3,9 +3,15 @@ Dockerfile
 .git
 .gitignore
 .dockerignore
+.prettierrc
+.vscode
+.github
+.devcontainer
 
 dist
+docs
 node_modules
 coverage
 
 README.md
+test-with-docker.sh
