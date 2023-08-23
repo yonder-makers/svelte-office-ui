@@ -16,11 +16,10 @@ COPY ./vite*.js ./
 
 RUN npm run build
 
-#production
+# Prepare for production
 
 FROM node:16-bullseye as production-build
 
-LABEL org.opencontainers.image.source="https://github.com/yonder-makers/svelte-office-ui"
 
 WORKDIR /app
 
@@ -29,16 +28,11 @@ RUN npm ci --production
 
 COPY --from=builder /app/dist/ /app/dist/
 
-ENV NODE_ENV production
-ENV API_URL http://localhost:3000/
-
-EXPOSE 5000
-
-CMD ["npm", "start"]
-
-
+# nginx
 
 FROM nginx:stable-alpine as nginx-production
+
+LABEL org.opencontainers.image.source="https://github.com/yonder-makers/svelte-office-ui"
 
 WORKDIR /usr/share/nginx/html
 
@@ -49,8 +43,6 @@ COPY --chown=nginx:nginx ./nginx/default.conf.template /etc/nginx/templates/
 # Copy static assets from builder stage
 COPY --chown=nginx:nginx --from=production-build /app/dist .
 COPY --chown=nginx:nginx ./nginx/config.json config.json
-ENV API_URL http://localhost:3000
-ENV WEB_OFFICE_URL https://weboffice.yonder.local
 # See https://hub.docker.com/_/nginx for details about "Using environment variables in nginx configuration"
 # ENV NGINX_ENVSUBST_OUTPUT_DIR=/usr/share/nginx/html
 # ENV NGINX_ENVSUBST_TEMPLATE_DIR=/usr/share/nginx/html
