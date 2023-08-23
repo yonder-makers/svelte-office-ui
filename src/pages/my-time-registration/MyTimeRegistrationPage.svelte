@@ -7,6 +7,7 @@
   import MonthNavigator from './parts/MonthNavigator.svelte';
   import TimeRegistrationGrid from './parts/TimeRegistrationGrid.svelte';
   import { refreshData } from './store/actions';
+  import Assistant from './assistant/Assistant.svelte';
 
   onMount(() => {
     refreshData();
@@ -15,17 +16,26 @@
 
 <h1>My Time Registration</h1>
 
-<GridConfig />
-<MonthNavigator />
-<TimeRegistrationGrid />
+<div class="split-container">
+  <div class="left">
+    <GridConfig />
+    <MonthNavigator />
+    <TimeRegistrationGrid />
 
-<div class="footer-actions">
-  <AddTaskModal />
-  <ImportTogglButton />
+    <div class="footer-actions">
+      <AddTaskModal />
+      <ImportTogglButton />
+    </div>
+
+    <p>
+      * in case you are working 8h per day. If you work part time ... do the
+      math :P
+    </p>
+  </div>
+  <div class="right">
+    <Assistant />
+  </div>
 </div>
-
-<p>* in case you are working 8h per day. If you work part time ... do the math :P</p>
-
 
 <EditLogModal />
 
@@ -33,7 +43,20 @@
   :global(#main-content) {
     padding-bottom: 0;
   }
-
+  
+  .split-container {
+    display: flex;
+    gap: 16px;
+  }
+  .left {
+    width: 70%;
+  }
+  .right {
+    width: 30%;
+    border-left: 1px solid black;
+    padding-left: 24px;
+    height: calc(100vh - 170px);
+  }
   .footer-actions {
     margin-top: 12px;
     box-sizing: border-box;

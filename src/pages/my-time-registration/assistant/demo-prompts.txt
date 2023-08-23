@@ -1,0 +1,28 @@
+adauga 5 ore pe 7 august pe taskul 127943
+sterge logurile de pe taskul 127943 care au 3 ore
+cate ore am logate pe vacanta?
+in cate zile nu am pontate nicio ora?
+in cate zile din prima saptamana nu am logat nicio ora?
+- care sunt zilele din prima saptamana in care nu am logat nicio ora?
+in cate zile am pontat cate 4 ore, si care sunt ele?
+in zilele in care nu am logat nicio ora, adauga 8 ore pe 130378
+printeaza toate zilele lunii august
+printeaza toate zilele lunii august ce sunt zile prime
+in 3 august logheaza pe taskul 127943 un numar random de ore intre 3 si 7
+schimba pe 4 august sa fie 3 ore
+spune-mi un banc
+vreau sa am in total 20 de ore puse pe taskul 127943. Poti sterge sau adauga ore in oricare dintre zile din august
+sterge toate orele ce le-am pus din greseala pe weekend
+in zilele in care am fost in vacanta, sterge celelalte loguri
+
+cate bonuri de masa ar trebui sa primesc
+in care zile am facut overtime
+
+
+cate ore am in total
+adauga 5 ore pe 7 august pe taskul 127943
+cate ore am pe taskul 130378
+sterge toate orele de pe taskul 130378
+printeaza toate zilele lunii august ce sunt zile prime
+in zilele in care am fost in vacanta, sterge celelalte loguri
+in care zile am facut overtime

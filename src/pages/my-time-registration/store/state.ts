@@ -30,7 +30,9 @@ export interface Task {
   custRefDescription: string;
 }
 
-export const currentMonthState = writable<Date>(startOfMonth(new Date()));
+export const currentMonthState = writable<Date>(
+  startOfMonth(Date.UTC(2023, 7, 20)),
+);
 export const lastRefreshDateState = writable<Date>(undefined);
 export const logEntries = writable<LogEntry[]>([]);
 export const importEntriesSafeCopy = writable<LogEntry[]>([]);
