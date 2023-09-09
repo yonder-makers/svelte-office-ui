@@ -58,6 +58,10 @@
 </Table>
 
 <style>
+  :global(.bx--data-table tr) {
+    min-height: 3rem;
+    height: auto;
+  }
   :global(.bx--data-table--sticky-header) {
     max-height: calc(100vh - 342px) !important;
   }
