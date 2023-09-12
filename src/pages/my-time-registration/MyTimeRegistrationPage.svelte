@@ -30,6 +30,10 @@
 <EditLogModal />
 
 <style>
+  :global(#main-content) {
+    padding-bottom: 0;
+  }
+
   .footer-actions {
     margin-top: 12px;
     box-sizing: border-box;

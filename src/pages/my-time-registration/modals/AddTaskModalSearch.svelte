@@ -35,8 +35,8 @@
   }
 </script>
 
+<!--the table can't be made stickyHeader because a lot of things break-->
 <DataTable
-        stickyHeader
         headers={[
                     { key: "add", value: "Add" },
                     { key: "taskId", value: "ID" },
@@ -69,7 +69,6 @@
         />
 
         <!--  after upgrading carbon components svelte version-->
-
 <!--        <ToolbarSearch-->
 <!--                persistent-->
 <!--                shouldFilterRows={(task, value) => {-->
