@@ -1,8 +1,11 @@
-import { doGet } from './core/base-api';
+import {doGet} from './core/base-api';
 
-export async function getTasks() {
-  // not used for now, but helpful later after we enhance "explore tasks page"
-  const result = await doGet('/api/tasks');
+export async function getTasks(signal?: AbortSignal): Promise<TaskDto[]> {
+  const result = await doGet<TaskDto[]>(
+      '/api/tasks',
+      undefined,
+      signal
+  );
   return result;
 }
 

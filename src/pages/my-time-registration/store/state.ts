@@ -2,6 +2,7 @@ import { startOfMonth } from 'date-fns';
 import type { FavoriteTaskDto } from '../../../apis/favorite-tasks.api';
 import { writable } from 'svelte/store';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
+import type {TaskDto} from "../../../apis/tasks.api";
 
 export interface LogEntry {
   uid: string;
@@ -64,3 +65,5 @@ export const importinfo = writable<ImportLogAttributes>({
 });
 
 export const favoritesTasks = writable<FavoriteTaskDto[]>([]);
+
+export const assignableTasks = writable<TaskDto[]>([]);

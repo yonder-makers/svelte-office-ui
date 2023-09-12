@@ -55,6 +55,7 @@ import {
   importEntriesSafeCopy,
   displayWeekend,
   favoritesTasks,
+  assignableTasks
 } from './state';
 
 export function changeDisplayWeekend(newValue: boolean) {
@@ -147,10 +148,12 @@ export function logEntriesLoaded(
   entries: LogEntry[],
   types: TypeOfWorkDto[],
   favs: FavoriteTaskDto[],
+  assignable: TaskDto[],
 ) {
   logEntries.set(entries);
   typesOfWork.set(types);
   favoritesTasks.set(favs);
+  assignableTasks.set(assignable);
 
   const tasks = uniqBy(
     entries.map(
