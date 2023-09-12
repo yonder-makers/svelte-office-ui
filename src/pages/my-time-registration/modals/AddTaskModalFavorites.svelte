@@ -47,7 +47,7 @@
       disabled={$tasksState.byId[favorite.taskNumber] !== undefined}
       on:check={onToggle}
       bind:checked={selected[favorite.taskNumber]}
-      labelText={`${favorite.taskNumber} - ${favorite.projectName}, ${favorite.description}`}
+      labelText={`${favorite.taskNumber} - ${favorite.projectName ? favorite.projectName + ', ' : ''}${favorite.description}`}
     />
   {/each}
 
