@@ -156,7 +156,7 @@ export function logEntriesLoaded(
     entries.map(
       (log) =>
       ({
-        description: log.custRefDescription,
+        description: log.custRefDescription || log.description,
         project: log.projectName,
         taskId: log.taskId,
       } as Task),
