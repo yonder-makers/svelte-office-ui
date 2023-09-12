@@ -34,6 +34,7 @@ import {
   LogEntry,
   selectedLogs,
 } from './state';
+import {getTasks} from "../../../apis/tasks.api";
 
 async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {
   if (!refreshDate) {
@@ -43,13 +44,14 @@ async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {
   const month = get(currentMonthState);
   logEntriesLoadingStarted();
 
-  const [tasksLog, typesOfWork, favoriteTasks] = await Promise.all([
+  const [tasksLog, typesOfWork, favoriteTasks, assignableTasks] = await Promise.all([
     fetchTasksLog(startOfMonth(month), endOfMonth(month), signal),
     fetchTypesOfWork(signal),
     fetchFavoriteTasks(signal),
+    getTasks(signal),
   ]);
 
-  logEntriesLoaded(tasksLog, typesOfWork, favoriteTasks);
+  logEntriesLoaded(tasksLog, typesOfWork, favoriteTasks, assignableTasks);
 }
 
 export async function startTogglImport(signal?: AbortSignal) {

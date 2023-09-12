@@ -1,12 +1,8 @@
 <script lang="ts">
-  import {
-    Button,
-    Modal,
-    Tabs, Tab, TabContent
-  } from 'carbon-components-svelte';
-  import AddTaskModalById from './AddTaskModalById.svelte';
-
+  import {Button, Modal, Tab, TabContent, Tabs} from 'carbon-components-svelte';
   import AddTaskModalFavorites from './AddTaskModalFavorites.svelte';
+  import AddTaskModalById from './AddTaskModalById.svelte';
+  import AddTaskModalSearch from './AddTaskModalSearch.svelte';
 
   let open = false;
   
@@ -26,6 +22,7 @@
   <Tabs>
     <Tab label="Your favorite tasks" />
     <Tab label="Find by task ID" />
+    <Tab label="Find task"/>
     <svelte:fragment slot="content">
       <TabContent>
         <AddTaskModalFavorites on:onTasksAdded={() => open = false}  />
@@ -33,6 +30,16 @@
       <TabContent>
         <AddTaskModalById on:onTasksAdded={() => open = false} />
       </TabContent>
+      <TabContent>
+        <AddTaskModalSearch on:onTasksAdded={() => open = false}/>
+      </TabContent>
     </svelte:fragment>
 </Tabs>
 </Modal>
+
+<style>
+  :global(.bx--modal-content) {
+    padding-right: 0 !important;
+    margin-bottom: 0 !important;
+  }
+</style>

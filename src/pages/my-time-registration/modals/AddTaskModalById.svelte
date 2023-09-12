@@ -8,10 +8,11 @@
     StructuredListCell,
     StructuredListRow,
   } from 'carbon-components-svelte';
-  import type { TaskDto } from '../../../apis/tasks.api';
-  import { getTaskById } from '../../../apis/tasks.api';
-  import { addNewTask } from '../store/actions';
-  import { createEventDispatcher } from 'svelte';
+  import type {TaskDto} from '../../../apis/tasks.api';
+  import {getTaskById} from '../../../apis/tasks.api';
+  import {addNewTask} from '../store/actions';
+  import {createEventDispatcher} from 'svelte';
+
   const dispatch = createEventDispatcher();
 
   let taskId = '';
@@ -63,13 +64,7 @@
       </StructuredListRow>
       <StructuredListRow>
         <StructuredListCell noWrap>Description</StructuredListCell>
-        <StructuredListCell>{selectedTask.description}</StructuredListCell>
-      </StructuredListRow>
-      <StructuredListRow>
-        <StructuredListCell noWrap>Description 2</StructuredListCell>
-        <StructuredListCell
-          >{selectedTask.custRefDescription}</StructuredListCell
-        >
+        <StructuredListCell>{selectedTask.custRefDescription || selectedTask.description}</StructuredListCell>
       </StructuredListRow>
     </StructuredListBody>
   </StructuredList>
