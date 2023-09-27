@@ -19,10 +19,11 @@
             }
           })
           .filter((task: TaskDto) => {
-            return value == ''
-                    || task.taskId.toString().includes(value)
-                    || task.project.toString().includes(value)
-                    || task.description.toString().includes(value)
+            let val = value.toLowerCase();
+            return val == ''
+                    || task.taskId.toString().toLowerCase().includes(val)
+                    || task.project.toString().toLowerCase().includes(val)
+                    || task.description.toString().toLowerCase().includes(val)
           })
           .sort((a: TaskDto, b: TaskDto) => a.taskId > b.taskId);
 
