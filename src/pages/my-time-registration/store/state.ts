@@ -2,7 +2,7 @@ import { startOfMonth } from 'date-fns';
 import type { FavoriteTaskDto } from '../../../apis/favorite-tasks.api';
 import { writable } from 'svelte/store';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
-import type {TaskDto} from "../../../apis/tasks.api";
+import type { TaskDto } from '../../../apis/tasks.api';
 
 export interface LogEntry {
   uid: string;
@@ -30,9 +30,7 @@ export interface Task {
   custRefDescription: string;
 }
 
-export const currentMonthState = writable<Date>(
-  startOfMonth(Date.UTC(2023, 7, 20)),
-);
+export const currentMonthState = writable<Date>(startOfMonth(new Date()));
 export const lastRefreshDateState = writable<Date>(undefined);
 export const logEntries = writable<LogEntry[]>([]);
 export const importEntriesSafeCopy = writable<LogEntry[]>([]);

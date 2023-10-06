@@ -13,6 +13,7 @@
     typesOfWork,
   } from '../store';
   import { format, isSameMonth } from 'date-fns';
+  import { postGetAssistance } from '../../../apis/copilot.api';
 
   let messagesRef: any = undefined;
 
@@ -48,9 +49,8 @@
   });
 
   async function getAnswer(question: string) {
-    const response = await fetch('http://localhost:8000/ask?q=' + question);
-    const content = await response.json();
-    return content.output;
+    const response = await postGetAssistance(get(currentMonthState), question);
+    return response.output;
   }
 
   function createExecutionPlan(serviceLayer: ServiceLayer, answer: string) {
@@ -61,6 +61,7 @@
 
   function cleanupJS(answer: string) {
     console.log('Raw response: ', answer);
+    answer = answer.trim();
     if (answer.startsWith('```javascript')) {
       answer = answer.substring(14, answer.length - 3);
     }
