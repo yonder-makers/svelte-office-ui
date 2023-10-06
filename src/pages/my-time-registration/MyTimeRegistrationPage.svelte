@@ -31,7 +31,7 @@
 
       <Button size="small" kind="tertiary" on:click={toggleAssistant}>
         <AssistantIcon />
-        Toggle assistant</Button
+        Toggle assistant (beta)</Button
       >
     </div>
 

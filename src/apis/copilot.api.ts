@@ -1,4 +1,4 @@
-import { doPost } from './core/base-api';
+import { doGet, doPost } from './core/base-api';
 
 export type GetAssistanceDto = {
   output: string;
@@ -20,5 +20,14 @@ export async function postGetAssistance(
   };
 
   const response = await doPost<GetAssistanceDto>('/api/copilot', body, signal);
+  return response;
+}
+
+export type FetchCopilotPromptDto = {
+  prompt: string;
+};
+
+export async function fetchCopilotPrompt() {
+  const response = await doGet<FetchCopilotPromptDto>('/api/copilot/prompt');
   return response;
 }

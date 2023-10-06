@@ -6,9 +6,11 @@
     Tab,
     TabContent,
     Tabs,
+    CodeSnippet,
   } from 'carbon-components-svelte';
   import { UnorderedList, ListItem } from 'carbon-components-svelte';
-  import { createEventDispatcher } from 'svelte';
+  import { fetchCopilotPrompt } from '../../../apis/copilot.api';
+  import { createEventDispatcher, onMount } from 'svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -56,6 +58,13 @@
     dispatch('hintSelected', hint);
     open = false;
   }
+
+  let prompt = '';
+
+  onMount(async () => {
+    const result = await fetchCopilotPrompt();
+    prompt = result.prompt;
+  });
 </script>
 
 <Button kind="tertiary" on:click={() => (open = true)}>Get inspired</Button>
@@ -72,6 +81,7 @@
   <Tabs>
     <Tab label="For Romanian" />
     <Tab label="For English" />
+    <Tab label="Prompt under the hood" />
     <svelte:fragment slot="content">
       <TabContent>
         <UnorderedList style="padding: 24px">
@@ -96,6 +106,9 @@
             </ListItem>
           {/each}
         </UnorderedList>
+      </TabContent>
+      <TabContent>
+        <CodeSnippet code={prompt} type="multi" wrapText />
       </TabContent>
     </svelte:fragment>
   </Tabs>
