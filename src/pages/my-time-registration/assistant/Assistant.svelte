@@ -79,6 +79,12 @@
 
   function createExecutionPlan(serviceLayer: ServiceLayer, answer: string) {
     'use strict';
+    if (!answer.includes('(')) {
+      // sometimes the copilot just returns a string instead of calling the printMessage function.
+      serviceLayer.printMessage(answer);
+      return;
+    }
+
     console.log('Executing: ', answer);
     eval(answer);
   }
