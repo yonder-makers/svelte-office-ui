@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { Button, Loading, TextArea } from 'carbon-components-svelte';
+  import {
+    Button,
+    Select,
+    SelectItem,
+    Loading,
+    TextArea,
+  } from 'carbon-components-svelte';
   import { isSameMonth } from 'date-fns';
   import { derived, get, writable } from 'svelte/store';
   import { postGetAssistance } from '../../../apis/copilot.api';
@@ -27,6 +33,8 @@
     }[]
   >([]);
 
+  let selectedLanguage = 'Romanian';
+
   $: if (messagesRef) {
     console.log('Scrolling to bottom', $messages.length);
     setTimeout(() => {
@@ -53,6 +61,7 @@
       const response = await postGetAssistance(
         get(currentMonthState),
         question,
+        selectedLanguage,
       );
       return response.output;
     } catch (error) {
@@ -226,7 +235,17 @@
 </script>
 
 <div class="container">
-  <h3>Svelte Copilot</h3>
+  <div style="display: flex; align-items: center; gap: 16px">
+    <h3 style="flex: 1">Svelte Copilot</h3>
+    <div>
+      <Select size="sm" bind:selected={selectedLanguage}>
+        <SelectItem value="English" text="EN" />
+        <SelectItem value="French" text="FR" />
+        <SelectItem value="German" text="DE" />
+        <SelectItem value="Romanian" text="RO" />
+      </Select>
+    </div>
+  </div>
   <ul bind:this={messagesRef} class="messages">
     {#each $messages as message}
       <li class={message.who}>

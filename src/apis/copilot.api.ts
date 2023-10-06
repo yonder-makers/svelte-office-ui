@@ -1,5 +1,4 @@
 import { doPost } from './core/base-api';
-import { toWebOfficeFormat } from './core/date-utils';
 
 export type GetAssistanceDto = {
   output: string;
@@ -8,12 +7,16 @@ export type GetAssistanceDto = {
 export async function postGetAssistance(
   month: Date,
   question: string,
+  language: string,
   signal?: AbortSignal,
 ): Promise<GetAssistanceDto> {
   const body = {
     year: month.getFullYear(),
     month: month.getMonth() + 1,
     question,
+    config: {
+      language,
+    },
   };
 
   const response = await doPost<GetAssistanceDto>('/api/copilot', body, signal);
