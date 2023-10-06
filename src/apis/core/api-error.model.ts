@@ -5,3 +5,7 @@ export interface ApiError {
   timestamp: string;
   path: string;
 }
+
+export function isApiError(error: any): error is ApiError {
+  return error && error.errorCode && error.errorDescription;
+}

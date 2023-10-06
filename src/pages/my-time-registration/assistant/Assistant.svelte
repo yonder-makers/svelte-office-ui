@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Button, TextArea, Loading } from 'carbon-components-svelte';
-  import { readable, derived, writable, get } from 'svelte/store';
-  import type { ServiceLayerActions, TimeLog } from './service-layer';
-  import { ServiceLayer, formatAssistantDate } from './service-layer';
-  import { map, sortBy } from 'lodash';
+  import { Button, Loading, TextArea } from 'carbon-components-svelte';
+  import { isSameMonth } from 'date-fns';
+  import { derived, get, writable } from 'svelte/store';
+  import { postGetAssistance } from '../../../apis/copilot.api';
+  import { isApiError } from '../../../apis/core/api-error.model';
   import type { LogId } from '../store';
   import {
     currentMonthState,
@@ -12,8 +12,8 @@
     submitHours,
     typesOfWork,
   } from '../store';
-  import { format, isSameMonth } from 'date-fns';
-  import { postGetAssistance } from '../../../apis/copilot.api';
+  import type { ServiceLayerActions } from './service-layer';
+  import { ServiceLayer, formatAssistantDate } from './service-layer';
 
   let messagesRef: any = undefined;
 
@@ -49,8 +49,23 @@
   });
 
   async function getAnswer(question: string) {
-    const response = await postGetAssistance(get(currentMonthState), question);
-    return response.output;
+    try {
+      const response = await postGetAssistance(
+        get(currentMonthState),
+        question,
+      );
+      return response.output;
+    } catch (error) {
+      if (isApiError(error)) {
+        if (error.httpStatusCode === 401) {
+          throw new Error('You are not logged in. Please login and try again.');
+        }
+
+        throw new Error(error.errorDescription);
+      }
+
+      throw error;
+    }
   }
 
   function createExecutionPlan(serviceLayer: ServiceLayer, answer: string) {
@@ -201,6 +216,7 @@
 
       await playActions(facade.actions);
     } catch (e) {
+      console.log('Error: ', e);
       addMessage(e.message, 'bot');
       question = q;
     } finally {
