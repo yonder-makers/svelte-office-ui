@@ -8,6 +8,14 @@
   import TimeRegistrationGrid from './parts/TimeRegistrationGrid.svelte';
   import { refreshData } from './store/actions';
   import Assistant from './assistant/Assistant.svelte';
+  import { Button } from 'carbon-components-svelte';
+  import AssistantIcon from '../../components/icons/AssistantIcon.svelte';
+
+  let assistantEnabled = false;
+
+  function toggleAssistant() {
+    assistantEnabled = !assistantEnabled;
+  }
 
   onMount(() => {
     refreshData();
@@ -16,9 +24,17 @@
 
 <h1>My Time Registration</h1>
 
-<div class="split-container">
+<div class="split-container {assistantEnabled ? 'assistant-enabled' : ''}">
   <div class="left">
-    <GridConfig />
+    <div class="config">
+      <GridConfig />
+
+      <Button size="small" kind="tertiary" on:click={toggleAssistant}>
+        <AssistantIcon />
+        Toggle assistant</Button
+      >
+    </div>
+
     <MonthNavigator />
     <TimeRegistrationGrid />
 
@@ -43,19 +59,40 @@
   :global(#main-content) {
     padding-bottom: 0;
   }
-  
+
+  .config {
+    display: flex;
+    align-items: start;
+  }
+
   .split-container {
     display: flex;
+    align-items: start;
     gap: 16px;
+    max-width: 100%;
   }
   .left {
+    flex: 1;
+    box-sizing: border-box;
+    display: flex;
+    width: 70%;
+    flex-direction: column;
+    justify-items: start;
+  }
+
+  .assistant-enabled .left {
     width: 70%;
   }
+
   .right {
+    display: none;
     width: 30%;
     border-left: 1px solid black;
     padding-left: 24px;
     height: calc(100vh - 170px);
+  }
+  .assistant-enabled .right {
+    display: block;
   }
   .footer-actions {
     margin-top: 12px;
