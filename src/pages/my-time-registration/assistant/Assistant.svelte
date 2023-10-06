@@ -20,6 +20,7 @@
   } from '../store';
   import type { ServiceLayerActions } from './service-layer';
   import { ServiceLayer, formatAssistantDate } from './service-layer';
+  import AssistantHelpModal from './AssistantHelpModal.svelte';
 
   let messagesRef: any = undefined;
 
@@ -273,12 +274,17 @@
       }}
     />
 
-    <Button on:click={submit}>
-      {#if isLoading}
-        <Loading withOverlay={false} small />
-      {/if}
-      Ask
-    </Button>
+    <div style="display: flex; justify-content: space-between">
+      <Button on:click={submit}>
+        {#if isLoading}
+          <Loading withOverlay={false} small />
+        {/if}
+        Ask
+      </Button>
+      <AssistantHelpModal
+        on:hintSelected={(hint) => (question = hint.detail)}
+      />
+    </div>
   </div>
 </div>
 
