@@ -183,6 +183,10 @@
             </div>
             <div class="employee__info--details">
               <div>
+                <span class="label">Department</span>
+                <span>{employee.departmentName ?? '?'}</span>
+              </div>
+              <div>
                 <span class="label">Birthday</span>
                 <span>{employee.birthDate}</span>
               </div>
