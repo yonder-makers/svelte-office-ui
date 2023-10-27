@@ -10,7 +10,7 @@
 {#if historyItem !== undefined}
   <TableRow>
     <TableCell>{historyItem.dateStart}</TableCell>
-    <TableCell>{historyItem.name}</TableCell>
+    <TableCell>{historyItem.firstName} {historyItem.lastName}</TableCell>
     <TableCell>{historyItem.position}</TableCell>
     <TableCell>{historyItem.departmentName ?? ''}</TableCell>
     <TableCell>{historyItem.birthDate ?? ''}</TableCell>

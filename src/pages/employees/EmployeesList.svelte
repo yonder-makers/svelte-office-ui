@@ -45,10 +45,11 @@
           picture: employee.picture.includes('/.jpg')
             ? '/assets/images/user-avatar.png'
             : `${webOfficeUrl}${employee.picture}`,
+          departmentName: employee.departmentName ?? '?',
           hireYear: employee.hireDate.substring(6, 10),
           hireMonth: employee.hireDate.substring(3, 5),
-          birthYear: employee.birthDate?.substring(6, 10),
-          birthMonth: employee.birthDate?.substring(3, 5),
+          birthYear: employee.birthDate?.substring(6, 10) ?? '?',
+          birthMonth: employee.birthDate?.substring(3, 5) ?? '?',
         };
       });
   });
@@ -68,7 +69,7 @@
               .toLowerCase()
               .concat(' ', employee.firstName.toLowerCase())
               .includes(value.toLowerCase()) ||
-            employee.birthDate.toLowerCase().includes(value.toLowerCase()) ||
+            employee.birthDate?.toLowerCase().includes(value.toLowerCase()) ||
             employee.hireDate.toLowerCase().includes(value.toLowerCase()) ||
             employee.position.toLowerCase().includes(value.toLowerCase())
           );
@@ -191,7 +192,7 @@
               </div>
               <div>
                 <span class="label">Birthday</span>
-                <span>{employee.birthDate}</span>
+                <span>{employee.birthDate ?? '?'}</span>
               </div>
             </div>
           </div>
