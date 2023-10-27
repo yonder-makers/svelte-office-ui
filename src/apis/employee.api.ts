@@ -1,6 +1,6 @@
 import { authState } from '@svelte-office/state';
 import { get } from 'svelte/store';
-import { doGet } from './core/base-api';
+import { doGet, doPut } from './core/base-api';
 
 export interface EmployeeDto {
   historyId: number;
@@ -44,4 +44,21 @@ export async function fetchEmployeeHistory(
         : `${webOfficeUrl}${employee.picture}`,
     };
   });
+}
+
+type EmployeeUpdateRequest = {
+  yoShort: string;
+  departmentName?: string;
+};
+
+export async function putEmployee(employee: EmployeeUpdateRequest) {
+  return await doPut<EmployeeDto>(
+    `/api/employees/${employee.yoShort}`,
+    employee,
+  );
+}
+
+export async function fetchDepartmentNames(): Promise<string[]> {
+  const response = await doGet<string[]>('/api/employees/departments');
+  return response;
 }

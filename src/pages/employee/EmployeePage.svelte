@@ -8,6 +8,7 @@
   } from './store';
   import EmployeeHistoryGrid from './parts/EmployeeHistoryGrid.svelte';
   import { Button } from 'carbon-components-svelte';
+  import EmployeeEditForm from './parts/EmployeeEditForm.svelte';
 
   export let params: { yoShort: string };
 
@@ -26,10 +27,9 @@
 
 {#if $employeeHistoryState.isLoading}
   <div>Loading...</div>
-{/if}
-
-{#if $employeeHistoryState.errorMessage}
+{:else if $employeeHistoryState.errorMessage}
   <div>{$employeeHistoryState.errorMessage}</div>
 {:else}
   <EmployeeHistoryGrid />
+  <EmployeeEditForm />
 {/if}

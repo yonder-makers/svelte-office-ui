@@ -34,6 +34,30 @@ export async function doPost<TResult>(
   return response as TResult;
 }
 
+export async function doPut<TResult>(
+  relativeUrl: string,
+  body: object,
+  signal?: AbortSignal,
+) {
+  const fullUrl = resolveApiURL(relativeUrl).href;
+  const result = await fetch(fullUrl, {
+    body: JSON.stringify(body),
+    method: 'put',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthTokenHeaders(),
+    },
+    signal,
+  });
+
+  const response = await result.json();
+  if (response.errorCode) {
+    throw response;
+  }
+
+  return response as TResult;
+}
+
 export async function doPostWithoutResponse(
   relativeUrl: string,
   body: object,

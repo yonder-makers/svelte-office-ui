@@ -161,7 +161,9 @@
 
           <div class="employee__info--primary">
             <div class="employee--name">
-              {`${employee.firstName} ${employee.lastName}`}
+              <a href="#/employees/{employee.yoShort}"
+                >{`${employee.firstName} ${employee.lastName}`}</a
+              >
             </div>
             <div class="employee--role">
               {employee.position}
