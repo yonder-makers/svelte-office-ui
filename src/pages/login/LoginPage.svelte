@@ -59,7 +59,13 @@
 
     try {
       const loginResult = await login(username, password);
-      loggedIn(loginResult.accessToken);
+
+      loggedIn(
+        loginResult.accessToken,
+        loginResult.role,
+        loginResult.departmentContext,
+      );
+
       loadingStatus = 'finished';
       loadingDescription =
         'Login successful. You will be redirected in a second';

@@ -3,6 +3,7 @@
   import { putEmployee } from '../../../apis/employee.api';
   import { activeEntry, departmentNames, refreshData } from '../store';
   import DepartmentsComboBox from './DepartmentsComboBox.svelte';
+  import { addNotification } from '../../../state/notifications/notifications.state';
 
   let initialDepartmentValue = $activeEntry?.departmentName ?? '';
   let departmentValue = $activeEntry?.departmentName ?? '';
@@ -17,11 +18,20 @@
       departmentName: departmentName.length === 0 ? undefined : departmentValue,
     };
 
-    await putEmployee(options);
+    try {
+      await putEmployee(options);
 
-    const forceRefreshDepartments =
-      $departmentNames.indexOf(departmentName) < 0;
-    refreshData(forceRefreshDepartments);
+      const forceRefreshDepartments =
+        $departmentNames.indexOf(departmentName) < 0;
+      refreshData(forceRefreshDepartments);
+    } catch (error) {
+      addNotification(
+        'Error from server',
+        error.errorDescription ?? 'Error, try again?',
+        '',
+      );
+      console.log(error);
+    }
   }
 </script>
 

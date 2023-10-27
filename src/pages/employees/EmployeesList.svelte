@@ -9,6 +9,7 @@
   import EmployeesFilter from './EmployeesFilter.svelte';
   import { get } from 'svelte/store';
   import { authState } from '@svelte-office/state';
+  import EmployeeTitle from './EmployeeTitle.svelte';
 
   interface Employee extends EmployeeDto {
     hireYear: string;
@@ -161,9 +162,11 @@
 
           <div class="employee__info--primary">
             <div class="employee--name">
-              <a href="#/employees/{employee.yoShort}"
-                >{`${employee.firstName} ${employee.lastName}`}</a
-              >
+              <EmployeeTitle
+                yoShort={employee.yoShort}
+                employeeName={`${employee.firstName} ${employee.lastName}`}
+                department={employee.departmentName}
+              />
             </div>
             <div class="employee--role">
               {employee.position}
