@@ -32,7 +32,9 @@ Initial value: {initialDepartmentValue} -->
 
 <Form on:submit>
   <FormGroup>
-    <DepartmentsComboBox bind:value={departmentValue} />
+    <div class="departments">
+      <DepartmentsComboBox bind:value={departmentValue} />
+    </div>
   </FormGroup>
   <Button disabled={!hasChanges} on:click={save}>Save</Button>
 </Form>
@@ -43,5 +45,9 @@ Initial value: {initialDepartmentValue} -->
   }
   h2 {
     margin-top: 60px;
+  }
+
+  .departments {
+    max-width: 300px;
   }
 </style>

@@ -14,6 +14,7 @@
     <TableHead><span>Date</span></TableHead>
     <TableHead><span>Name</span></TableHead>
     <TableHead><span>Position</span></TableHead>
+    <TableHead><span>Department</span></TableHead>
     <TableHead><span>Birth date</span></TableHead>
     <TableHead><span>Hire date</span></TableHead>
     <TableHead><span>Modified at</span></TableHead>
