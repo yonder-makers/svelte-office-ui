@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Accordion } from 'carbon-components-svelte';
   import Fuse from 'fuse.js';
-  import type { Employee } from 'src/apis/employee.api';
+  import type { EmployeeDto } from 'src/apis/employee.api';
   import { onMount } from 'svelte';
   import { createFilterItemsFromString } from '../../utils/filter-utils';
   import EmployeesAccordionItem from './EmployeesAccordionItem.svelte';
@@ -10,7 +10,7 @@
     FilterItem,
   } from './interfaces/filter.interface';
 
-  export let employees: Employee[];
+  export let employees: EmployeeDto[];
   export let activeFilters: ActiveFilters;
 
   let monthStrings = {
@@ -29,6 +29,7 @@
     '': '?',
   };
 
+  let departmentNameFilters: FilterItem[] = [];
   let positionFilters: FilterItem[] = [];
   let hireYearFilters: FilterItem[] = [];
   let hireMonthFilters: FilterItem[] = [];
@@ -55,16 +56,26 @@
     // ignoreLocation: false,
     // ignoreFieldNorm: false,
     // fieldNormWeight: 1,
-    keys: ['position', 'hireYear', 'hireMonth', 'birthYear', 'birthMonth'],
+    keys: [
+      'departmentName',
+      'position',
+      'hireYear',
+      'hireMonth',
+      'birthYear',
+      'birthMonth',
+    ],
   };
 
-  let fuse: Fuse<Employee> = undefined;
+  let fuse: Fuse<EmployeeDto> = undefined;
 
   onMount(() => {
     generateFilters(employees);
     fuse = new Fuse(employees, options);
   });
 
+  $: activeFilters.departmentName = departmentNameFilters.filter(
+    (item) => item.selected,
+  );
   $: activeFilters.position = positionFilters.filter((item) => item.selected);
   $: activeFilters.hireYear = hireYearFilters.filter((item) => item.selected);
   $: activeFilters.hireMonth = hireMonthFilters.filter((item) => item.selected);
@@ -76,7 +87,22 @@
   $: activeFilters, computeFuse();
   $: activeFilterKeys, updateActiveFilterNumber();
 
-  function generateFilters(source: Employee[]) {
+  function generateFilters(source: EmployeeDto[]) {
+    if (
+      prevFilter !== 'departmentName' ||
+      (prevFilter === 'departmentName' &&
+        !activeFilterKeys.includes('departmentName'))
+    ) {
+      departmentNameFilters = createFilterItemsFromString(
+        decreasedToOneFilter && activeFilterKeys.includes('departmentName')
+          ? employees
+          : source,
+        'departmentName',
+        '?',
+        activeFilters.departmentName,
+      );
+    }
+
     if (
       prevFilter !== 'position' ||
       (prevFilter === 'position' && !activeFilterKeys.includes('position'))
@@ -192,6 +218,13 @@
 
 <div class="employee__filter">
   <Accordion>
+    <EmployeesAccordionItem
+      filterCategory="Departments"
+      filterAttr="departmentName"
+      bind:activeFilters
+      bind:filters={departmentNameFilters}
+      bind:prevFilter
+    />
     <EmployeesAccordionItem
       filterCategory="Roles"
       filterAttr="position"
