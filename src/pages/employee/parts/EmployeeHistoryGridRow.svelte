@@ -12,7 +12,8 @@
     <TableCell>{historyItem.dateStart}</TableCell>
     <TableCell>{historyItem.name}</TableCell>
     <TableCell>{historyItem.position}</TableCell>
-    <TableCell>{historyItem.birthDate}</TableCell>
+    <TableCell>{historyItem.departmentName ?? ''}</TableCell>
+    <TableCell>{historyItem.birthDate ?? ''}</TableCell>
     <TableCell>{historyItem.hireDate}</TableCell>
     <TableCell>{historyItem.created} by {historyItem.createdBy}</TableCell>
   </TableRow>
