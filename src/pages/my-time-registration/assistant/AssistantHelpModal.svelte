@@ -14,7 +14,7 @@
 
   const dispatch = createEventDispatcher();
 
-  let open = false;
+  export let open = false;
 
   let hintsRomanian = [
     'Salutare',
@@ -67,14 +67,10 @@
   });
 </script>
 
-<Button kind="tertiary" on:click={() => (open = true)}>Get inspired</Button>
-
 <Modal
   bind:open
-  primaryButtonDisabled={true}
+  passiveModal 
   modalHeading="Get inspired"
-  secondaryButtonText="Cancel"
-  on:click:button--secondary={() => (open = false)}
   on:open
   on:close
 >

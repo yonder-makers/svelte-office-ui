@@ -18,7 +18,9 @@ import {
   typesOfWork,
   displayWeekend,
   favoritesTasks,
+  assistantSettings
 } from './state';
+import { languages } from '../constants/languages';
 
 export const getDaysRange = derived(
   [currentMonthState, displayWeekend],
@@ -290,3 +292,10 @@ export function isTaskFavorite(taskId: number) {
     return ids.includes(taskId);
   });
 }
+
+// Assistant settings
+export const assistantLanguageCode = derived(assistantSettings, (settings) => settings.languageCode);
+export const assistantLanguage = derived(assistantSettings, (settings) => languages[settings.languageCode]);
+export const isSpeakResponseOn = derived(assistantSettings, (settings) => settings.isSpeakResponse);
+export const isAutoListenOn = derived(assistantSettings, (settings) => settings.isAutoListen);
+export const isHeyYondereOn = derived(assistantSettings, (settings) => settings.isHeyYonder);

@@ -3,6 +3,10 @@ import type { FavoriteTaskDto } from '../../../apis/favorite-tasks.api';
 import { writable } from 'svelte/store';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 import type { TaskDto } from '../../../apis/tasks.api';
+import type { Language } from '../models/language.model';
+import { Languages } from '../enums/languages.enum';
+import { languages } from '../constants/languages';
+import type { AssistantSettings } from '../models';
 
 export interface LogEntry {
   uid: string;
@@ -67,3 +71,11 @@ export const importinfo = writable<ImportLogAttributes>({
 export const favoritesTasks = writable<FavoriteTaskDto[]>([]);
 
 export const assignableTasks = writable<TaskDto[]>([]);
+
+// Assistant Settings
+export const assistantSettings = writable<AssistantSettings>({
+  languageCode: Languages.English,
+  isSpeakResponse: true,
+  isAutoListen: false,
+  isHeyYonder: false
+});

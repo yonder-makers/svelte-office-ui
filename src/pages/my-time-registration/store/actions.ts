@@ -55,8 +55,10 @@ import {
   importEntriesSafeCopy,
   displayWeekend,
   favoritesTasks,
-  assignableTasks
+  assignableTasks,
+  assistantSettings,
 } from './state';
+import type { AssistantSettings } from '../models';
 
 export function changeDisplayWeekend(newValue: boolean) {
   displayWeekend.set(newValue);
@@ -560,4 +562,8 @@ export function navigateKeyPressed(
     }
     return [cursor];
   });
+}
+
+export function saveAssistantSettings(newSettings: AssistantSettings): void {
+  assistantSettings.set(newSettings);
 }

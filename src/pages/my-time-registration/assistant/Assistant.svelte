@@ -1,8 +1,6 @@
 <script lang="ts">
   import {
     Button,
-    Select,
-    SelectItem,
     Loading,
     TextArea,
   } from 'carbon-components-svelte';
@@ -17,10 +15,22 @@
     selectedLogs,
     submitHours,
     typesOfWork,
+    assistantLanguage,
   } from '../store';
+  import { isSpeakResponseOn, isAutoListenOn } from '../store/selectors';
   import type { ServiceLayerActions } from './service-layer';
   import { ServiceLayer, formatAssistantDate } from './service-layer';
   import AssistantHelpModal from './AssistantHelpModal.svelte';
+    import { generateRecognition } from './speech-to-text';
+    import { synth, speak } from './text-to-synthesis';
+    import { Languages } from '../enums/languages.enum';
+    import MicrophoneButton from '../../../components/MicrophoneButton.svelte';
+    import VolumeIcon from '../../../components/icons/VolumeIcon.svelte';
+    import StopIcon from '../../../components/icons/StopIcon.svelte';
+    import LightBulbIcon from '../../../components/icons/LightBulbIcon.svelte';
+    import SettingsIcon from '../../../components/icons/SettingsIcon.svelte';
+    import AssistantSettingsModal from './AssistantSettingsModal.svelte';
+    import type { Language, SpeechRecognitionAssistant } from '../models';
 
   let messagesRef: any = undefined;
 
@@ -33,8 +43,15 @@
       message: string;
     }[]
   >([]);
+  const isAssistantSettingsOpen = writable<boolean>(false);
+  const isInspireModalOpen = writable<boolean>(false);
+  const isSpeechRecognitionLoading = writable<boolean>(false);
+  const isListening = writable<boolean>(false);
+    
+  const spokenMessage = writable<string | null>(null);
+  const isSpeaking = derived(spokenMessage, (message) => message !== null);
 
-  let selectedLanguage = 'Romanian';
+  const recognition = derived(assistantLanguage, (language) => regenerateSpeechRecognition(language));
 
   $: if (messagesRef) {
     console.log('Scrolling to bottom', $messages.length);
@@ -57,12 +74,39 @@
     });
   });
 
+  function regenerateSpeechRecognition(newLanguage: Language): SpeechRecognitionAssistant {
+    const newRecognition = generateRecognition(newLanguage.grammarCode);
+    
+    newRecognition.onresult = (event) => {
+      question = event.results[0][0].transcript;      
+      if (question !== '' && event.results.length === 1 && event.results.item(0).isFinal) {
+        submit();
+      }
+    }
+
+    newRecognition.onaudiostart = () => {
+      isSpeechRecognitionLoading.set(false);
+      isListening.set(true);
+    }
+
+    newRecognition.onspeechend = () => {
+      newRecognition.stop();
+      isListening.set(false);
+    }
+
+    newRecognition.onerror = function(event) {
+      isListening.set(false);
+    }
+
+    return newRecognition;
+  }
+
   async function getAnswer(question: string) {
     try {
       const response = await postGetAssistance(
         get(currentMonthState),
         question,
-        selectedLanguage,
+        $assistantLanguage.name,
       );
       return response.output;
     } catch (error) {
@@ -203,6 +247,53 @@
     }
   }
 
+  function openSettingsModal(): void {
+    isAssistantSettingsOpen.set(true);
+  }
+
+  function closeSettingsModal(): void {
+    isAssistantSettingsOpen.set(false);
+  }
+
+  function microphoneButtonClicked(): void {
+    if ($isListening) {
+      $recognition.stop();
+      isListening.set(false);
+    } else {
+      speech();
+    }
+  }
+
+  function speech(): void {
+    $recognition.start();
+    isSpeechRecognitionLoading.set(true);
+  }
+
+  function speakMessage(message: string): void {
+    const speakerVoice = message.includes('Dragomir') && $assistantLanguage.shortCode === Languages.English ? 'Google US English' : $assistantLanguage.speakerVoice;
+    const utterance = speak(message, speakerVoice);
+    if (!utterance) {
+      return;
+    }
+    
+    utterance.onstart = () => {
+      spokenMessage.set(message);
+    }
+    utterance.onend = () => {
+      spokenMessage.set(null);
+      if (!synth.speaking && get(isAutoListenOn)) {
+        speech();
+      }
+    }
+    utterance.onerror = () => {
+      spokenMessage.set(null);
+    }
+  }
+
+  function stopSpeaking(): void {
+    synth.cancel();
+  }
+
   async function playActions(actions: ServiceLayerActions[]) {
     for (const action of actions) {
       await playAction(action);
@@ -213,6 +304,9 @@
     messages.update((old) => {
       return [...old, { message, who }];
     });
+    if (who === 'bot' && $isSpeakResponseOn) {
+      speakMessage(message);
+    }
   }
 
   async function submit() {
@@ -244,13 +338,13 @@
 <div class="container">
   <div style="display: flex; align-items: center; gap: 16px">
     <h3 style="flex: 1">Svelte Copilot</h3>
-    <div>
-      <Select size="sm" bind:selected={selectedLanguage}>
-        <SelectItem value="English" text="EN" />
-        <SelectItem value="French" text="FR" />
-        <SelectItem value="German" text="DE" />
-        <SelectItem value="Romanian" text="RO" />
-      </Select>
+    <div class="top-buttons-container">
+      <button on:click={() => isInspireModalOpen.set(true)} class="icon-button" title="Prompt ideas">
+        <LightBulbIcon size={16} />
+      </button>
+      <button on:click={openSettingsModal} class="icon-button" title="Assistant settings">
+        <SettingsIcon size={16}/>
+      </button>
     </div>
   </div>
   <ul bind:this={messagesRef} class="messages">
@@ -259,6 +353,15 @@
         <pre>
           {message.message}
         </pre>
+        {#if message.who === 'bot'}    
+        <div class="audio-buttons">
+          {#if $isSpeaking && message.message === $spokenMessage}            
+            <button class="icon-button" on:click={() => stopSpeaking()}><StopIcon /></button>
+          {:else}
+            <button disabled={$isSpeaking} class="icon-button" on:click={() => speakMessage(message.message)}><VolumeIcon /></button>
+          {/if}
+        </div>      
+        {/if}
       </li>
     {/each}
   </ul>
@@ -281,12 +384,12 @@
         {/if}
         Ask
       </Button>
-      <AssistantHelpModal
-        on:hintSelected={(hint) => (question = hint.detail)}
-      />
+      
+      <MicrophoneButton disabled={$isSpeaking} isLoading={$isSpeechRecognitionLoading} isListening={$isListening} on:click={microphoneButtonClicked} />
     </div>
   </div>
-</div>
+</div><AssistantHelpModal on:close={() => isInspireModalOpen.set(false)} open={$isInspireModalOpen} on:hintSelected={(hint) => (question = hint.detail)}/>
+<AssistantSettingsModal open={$isAssistantSettingsOpen} on:close={closeSettingsModal}  />
 
 <style>
   .container {
@@ -334,5 +437,29 @@
   }
   .footer {
     flex: 0 0 auto;
+  }
+  .audio-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .icon-button {
+    all: unset;
+    cursor: pointer;
+  }
+  .icon-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .top-buttons-container {
+    display: flex;
+    gap: 8px;
+  }
+  .top-buttons-container .icon-button {
+    padding: 8px;
+    border-radius: 50%;
+  }
+  .top-buttons-container .icon-button:hover {
+    background-color: #f1f1f1;
   }
 </style>
