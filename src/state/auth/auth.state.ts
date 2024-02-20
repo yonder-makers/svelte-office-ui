@@ -1,6 +1,9 @@
 import { derived, writable } from 'svelte/store';
+import type { UserRole } from '../user-role';
 
 interface AuthState {
+  role: UserRole;
+  departmentContext?: string;
   accessToken: string;
   apiUrl: string;
   webOfficeUrl: string;
@@ -8,16 +11,24 @@ interface AuthState {
 }
 
 export const authState = writable<AuthState>({
+  role: 'USER',
+  departmentContext: undefined,
   accessToken: undefined,
   apiUrl: undefined,
   webOfficeUrl: undefined,
   isUserLoggedInToggl: false,
 });
 
-export function loggedIn(accessToken: string) {
+export function loggedIn(
+  accessToken: string,
+  role: UserRole,
+  departmentContext?: string,
+) {
   authState.update((state) => {
     return {
       ...state,
+      role,
+      departmentContext,
       accessToken: accessToken,
       isUserLoggedInToggl: false,
     };
@@ -28,6 +39,8 @@ export function loggedOut() {
   authState.update((state) => {
     return {
       ...state,
+      role: 'USER',
+      departmentContext: undefined,
       accessToken: undefined,
       isUserLoggedInToggl: false,
     };
@@ -49,7 +62,7 @@ export function configurationLoaded(apiUrl: string, webOfficeUrl: string) {
     return {
       ...state,
       apiUrl,
-      webOfficeUrl
+      webOfficeUrl,
     };
   });
 }
