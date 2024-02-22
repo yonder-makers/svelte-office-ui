@@ -6,10 +6,10 @@ export interface LoginResponse {
 
 export async function login(username: string, password: string) {
   const body = { username, password };
-  const loginResponse = await doPost<LoginResponse>('/api/login', body);
+  const loginResponse = await doPost<LoginResponse>('api/login', body) as any;
 
   return {
-    accessToken: loginResponse.access_token,
+    accessToken: loginResponse.accessToken,
   };
 }
 

@@ -3,11 +3,12 @@ import { authState } from '../../state/auth/auth.state';
 
 function computeUrl(base: string, relativePath: string) {
   if (base?.length == 0) {
-    base = 'http://localhost:3000/';
+    base = 'http://localhost:8010/';
     console.warn(
       'API URL is not configured. Fallback to http://localhost:3000/',
     );
   }
+  relativePath = `proxy/${relativePath}`;
 
   let url: URL | null = null;
   try {
