@@ -40,6 +40,7 @@
   on:open={onOpen}
   on:close={onClose}
   on:submit={onSubmit}
+  on:click:button--secondary={onClose}
 >
   <Form on:submit>
     <FormGroup>
