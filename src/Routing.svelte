@@ -2,6 +2,7 @@
   import Router, { replace } from 'svelte-spa-router';
   import { wrap } from 'svelte-spa-router/wrap';
   import { getProfile } from './apis/auth.api';
+  import EmployeePage from './pages/employee/EmployeePage.svelte';
   import EmployeesListPage from './pages/employees/EmployeesList.svelte';
   import HolidaysPage from './pages/holidays/HolidaysPage.svelte';
   import LoginPage from './pages/login/LoginPage.svelte';
@@ -29,6 +30,10 @@
     }),
     '/employees': wrap({
       component: EmployeesListPage,
+      conditions: [authCondition],
+    }),
+    '/employees/:yoShort': wrap({
+      component: EmployeePage,
       conditions: [authCondition],
     }),
     '/holidays': wrap({

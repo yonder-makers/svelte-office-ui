@@ -2,15 +2,26 @@
   import { Tile, Search } from 'carbon-components-svelte';
   import LazyLoadedImage from '../../components/LazyLoadedImage.svelte';
   import { onMount } from 'svelte';
-  import type { Employee } from '../../apis/employee.api';
+  import type { EmployeeDto } from '../../apis/employee.api';
   import { fetchEmployees } from '../../apis/employee.api';
   import EmployeesSkeletonList from './EmployeesSkeletonList.svelte';
   import type { ActiveFilters } from './interfaces/filter.interface';
   import EmployeesFilter from './EmployeesFilter.svelte';
+  import { get } from 'svelte/store';
+  import { authState } from '@svelte-office/state';
+  import EmployeeTitle from './EmployeeTitle.svelte';
+
+  interface Employee extends EmployeeDto {
+    hireYear: string;
+    hireMonth: string;
+    birthYear: string;
+    birthMonth: string;
+  }
 
   let value = '';
   let employees: Employee[] = undefined;
   let activeFilters: ActiveFilters = {
+    departmentName: [],
     position: [],
     hireYear: [],
     hireMonth: [],
@@ -19,7 +30,28 @@
   };
 
   onMount(async () => {
-    employees = await fetchEmployees();
+    const webOfficeUrl = get(authState).webOfficeUrl;
+
+    const response = await fetchEmployees();
+    employees = response
+      .sort(
+        (a, b) =>
+          a.firstName.localeCompare(b.firstName) ||
+          a.lastName.localeCompare(b.lastName),
+      )
+      .map((employee) => {
+        return {
+          ...employee,
+          picture: employee.picture.includes('/.jpg')
+            ? '/assets/images/user-avatar.png'
+            : `${webOfficeUrl}${employee.picture}`,
+          departmentName: employee.departmentName ?? '?',
+          hireYear: employee.hireDate.substring(6, 10),
+          hireMonth: employee.hireDate.substring(3, 5),
+          birthYear: employee.birthDate?.substring(6, 10) ?? '?',
+          birthMonth: employee.birthDate?.substring(3, 5) ?? '?',
+        };
+      });
   });
 
   $: queriedEmployees =
@@ -37,13 +69,14 @@
               .toLowerCase()
               .concat(' ', employee.firstName.toLowerCase())
               .includes(value.toLowerCase()) ||
-            employee.birthDate.toLowerCase().includes(value.toLowerCase()) ||
+            employee.birthDate?.toLowerCase().includes(value.toLowerCase()) ||
             employee.hireDate.toLowerCase().includes(value.toLowerCase()) ||
             employee.position.toLowerCase().includes(value.toLowerCase())
           );
         });
 
   $: allActiveFiltersLength =
+    activeFilters.departmentName.length +
     activeFilters.position.length +
     activeFilters.birthYear.length +
     activeFilters.birthMonth.length +
@@ -54,6 +87,13 @@
     allActiveFiltersLength === 0
       ? queriedEmployees
       : queriedEmployees
+          .filter((employee) =>
+            activeFilters.departmentName.length === 0
+              ? true
+              : activeFilters.departmentName
+                  .map((item) => item.value)
+                  .includes(employee.departmentName),
+          )
           .filter((employee) =>
             activeFilters.position.length === 0
               ? true
@@ -123,7 +163,11 @@
 
           <div class="employee__info--primary">
             <div class="employee--name">
-              {`${employee.firstName} ${employee.lastName}`}
+              <EmployeeTitle
+                yoShort={employee.yoShort}
+                employeeName={`${employee.firstName} ${employee.lastName}`}
+                department={employee.departmentName}
+              />
             </div>
             <div class="employee--role">
               {employee.position}
@@ -143,8 +187,12 @@
             </div>
             <div class="employee__info--details">
               <div>
+                <span class="label">Department</span>
+                <span>{employee.departmentName ?? '?'}</span>
+              </div>
+              <div>
                 <span class="label">Birthday</span>
-                <span>{employee.birthDate}</span>
+                <span>{employee.birthDate ?? '?'}</span>
               </div>
             </div>
           </div>
