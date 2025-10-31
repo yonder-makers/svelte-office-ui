@@ -136,7 +136,6 @@ export function refreshData() {
 }
 
 export function logEntriesLoadingStarted() {
-  console.log('🔄 logEntriesLoadingStarted - clearing newlyAddedTaskIds');
   logEntriesAreLoading.set(true);
   logEntries.set([]);
   tasksState.set({
@@ -149,7 +148,6 @@ export function logEntriesLoadingStarted() {
   editingValue.set('');
   // Clear newly added tasks when refreshing data
   newlyAddedTaskIds.set([]);
-  console.log('✅ newlyAddedTaskIds cleared');
 }
 
 export function logEntriesLoaded(
