@@ -70,6 +70,14 @@ export const favoritesTasks = writable<FavoriteTaskDto[]>([]);
 
 export const assignableTasks = writable<TaskDto[]>([]);
 
+// Track newly added tasks (cleared on refresh or on page mount)
+export const newlyAddedTaskIds = writable<number[]>([]);
+
+
+
+// Track manually added tasks (legacy - prefer using newlyAddedTaskIds)
+export const manuallyAddedTaskIds = writable<number[]>([]);
+
 // Assistant Settings
 export const assistantSettings = writable<AssistantSettings>({
   languageCode: Languages.English,

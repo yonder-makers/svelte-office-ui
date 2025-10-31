@@ -3,24 +3,60 @@ import {
   endOfMonth,
   isBefore,
   isSameDay,
-  startOfMonth,
   isWeekend,
+  startOfMonth,
 } from 'date-fns';
-import { derived, Readable } from 'svelte/store';
+import { derived, type Readable } from 'svelte/store';
+import { languages } from '../constants/languages';
 import {
+  assistantSettings,
   currentMonthState,
+  displayWeekend,
   enteringMode,
+  favoritesTasks,
+  importinfo,
   loadingLogs,
   logEntries,
   logEntriesAreLoading,
+  newlyAddedTaskIds,
   selectedLogs,
-  importinfo,
-  typesOfWork,
-  displayWeekend,
-  favoritesTasks,
-  assistantSettings
+  typesOfWork
 } from './state';
-import { languages } from '../constants/languages';
+
+export const visibleTasks = derived(
+  [logEntries, newlyAddedTaskIds],
+  ([entries, newlyAdded]) => {
+    // Only show tasks that have entries with hours > 0
+    const taskIdsWithHours = new Set<number>();
+    entries.forEach(entry => {
+      if (entry.hours > 0) {
+        taskIdsWithHours.add(entry.taskId);
+      }
+    });
+
+    // Combine with newly added tasks (only those user explicitly added during this session)
+    const all = Array.from(taskIdsWithHours);
+    for (const id of newlyAdded) {
+      if (!taskIdsWithHours.has(id)) all.push(id);
+    }
+
+    return all;
+  }
+);
+
+// Helper to check if a task has actual logged hours
+export const tasksWithLoggedHours = derived(
+  [logEntries],
+  ([entries]) => {
+    const taskIds = new Set<number>();
+    entries.forEach(entry => {
+      if (entry.hours > 0) {
+        taskIds.add(entry.taskId);
+      }
+    });
+    return Array.from(taskIds);
+  }
+);
 
 export const getDaysRange = derived(
   [currentMonthState, displayWeekend],

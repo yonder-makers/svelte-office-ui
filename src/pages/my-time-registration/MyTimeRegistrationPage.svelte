@@ -10,6 +10,7 @@
   import Assistant from './assistant/Assistant.svelte';
   import { Button } from 'carbon-components-svelte';
   import AssistantIcon from '../../components/icons/AssistantIcon.svelte';
+  import { newlyAddedTaskIds } from './store/state';
 
   let assistantEnabled = false;
 
@@ -18,6 +19,8 @@
   }
 
   onMount(() => {
+    // Clear newly added tasks for a fresh view
+    newlyAddedTaskIds.set([]);
     refreshData();
   });
 </script>

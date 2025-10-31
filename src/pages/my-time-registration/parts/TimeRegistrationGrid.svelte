@@ -6,8 +6,7 @@
     TableHead,
     TableRow,
   } from 'carbon-components-svelte';
-  import { getDaysRange } from '../store/selectors';
-  import { tasksState } from '../store/state';
+  import { getDaysRange, visibleTasks } from '../store/selectors';
   import LoadingGrid from './LoadingGrid.svelte';
   import LogColumnHeader from './LogColumnHeader.svelte';
   import LogDay from './LogDay.svelte';
@@ -19,23 +18,25 @@
 </script>
 
 <Table stickyHeader={true}>
-  <TableRow >
-    <TableHead class="row-header" />
-    <TableHead class="log-day" />
-    {#each $getDaysRange as day}
-      <LogColumnHeader {day} />
-    {/each}
-  </TableRow>
-  <TableRow class="wfh-header">
-    <TableHead class="row-header"></TableHead>
-    <TableHead class="log-day">WFH?</TableHead>
-    {#each $getDaysRange as day}
-      <WfhHeader {day} />
-   {/each}
-  </TableRow>
+  <thead>
+    <TableRow >
+      <TableHead class="row-header" />
+      <TableHead class="log-day" />
+      {#each $getDaysRange as day}
+        <LogColumnHeader {day} />
+      {/each}
+    </TableRow>
+    <TableRow class="wfh-header">
+      <TableHead class="row-header"></TableHead>
+      <TableHead class="log-day">WFH?</TableHead>
+      {#each $getDaysRange as day}
+        <WfhHeader {day} />
+     {/each}
+    </TableRow>
+  </thead>
 
   <TableBody style="overflow-x: unset;">
-    {#each $tasksState.allIds as taskId}
+    {#each $visibleTasks as taskId}
       <TableRow>
         <LogDayHeader {taskId} />
         <TotalPerTaskCell {taskId} />
