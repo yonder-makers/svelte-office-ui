@@ -1,12 +1,11 @@
 import {
-  getDaysInMonth,
   eachDayOfInterval,
-  startOfMonth,
   endOfMonth,
   format,
+  startOfMonth,
 } from 'date-fns';
-import { currentMonthState } from '../store';
 import { get } from 'svelte/store';
+import { currentMonthState } from '../store';
 
 export type TimeLog = {
   id: string;
@@ -55,7 +54,7 @@ export type ServiceLayerActions =
 export class ServiceLayer {
   public actions: ServiceLayerActions[] = [];
 
-  constructor(private timeLogs: TimeLog[]) {}
+  constructor(private timeLogs: TimeLog[]) { }
 
   printMessage(message: string): void {
     this.actions.push({

@@ -1,11 +1,9 @@
 import { startOfMonth } from 'date-fns';
-import type { FavoriteTaskDto } from '../../../apis/favorite-tasks.api';
 import { writable } from 'svelte/store';
-import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
+import type { FavoriteTaskDto } from '../../../apis/favorite-tasks.api';
 import type { TaskDto } from '../../../apis/tasks.api';
-import type { Language } from '../models/language.model';
+import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 import { Languages } from '../enums/languages.enum';
-import { languages } from '../constants/languages';
 import type { AssistantSettings } from '../models';
 
 export interface LogEntry {

@@ -5,11 +5,16 @@
   import { onMount } from 'svelte';
   let loaded = false;
   let thisImage;
+  
   onMount(() => {
     thisImage.onload = () => {
       loaded = true;
     };
   });
+
+  function handleError(event) {
+    event.target.src = fallback;
+  }
 </script>
 
 <img
@@ -18,7 +23,7 @@
   class:loaded
   bind:this={thisImage}
   loading="lazy"
-  onerror="this.src='{fallback}'"
+  on:error={handleError}
 />
 
 <style>

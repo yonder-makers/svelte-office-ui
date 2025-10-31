@@ -36,10 +36,3 @@
     </svelte:fragment>
 </Tabs>
 </Modal>
-
-<style>
-  :global(.bx--modal-content) {
-    padding-right: 0 !important;
-    margin-bottom: 0 !important;
-  }
-</style>

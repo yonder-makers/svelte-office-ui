@@ -82,9 +82,3 @@
       </ToolbarContent>
     </Toolbar>
 </DataTable>
-
-<style>
-  :global(.bx--tab-content) {
-    padding: 0 !important;
-  }
-</style>

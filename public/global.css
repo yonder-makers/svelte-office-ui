@@ -60,3 +60,23 @@ button:not(:disabled):active {
 button:focus {
   border-color: #666;
 }
+
+.bx--search-input {
+  margin: 0;
+}
+
+/* Modal content overrides */
+.bx--modal-content {
+  padding-right: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Fix Carbon combo-box double border bug */
+.bx--combo-box {
+  border-bottom: 0 !important;
+}
+
+/* Tab content overrides */
+.bx--tab-content {
+  padding: 0 !important;
+}
