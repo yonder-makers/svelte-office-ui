@@ -75,7 +75,10 @@ export const newlyAddedTaskIds = writable<number[]>([]);
 
 
 
-// Track manually added tasks (legacy - prefer using newlyAddedTaskIds)
+/**
+ * @deprecated This store is legacy. Prefer using `newlyAddedTaskIds`.
+ * TODO: Remove this store after all usages have been migrated to `newlyAddedTaskIds`.
+ */
 export const manuallyAddedTaskIds = writable<number[]>([]);
 
 // Assistant Settings
