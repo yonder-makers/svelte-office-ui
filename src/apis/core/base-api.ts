@@ -1,3 +1,4 @@
+import { loggedOut } from '../../state/auth/auth.state';
 import { resolveApiURL } from '../resolvers/api-url.resolver';
 import { resolveAuthToken } from '../resolvers/auth-token.resolver';
 
@@ -8,6 +9,13 @@ function getAuthTokenHeaders() {
         Authorization: 'Bearer ' + authToken,
       }
     : {};
+}
+
+function handleUnauthorized(response: Response) {
+  if (response.status === 401) {
+    loggedOut();
+    throw new Error('Unauthorized - Please login again');
+  }
 }
 
 export async function doPost<TResult>(
@@ -25,6 +33,8 @@ export async function doPost<TResult>(
     },
     signal,
   });
+
+  handleUnauthorized(result);
 
   const response = await result.json();
   if (response.errorCode) {
@@ -48,6 +58,8 @@ export async function doPostWithoutResponse(
     },
     signal,
   });
+
+  handleUnauthorized(result);
 }
 
 const getUrlWithParams = (
@@ -82,6 +94,34 @@ export async function doGet<TResult>(
     signal,
   });
 
+  handleUnauthorized(result);
+
+  const response = await result.json();
+  if (response.errorCode) {
+    throw response;
+  }
+
+  return response as TResult;
+}
+
+export async function doPut<TResult>(
+  relativeUrl: string,
+  body: object,
+  signal?: AbortSignal,
+) {
+  const fullUrl = resolveApiURL(relativeUrl).href;
+  const result = await fetch(fullUrl, {
+    body: JSON.stringify(body),
+    method: 'put',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthTokenHeaders(),
+    },
+    signal,
+  });
+
+  handleUnauthorized(result);
+
   const response = await result.json();
   if (response.errorCode) {
     throw response;
@@ -105,6 +145,8 @@ export async function doDelete<TResult>(
     },
     signal,
   });
+
+  handleUnauthorized(result);
 
   const response = await result.json();
   if (response.errorCode) {
