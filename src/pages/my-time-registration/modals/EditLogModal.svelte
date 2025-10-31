@@ -76,9 +76,3 @@
     {/if}
   </Form>
 </Modal>
-
-<style>
-  :global(.bx--combo-box) {
-    border-bottom: 0 !important; /* this is a bug in Carbon, it shows 2 bottom borders for some reason */
-  }
-</style>
