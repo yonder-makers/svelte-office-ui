@@ -185,7 +185,6 @@ export function logEntriesLoaded(
 }
 
 export function addNewTask(task: TaskDto) {
-  console.log('🎯 addNewTask called for task:', task.taskId, task.description);
   tasksState.update((old) => {
     return {
       byId: {
