@@ -53,14 +53,12 @@ import {
   logEntriesAreLoading,
   type LogEntry,
   type LogId,
+  newlyAddedTaskIds,
   selectedLogs,
   type Task,
   tasksState,
   typesOfWork
 } from './state';
-  
-  // newlyAddedTaskIds imported separately to avoid circular reference issues in some environments
-  import { newlyAddedTaskIds } from './state';
 
 export function changeDisplayWeekend(newValue: boolean) {
   displayWeekend.set(newValue);
