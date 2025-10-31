@@ -20,9 +20,10 @@
     isUserAuthenticated,
     loggedOut,
   } from './state/auth/auth.state';
-  import { themeStore, toggleTheme } from './state/theme/theme.state';
+  import { themeStore } from './state/theme/theme.state';
   import Asleep from 'carbon-icons-svelte/lib/Asleep.svelte';
   import Light from 'carbon-icons-svelte/lib/Light.svelte';
+  import ThemeToggle from './components/ThemeToggle.svelte';
 
   onMount(async () => {
     await loadConfiguration();
@@ -38,14 +39,14 @@
 
 <Theme bind:theme={$themeStore}>
   <Header company="Yonder" platformName="SvelteOffice">
-    <HeaderNav style="display: flex; align-items: center; width: 100%;">
+    <HeaderNav style="display: flex; align-items: center; width: 100%; line-height: 48px;">
       {#if $isUserAuthenticated}
         <HeaderNavItem href="#/my-tr" text="My Time Registration" />
         <HeaderNavItem href="#/employees" text="Employees" />
         <HeaderNavItem href="#/holidays" text="Holidays" />
         <HeaderNavItem on:click={loggedOut} text="Logout" />
         <div style="margin-left: auto; display: flex; align-items: center;">
-          <HeaderNavItem on:click={toggleTheme} text={$themeStore === 'white' ? '🌙 Join the Dark Side' : '☀️ Return to the Light'} />
+          <ThemeToggle />
         </div>
       {/if}
     </HeaderNav>
