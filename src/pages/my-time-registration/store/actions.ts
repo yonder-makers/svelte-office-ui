@@ -196,9 +196,7 @@ export function addNewTask(task: TaskDto) {
   });
   // Track as newly added (so it appears in the grid immediately)
   newlyAddedTaskIds.update((ids: number[]) => {
-    console.log('📝 Before update, newlyAddedTaskIds has:', ids.length, 'tasks');
     const updated = uniq([...ids, task.taskId]);
-    console.log('✅ After update, newlyAddedTaskIds will have:', updated.length, 'tasks');
     return updated;
   });
 }
