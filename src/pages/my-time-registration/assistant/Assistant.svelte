@@ -54,7 +54,6 @@
   const recognition = derived(assistantLanguage, (language) => regenerateSpeechRecognition(language));
 
   $: if (messagesRef) {
-    console.log('Scrolling to bottom', $messages.length);
     setTimeout(() => {
       messagesRef.scroll({
         top: messagesRef.scrollHeight + 200,

@@ -1,4 +1,4 @@
-import { doGet } from './core/base-api';
+import { doDelete, doGet, doPost, doPut } from './core/base-api';
 import { toWebOfficeFormat } from './core/date-utils';
 
 export type HolidayDto = {
@@ -17,6 +17,68 @@ export type HolidayDto = {
   type: 'Legal' | 'Paid' | 'Compensation' | 'Not paid';
 };
 
+export enum HolidayType {
+  PAID = 1,
+  COMPENSATION = 2,
+  NOT_PAID = 3,
+  LEGAL = 4,
+}
+
+export type ApprovalStatus = 'YES' | 'NO' | '?';
+
+export interface HolidayRequest {
+  employeeCode?: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  type: HolidayType;
+  isAM: boolean;
+  description: string;
+}
+
+export interface HolidayResponse {
+  id: number;
+  employeeCode: string;
+  employeeName: string;
+  requestDate: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  type: HolidayType;
+  typeName: string;
+  isAM: boolean;
+  description: string;
+  supervisorAdvice: ApprovalStatus;
+  managerDecision: ApprovalStatus;
+  status: string;
+  canModify: boolean;
+  canDelete: boolean;
+  modifiedDate: string;
+  modifiedBy: string;
+}
+
+export interface LegalHoliday {
+  day: number;
+  month: number;
+  description: string;
+}
+
+export interface RemainingHolidaysResponse {
+  employeeCode?: string;
+  total: number;
+  used: number;
+  remaining: number;
+  pending: number;
+}
+
+export interface HolidayFilters {
+  startDateFrom?: string;
+  startDateTo?: string;
+  endDateFrom?: string;
+  endDateTo?: string;
+}
+
+// Legacy function for compatibility
 export async function fetchHolidays(
   startDate: Date,
   endDate: Date,
@@ -29,4 +91,101 @@ export async function fetchHolidays(
 
   const response = await doGet<HolidayDto[]>('/api/holidays', body, signal);
   return response;
+}
+
+// New CRUD operations
+export async function listHolidays(
+  filters?: HolidayFilters,
+  signal?: AbortSignal
+): Promise<HolidayResponse[]> {
+  const params: Record<string, string> = {};
+  if (filters) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) params[key] = value;
+    });
+  }
+
+  return await doGet<HolidayResponse[]>('/api/holidays', params, signal);
+}
+
+export async function getHoliday(
+  id: number,
+  signal?: AbortSignal
+): Promise<HolidayResponse> {
+  return await doGet<HolidayResponse>(`/api/holidays/${id}`, undefined, signal);
+}
+
+export async function createHoliday(
+  data: HolidayRequest,
+  signal?: AbortSignal
+): Promise<HolidayResponse> {
+  return await doPost<HolidayResponse>('/api/holidays', data, signal);
+}
+
+export async function updateHoliday(
+  id: number,
+  data: Partial<HolidayRequest>,
+  signal?: AbortSignal
+): Promise<HolidayResponse> {
+  return await doPut<HolidayResponse>(`/api/holidays/${id}`, data, signal);
+}
+
+export async function deleteHoliday(
+  id: number | string,
+  signal?: AbortSignal
+): Promise<void> {
+  return await doDelete<void>(`/api/holidays/${id}`, undefined, signal);
+}
+
+// Approval endpoints
+export async function setAdvice(
+  id: number,
+  advice: ApprovalStatus,
+  signal?: AbortSignal
+): Promise<HolidayResponse> {
+  return await doPut<HolidayResponse>(
+    `/api/holidays/${id}/advice`,
+    { advice },
+    signal
+  );
+}
+
+export async function setDecision(
+  id: number,
+  decision: ApprovalStatus,
+  signal?: AbortSignal
+): Promise<HolidayResponse> {
+  return await doPut<HolidayResponse>(
+    `/api/holidays/${id}/decision`,
+    { decision },
+    signal
+  );
+}
+
+// Employee info
+export async function getRemainingHolidays(
+  signal?: AbortSignal
+): Promise<RemainingHolidaysResponse> {
+  return await doGet<RemainingHolidaysResponse>(
+    '/api/employees/me/remaining',
+    undefined,
+    signal
+  );
+}
+
+// Lookups
+export async function getLegalHolidays(
+  signal?: AbortSignal
+): Promise<LegalHoliday[]> {
+  return await doGet<LegalHoliday[]>('/api/legal-holidays', undefined, signal);
+}
+
+export function getHolidayTypeName(type: HolidayType): string {
+  const names: Record<HolidayType, string> = {
+    [HolidayType.PAID]: 'Paid',
+    [HolidayType.COMPENSATION]: 'Compensation',
+    [HolidayType.NOT_PAID]: 'Not Paid',
+    [HolidayType.LEGAL]: 'Legal',
+  };
+  return names[type] || 'Unknown';
 }

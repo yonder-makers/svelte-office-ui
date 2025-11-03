@@ -1,15 +1,16 @@
 import { getWorkedTimeFromToggl } from '@svelte-office/api';
 import { endOfMonth, format, isSameDay, startOfMonth } from 'date-fns';
-import { differenceWith, intersectionWith, isEqual } from 'lodash';
-import { fetchFavoriteTasks } from '../../../apis/favorite-tasks.api';
-import { addNotification } from '../../../state/notifications/notifications.state';
+import { differenceWith, isEqual } from 'lodash';
 import { get } from 'svelte/store';
+import { fetchFavoriteTasks } from '../../../apis/favorite-tasks.api';
 import {
   bulkUpsertTasksLog,
   fetchTasksLog,
-  TaskLogDto,
+  type TaskLogDto,
 } from '../../../apis/tasks-log.api';
+import { getTasks } from "../../../apis/tasks.api";
 import { fetchTypesOfWork } from '../../../apis/types-of-work.api';
+import { addNotification } from '../../../state/notifications/notifications.state';
 import { createAbortable } from '../../../utils/create-abortable';
 import {
   addDataFromToggl,
@@ -31,10 +32,9 @@ import {
   loadingLogs,
   logEntries,
   logEntriesAreLoading,
-  LogEntry,
+  type LogEntry,
   selectedLogs,
 } from './state';
-import {getTasks} from "../../../apis/tasks.api";
 
 async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {
   if (!refreshDate) {

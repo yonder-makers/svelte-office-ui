@@ -1,11 +1,9 @@
 import { startOfMonth } from 'date-fns';
-import type { FavoriteTaskDto } from '../../../apis/favorite-tasks.api';
 import { writable } from 'svelte/store';
-import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
+import type { FavoriteTaskDto } from '../../../apis/favorite-tasks.api';
 import type { TaskDto } from '../../../apis/tasks.api';
-import type { Language } from '../models/language.model';
+import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 import { Languages } from '../enums/languages.enum';
-import { languages } from '../constants/languages';
 import type { AssistantSettings } from '../models';
 
 export interface LogEntry {
@@ -71,6 +69,17 @@ export const importinfo = writable<ImportLogAttributes>({
 export const favoritesTasks = writable<FavoriteTaskDto[]>([]);
 
 export const assignableTasks = writable<TaskDto[]>([]);
+
+// Track newly added tasks (cleared on refresh or on page mount)
+export const newlyAddedTaskIds = writable<number[]>([]);
+
+
+
+/**
+ * @deprecated This store is legacy. Prefer using `newlyAddedTaskIds`.
+ * TODO: Remove this store after all usages have been migrated to `newlyAddedTaskIds`.
+ */
+export const manuallyAddedTaskIds = writable<number[]>([]);
 
 // Assistant Settings
 export const assistantSettings = writable<AssistantSettings>({

@@ -1,24 +1,29 @@
 <script lang="ts">
-  import { Button, Checkbox } from 'carbon-components-svelte';
-  import { addNewTask, favoritesTasks, tasksState } from '../store';
+  import { Checkbox } from 'carbon-components-svelte';
+  import { addNewTask, favoritesTasks, newlyAddedTaskIds } from '../store';
+  import { tasksWithLoggedHours } from '../store/selectors';
   import { createEventDispatcher } from 'svelte';
-  import { entries } from 'lodash';
   import type { TaskDto } from '../../../apis/tasks.api';
 
   const dispatch = createEventDispatcher();
 
-  const selected: Record<number, boolean> = {};
-  var hasAnySelection = false;
+  export let canSubmit: boolean = false;
 
-  function onToggle() {
-    hasAnySelection = entries(selected).some(([, value]) => value);
+  let selected: number[] = [];
+
+  $: canSubmit = selected.length > 0;
+
+  function onToggle(taskId: number, event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      selected = [...selected, taskId];
+    } else {
+      selected = selected.filter(id => id !== taskId);
+    }
   }
 
-  function onSubmit() {
-    const selectedIds = entries(selected)
-      .filter(([, value]) => value)
-      .map(([id]) => parseInt(id));
-    for (const id of selectedIds) {
+  export function submit() {
+    for (const id of selected) {
       const favTask = $favoritesTasks.find((f) => f.taskNumber === id);
       if (favTask) {
         const taskDto: TaskDto = {
@@ -31,7 +36,8 @@
       }
     }
 
-    dispatch('onTasksAdded', selectedIds);
+    dispatch('onTasksAdded', selected);
+    selected = []; // Clear selection after adding
   }
 </script>
 
@@ -43,13 +49,11 @@
 {:else}
   {#each $favoritesTasks as favorite}
     <Checkbox
-      indeterminate={$tasksState.byId[favorite.taskNumber] !== undefined}
-      disabled={$tasksState.byId[favorite.taskNumber] !== undefined}
-      on:check={onToggle}
-      bind:checked={selected[favorite.taskNumber]}
+      indeterminate={$tasksWithLoggedHours.includes(favorite.taskNumber)}
+      disabled={$tasksWithLoggedHours.includes(favorite.taskNumber) || $newlyAddedTaskIds.includes(favorite.taskNumber)}
+      checked={selected.includes(favorite.taskNumber)}
+      on:change={(event) => onToggle(favorite.taskNumber, event)}
       labelText={`${favorite.taskNumber} - ${favorite.projectName ? favorite.projectName + ', ' : ''}${favorite.description}`}
     />
   {/each}
-
-  <Button disabled={hasAnySelection === false} on:click={onSubmit}>Add</Button>
 {/if}

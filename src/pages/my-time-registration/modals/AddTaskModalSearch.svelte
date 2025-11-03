@@ -1,12 +1,20 @@
 <script lang="ts">
   import {Checkbox, DataTable, Search, Toolbar, ToolbarContent} from 'carbon-components-svelte';
-  import {addNewTask, assignableTasks, tasksState} from '../store';
+  import {addNewTask, assignableTasks, newlyAddedTaskIds} from '../store';
+  import {tasksWithLoggedHours} from '../store/selectors';
   import type {TaskDto} from "../../../apis/tasks.api";
+
+  export let canSubmit: boolean = false;
 
   let value = '';
   let filtered = $assignableTasks;
 
-  const selected: Record<number, boolean> = {};
+  // Search tab doesn't need a submit button - tasks are added immediately
+  $: canSubmit = false;
+
+  export function submit() {
+    // No-op for search tab - tasks are added on checkbox change
+  }
 
   $: filtered = $assignableTasks
           .map((task: TaskDto) => {
@@ -27,9 +35,12 @@
           })
           .sort((a: TaskDto, b: TaskDto) => a.taskId > b.taskId);
 
-  function onCheck(task: TaskDto) {
+  function onCheck(task: TaskDto, event: Event) {
     try {
-      addNewTask(task);
+      const checkbox = event.target as HTMLInputElement;
+      if (checkbox.checked) {
+        addNewTask(task);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -50,10 +61,10 @@
   <svelte:fragment slot="cell" let:row let:cell>
     {#if cell.key === "add"}
       <Checkbox
-              indeterminate={$tasksState.byId[row.taskId] !== undefined}
-              disabled={$tasksState.byId[row.taskId] !== undefined || selected[row.taskId]}
-              bind:checked={selected[row.taskId]}
-              on:check={(_event) => {onCheck(row)}}
+              indeterminate={$tasksWithLoggedHours.includes(row.taskId)}
+              disabled={$tasksWithLoggedHours.includes(row.taskId) || $newlyAddedTaskIds.includes(row.taskId)}
+              checked={$newlyAddedTaskIds.includes(row.taskId)}
+              on:change={(event) => {onCheck(row, event)}}
       />
     {:else}
       {cell.value}
@@ -82,9 +93,3 @@
       </ToolbarContent>
     </Toolbar>
 </DataTable>
-
-<style>
-  :global(.bx--tab-content) {
-    padding: 0 !important;
-  }
-</style>

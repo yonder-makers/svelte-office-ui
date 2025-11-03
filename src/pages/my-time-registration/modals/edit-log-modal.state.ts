@@ -4,10 +4,9 @@ import { getSelected } from '../store';
 import { submitHours } from '../store/actions';
 import {
   enteringMode,
-  selectedLogs,
   logEntries,
-  typesOfWork,
   tasksState,
+  typesOfWork
 } from '../store/state';
 
 interface EditingLog {
@@ -32,7 +31,13 @@ export function save() {
   const log = get(editingLog);
   const h = parseFloat(log.hours);
   const started = parseFloat(log.workFromHomeStarted);
-  const typeOfWork = get(typesOfWorkComboItems)[log.selectedTypeOfWorkIndex].id;
+  const typeOfWork = get(typesOfWorkComboItems)[log.selectedTypeOfWorkIndex]?.id;
+  
+  if (!typeOfWork) {
+    console.error('No type of work selected');
+    return;
+  }
+  
   submitHours(typeOfWork, h, log.description, log.isWorkFromHome, started);
 }
 
@@ -67,7 +72,8 @@ isEditLogModalOpen.subscribe((newValue) => {
     );
 
     if (log) {
-      const typeOfWorkIndex = get(typesOfWorkComboItems).findIndex(
+      const comboItems = get(typesOfWorkComboItems);
+      const typeOfWorkIndex = comboItems.findIndex(
         (t) => t.id === log.typeOfWork,
       );
       editingLog.set({
@@ -75,7 +81,7 @@ isEditLogModalOpen.subscribe((newValue) => {
         description: log.description,
         isWorkFromHome: log.isWorkFromHome,
         workFromHomeStarted: log.workFromHomeStarted.toString(),
-        selectedTypeOfWorkIndex: typeOfWorkIndex,
+        selectedTypeOfWorkIndex: typeOfWorkIndex >= 0 ? typeOfWorkIndex : 0,
       });
 
       return;
@@ -88,6 +94,7 @@ isEditLogModalOpen.subscribe((newValue) => {
     return {
       ...old,
       description: task.description,
+      selectedTypeOfWorkIndex: old.selectedTypeOfWorkIndex >= 0 ? old.selectedTypeOfWorkIndex : 0,
     };
   });
 });
