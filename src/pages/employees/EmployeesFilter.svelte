@@ -60,10 +60,11 @@
 
   let fuse: Fuse<Employee> | null = null;
 
-  onMount(() => {
-    generateFilters(employees);
+  // Reinitialize Fuse when employees data loads or changes
+  $: if (employees.length > 0) {
     fuse = new Fuse(employees, options);
-  });
+    generateFilters(employees);
+  }
 
   $: activeFilters.position = positionFilters.filter((item) => item.selected);
   $: activeFilters.hireYear = hireYearFilters.filter((item) => item.selected);
@@ -73,7 +74,8 @@
     (item) => item.selected,
   );
 
-  $: activeFilters, computeFuse();
+  // Trigger computeFuse when any filter array changes
+  $: positionFilters, hireYearFilters, hireMonthFilters, birthYearFilters, birthMonthFilters, computeFuse();
   $: activeFilterKeys, updateActiveFilterNumber();
 
   function generateFilters(source: Employee[]) {
@@ -151,6 +153,10 @@
   }
 
   function computeFuse() {
+    if (!fuse) {
+      return;
+    }
+    
     let fuseQuery = { $and: [] };
     activeFilterKeys = [];
     for (const property in activeFilters) {
@@ -165,10 +171,9 @@
         });
       }
     }
-
+    
     if (fuseQuery.$and.length !== 0) {
       const result = fuse.search(fuseQuery);
-
       generateFilters(result.map((res) => res.item));
     } else {
       generateFilters(employees);
