@@ -9,7 +9,7 @@
   import EmployeesFilter from './EmployeesFilter.svelte';
 
   let value = '';
-  let employees: Employee[] = undefined;
+  let employees: Employee[] = [];
   let activeFilters: ActiveFilters = {
     position: [],
     hireYear: [],

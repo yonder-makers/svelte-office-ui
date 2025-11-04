@@ -21,7 +21,7 @@ export function createAbortable<TResponse>(
 ): () => Promise<TResponse> {
   let controller = new AbortController();
 
-  return async (...params: any[]) => {
+  return async (...params: any[]): Promise<TResponse> => {
     controller.abort();
 
     controller = new AbortController();
@@ -30,10 +30,11 @@ export function createAbortable<TResponse>(
     } else {
       try {
         return await f(controller.signal, ...params);
-      } catch (err) {
+      } catch (err: any) {
         if (err?.code !== DOMException.ABORT_ERR) {
           throw err;
         }
+        throw err;
       }
     }
   };

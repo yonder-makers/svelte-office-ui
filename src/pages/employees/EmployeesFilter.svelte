@@ -58,7 +58,7 @@
     keys: ['position', 'hireYear', 'hireMonth', 'birthYear', 'birthMonth'],
   };
 
-  let fuse: Fuse<Employee> = undefined;
+  let fuse: Fuse<Employee> | null = null;
 
   onMount(() => {
     generateFilters(employees);

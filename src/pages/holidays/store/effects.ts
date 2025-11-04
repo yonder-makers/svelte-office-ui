@@ -1,11 +1,9 @@
-import { currentYearState } from './state';
-import { createAbortable } from '../../../utils/create-abortable';
-import { fetchHolidays } from '../../../apis/holidays.api';
 import { refreshData } from './actions';
+import { currentYearState } from './state';
 
 async function onYearChanged(year: number) {
   console.log('Year changed to', year);
-  refreshData();
+  await refreshData();
 }
 
 let registered = false;
