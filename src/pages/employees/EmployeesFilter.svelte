@@ -60,10 +60,21 @@
 
   let fuse: Fuse<Employee> | null = null;
 
-  onMount(() => {
-    generateFilters(employees);
+  // Reinitialize Fuse when employees data loads or changes
+  $: if (employees.length > 0) {
+    console.log('[Filter] Initializing Fuse with', employees.length, 'employees');
+    if (employees.length > 0) {
+      console.log('[Filter] Sample employee:', {
+        position: employees[0].position,
+        hireYear: employees[0].hireYear,
+        hireMonth: employees[0].hireMonth,
+        birthYear: employees[0].birthYear,
+        birthMonth: employees[0].birthMonth,
+      });
+    }
     fuse = new Fuse(employees, options);
-  });
+    generateFilters(employees);
+  }
 
   $: activeFilters.position = positionFilters.filter((item) => item.selected);
   $: activeFilters.hireYear = hireYearFilters.filter((item) => item.selected);
@@ -73,7 +84,8 @@
     (item) => item.selected,
   );
 
-  $: activeFilters, computeFuse();
+  // Trigger computeFuse when any filter array changes
+  $: positionFilters, hireYearFilters, hireMonthFilters, birthYearFilters, birthMonthFilters, computeFuse();
   $: activeFilterKeys, updateActiveFilterNumber();
 
   function generateFilters(source: Employee[]) {
@@ -151,10 +163,17 @@
   }
 
   function computeFuse() {
+    console.log('[Filter] computeFuse called, fuse:', fuse !== null);
+    if (!fuse) {
+      console.log('[Filter] Fuse not initialized, skipping');
+      return;
+    }
+    
     let fuseQuery = { $and: [] };
     activeFilterKeys = [];
     for (const property in activeFilters) {
       if (activeFilters[property].length > 0) {
+        console.log('[Filter] Active filter:', property, activeFilters[property].length, 'items');
         activeFilterKeys.push(property);
 
         const currentIndex = fuseQuery.$and.length;
@@ -165,12 +184,15 @@
         });
       }
     }
-
+    
+    console.log('[Filter] Fuse query:', JSON.stringify(fuseQuery, null, 2));
+    
     if (fuseQuery.$and.length !== 0) {
       const result = fuse.search(fuseQuery);
-
+      console.log('[Filter] Fuse search found:', result.length, 'results');
       generateFilters(result.map((res) => res.item));
     } else {
+      console.log('[Filter] No active filters, using all employees');
       generateFilters(employees);
     }
   }

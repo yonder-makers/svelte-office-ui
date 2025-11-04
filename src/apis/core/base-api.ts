@@ -96,6 +96,10 @@ export async function doGet<TResult>(
 
   handleUnauthorized(result);
 
+  if (!result.ok) {
+    throw new Error(`HTTP error! status: ${result.status}`);
+  }
+
   const response = await result.json();
   if (response.errorCode) {
     throw response;

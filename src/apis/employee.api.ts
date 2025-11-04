@@ -22,18 +22,26 @@ export interface Employee extends EmployeeDto {
 }
 
 export async function fetchEmployees(): Promise<Employee[]> {
-  const webOfficeUrl = get(authState).webOfficeUrl;
-  const response = await doGet<EmployeeDto[]>('/api/employees');
-  return response
-    .sort((a, b) => a.firstName.localeCompare(b.firstName) || a.lastName.localeCompare(b.lastName))
-    .map((employee) => { 
-      return {
+  try {
+    const webOfficeUrl = get(authState).webOfficeUrl;
+    const response = await doGet<EmployeeDto[]>('/api/employees');
+    
+    if (!Array.isArray(response)) {
+      throw new Error(`Invalid response format from employee API. Expected array, got: ${typeof response}`);
+    }
+    
+    return response
+      .sort((a, b) => a.firstName.localeCompare(b.firstName) || a.lastName.localeCompare(b.lastName))
+      .map((employee) => ({
         ...employee,
         picture: employee.picture.includes('/.jpg') ? '/assets/images/user-avatar.png' : `${webOfficeUrl}${employee.picture}`,
         hireYear: employee.hireDate.substring(6, 10),
         hireMonth: employee.hireDate.substring(3, 5),
         birthYear: employee.birthDate.substring(6, 10),
         birthMonth: employee.birthDate.substring(3, 5),
-      }
-    });
+      }));
+  } catch (error) {
+    console.error('Error in fetchEmployees:', error);
+    throw error;
+  }
 }

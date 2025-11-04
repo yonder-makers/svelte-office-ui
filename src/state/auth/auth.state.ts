@@ -57,7 +57,7 @@ export function configurationLoaded(apiUrl: string, webOfficeUrl: string) {
 export const userSession = derived(authState, (state) => state);
 export const isUserAuthenticated = derived(
   userSession,
-  (state) => state.accessToken !== undefined,
+  (state) => state.accessToken !== undefined && state.accessToken !== null,
 );
 export const isUserAuthenticatedInToggl = derived(
   userSession,
