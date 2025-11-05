@@ -2,7 +2,7 @@ import { loggedOut } from '../../state/auth/auth.state';
 import { resolveApiURL } from '../resolvers/api-url.resolver';
 import { resolveAuthToken } from '../resolvers/auth-token.resolver';
 
-function getAuthTokenHeaders() {
+function getAuthTokenHeaders(): Record<string, string> {
   const authToken = resolveAuthToken();
   return authToken
     ? {
@@ -95,6 +95,10 @@ export async function doGet<TResult>(
   });
 
   handleUnauthorized(result);
+
+  if (!result.ok) {
+    throw new Error(`HTTP error! status: ${result.status}`);
+  }
 
   const response = await result.json();
   if (response.errorCode) {

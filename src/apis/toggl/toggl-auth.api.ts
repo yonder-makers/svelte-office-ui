@@ -6,6 +6,6 @@ export async function togglLogin(username: string, password: string) {
   const loginResponse = await doPost<LoginResponse>('/api/toggl-login', body);
 
   return {
-    accessToken: loginResponse.access_token,
+    accessToken: loginResponse.accessToken,
   };
 }

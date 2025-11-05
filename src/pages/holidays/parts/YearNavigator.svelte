@@ -15,7 +15,7 @@
   <Button
     on:click={goPreviousYear}
     class="nav-btn"
-    hasIconOnly={true}
+    iconDescription="Previous year"
     size="small"
     kind="primary"
   >
@@ -24,7 +24,7 @@
 
   <span>{$currentYearState}</span>
 
-  <Button on:click={goNextYear} class="nav-btn" size="small" kind="primary"
+  <Button on:click={goNextYear} class="nav-btn" iconDescription="Next year" size="small" kind="primary"
     ><ArrowRight size={16} /></Button
   >
 

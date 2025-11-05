@@ -1,16 +1,16 @@
 import { derived, writable } from 'svelte/store';
 
 interface AuthState {
-  accessToken: string;
+  accessToken: string | null;
   apiUrl: string;
   webOfficeUrl: string;
   isUserLoggedInToggl: boolean;
 }
 
 export const authState = writable<AuthState>({
-  accessToken: undefined,
-  apiUrl: undefined,
-  webOfficeUrl: undefined,
+  accessToken: null,
+  apiUrl: '',
+  webOfficeUrl: '',
   isUserLoggedInToggl: false,
 });
 
@@ -28,7 +28,7 @@ export function loggedOut() {
   authState.update((state) => {
     return {
       ...state,
-      accessToken: undefined,
+      accessToken: null,
       isUserLoggedInToggl: false,
     };
   });
@@ -57,7 +57,7 @@ export function configurationLoaded(apiUrl: string, webOfficeUrl: string) {
 export const userSession = derived(authState, (state) => state);
 export const isUserAuthenticated = derived(
   userSession,
-  (state) => state.accessToken !== undefined,
+  (state) => state.accessToken !== undefined && state.accessToken !== null,
 );
 export const isUserAuthenticatedInToggl = derived(
   userSession,

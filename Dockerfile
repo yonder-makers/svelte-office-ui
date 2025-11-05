@@ -1,4 +1,4 @@
-FROM node:16-bullseye as builder
+FROM node:22-bullseye as builder
 WORKDIR /app
 
 COPY ./package*.json ./

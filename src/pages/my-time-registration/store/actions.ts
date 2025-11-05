@@ -20,45 +20,45 @@ import {
   uniqBy,
   uniqWith,
 } from 'lodash';
+import { get } from 'svelte/store';
 import {
   addFavoriteTask,
-  FavoriteTaskDto,
+  type FavoriteTaskDto,
   removeFavoriteTask,
 } from '../../../apis/favorite-tasks.api';
-import { get } from 'svelte/store';
-import { bulkUpsertTasksLog, TaskLogDto } from '../../../apis/tasks-log.api';
+import { bulkUpsertTasksLog, type TaskLogDto } from '../../../apis/tasks-log.api';
 import type { TaskDto } from '../../../apis/tasks.api';
 import type { TypeOfWorkDto } from '../../../apis/types-of-work.api';
 import { addNotification } from '../../../state/notifications/notifications.state';
 import { DaySelectionType } from '../enums';
+import type { AssistantSettings } from '../models';
 import {
-  hasImportedData,
-  importedEntries,
   getSelected,
+  hasImportedData,
   selectedTypeOfWorkKeyForImport,
 } from './selectors';
 import {
+  assignableTasks,
+  assistantSettings,
   currentMonthState,
+  displayWeekend,
   editingValue,
   enteringMode,
+  favoritesTasks,
+  importEntriesSafeCopy,
+  importinfo,
   lastRefreshDateState,
   loadingLogs,
   logEntries,
   logEntriesAreLoading,
-  LogEntry,
-  LogId,
+  type LogEntry,
+  type LogId,
+  newlyAddedTaskIds,
   selectedLogs,
-  Task,
+  type Task,
   tasksState,
-  typesOfWork,
-  importinfo,
-  importEntriesSafeCopy,
-  displayWeekend,
-  favoritesTasks,
-  assignableTasks,
-  assistantSettings,
+  typesOfWork
 } from './state';
-import type { AssistantSettings } from '../models';
 
 export function changeDisplayWeekend(newValue: boolean) {
   displayWeekend.set(newValue);
@@ -144,6 +144,8 @@ export function logEntriesLoadingStarted() {
   loadingLogs.set([]);
   enteringMode.set('none');
   editingValue.set('');
+  // Clear newly added tasks when refreshing data
+  newlyAddedTaskIds.set([]);
 }
 
 export function logEntriesLoaded(
@@ -157,15 +159,18 @@ export function logEntriesLoaded(
   favoritesTasks.set(favs);
   assignableTasks.set(assignable);
 
+  // Only create tasks from entries with hours > 0
   const tasks = uniqBy(
-    entries.map(
-      (log) =>
-      ({
-        description: log.custRefDescription || log.description,
-        project: log.projectName,
-        taskId: log.taskId,
-      } as Task),
-    ),
+    entries
+      .filter((log) => log.hours > 0)
+      .map(
+        (log) =>
+        ({
+          description: log.custRefDescription || log.description,
+          project: log.projectName,
+          taskId: log.taskId,
+        } as Task),
+      ),
     (p) => p.taskId,
   );
 
@@ -186,6 +191,11 @@ export function addNewTask(task: TaskDto) {
       },
       allIds: uniq([...old.allIds, task.taskId]),
     };
+  });
+  // Track as newly added (so it appears in the grid immediately)
+  newlyAddedTaskIds.update((ids: number[]) => {
+    const updated = uniq([...ids, task.taskId]);
+    return updated;
   });
 }
 
@@ -235,9 +245,13 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
   const selectedTypeOfWork = get(selectedTypeOfWorkKeyForImport);
   importEntriesSafeCopy.set([...existingLogEntries]);
   for (const task of workTimes) {
-    tasks[task.task.taskId] = task.task;
-    taskIds.push(task.task.taskId);
+    let hasNewEntries = false;
     for (const day of task.timeEntries) {
+      // Only import entries with hours > 0
+      if (day.duration <= 0) {
+        continue;
+      }
+      
       const date = parseISO(day.entryDay);
       const existingOne = existingLogEntries.find(
         (e) => e.taskId === task.task.taskId && isSameDay(date, e.date),
@@ -247,6 +261,7 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
         continue;
       }
 
+      hasNewEntries = true;
       importedLogs.push({
         day: date,
         taskId: task.task.taskId,
@@ -264,6 +279,11 @@ export function addDataFromToggl(workTimes: WorkTimeDto[]) {
         workFromHomeStarted: importMetaData.workFromHomeStart,
         uid: existingOne?.uid,
       });
+    }
+    // Only add task if it has new entries with hours > 0
+    if (hasNewEntries) {
+      tasks[task.task.taskId] = task.task;
+      taskIds.push(task.task.taskId);
     }
   }
 

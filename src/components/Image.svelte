@@ -1,15 +1,23 @@
-<script>
-  export let src;
-  export let alt;
-  export let fallback;
+<script lang="ts">
+  export let src: string;
+  export let alt: string;
+  export let fallback: string;
   import { onMount } from 'svelte';
   let loaded = false;
-  let thisImage;
+  let thisImage: HTMLImageElement;
+  
   onMount(() => {
     thisImage.onload = () => {
       loaded = true;
     };
   });
+
+  function handleError(event: Event) {
+    const target = event.target as HTMLImageElement;
+    if (target) {
+      target.src = fallback;
+    }
+  }
 </script>
 
 <img
@@ -18,7 +26,7 @@
   class:loaded
   bind:this={thisImage}
   loading="lazy"
-  onerror="this.src='{fallback}'"
+  on:error={handleError}
 />
 
 <style>

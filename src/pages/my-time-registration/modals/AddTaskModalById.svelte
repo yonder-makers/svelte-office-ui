@@ -15,12 +15,16 @@
 
   const dispatch = createEventDispatcher();
 
+  export let canSubmit: boolean = false;
+
   let taskId = '';
 
   let loadingStatus: 'inactive' | 'active' | 'finished' = 'inactive';
   let loadingDescription = '';
 
   let selectedTask: TaskDto = undefined;
+
+  $: canSubmit = selectedTask !== undefined;
 
   async function fetchInfo() {
     const id = parseInt(taskId);
@@ -32,10 +36,13 @@
     loadingDescription = `Task exists! Now, let's hope you are also assigned on this task.`;
   }
 
-  function onSubmit() {
+  export function submit() {
     try {
       addNewTask(selectedTask);
       dispatch("onTasksAdded", [selectedTask.taskId]);
+      selectedTask = undefined;
+      taskId = '';
+      loadingStatus = 'inactive';
     } catch (err) {
       console.error(err);
     }
@@ -69,8 +76,6 @@
     </StructuredListBody>
   </StructuredList>
 {/if}
-
-<Button disabled={selectedTask === undefined} on:click={onSubmit}>Add</Button>
 
 
 
