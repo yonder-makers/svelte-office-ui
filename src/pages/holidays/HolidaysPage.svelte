@@ -6,6 +6,7 @@
   import HolidaysGrid from './parts/HolidaysGrid.svelte';
   import HolidayRequestModal from './parts/HolidayRequestModal.svelte';
   import RemainingDaysWidget from './parts/RemainingDaysWidget.svelte';
+  import CareerStatsWidget from './parts/CareerStatsWidget.svelte';
   import YearNavigator from './parts/YearNavigator.svelte';
   import { openCreateModal, registerEffects } from './store';
   import { errorStore } from './store/state';
@@ -62,6 +63,13 @@
       </Column>
     </Row>
 
+    <!-- Career Stats Section -->
+    <Row class="career-row">
+      <Column lg={16}>
+        <CareerStatsWidget />
+      </Column>
+    </Row>
+
     <!-- Table Section -->
     <Row class="table-row">
       <Column lg={16}>
@@ -77,7 +85,7 @@
 
 <style>
   .holidays-page {
-    background: #f4f4f4;
+    background: var(--custom-bg-secondary);
     min-height: 100vh;
     margin: -2rem;
     padding: 2rem;
@@ -97,7 +105,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 2rem;
-    background: white;
+    background: var(--custom-bg);
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
@@ -123,18 +131,22 @@
     margin: 0;
     font-size: 1.75rem;
     font-weight: 600;
-    color: #161616;
+    color: var(--custom-text);
     line-height: 1.2;
   }
 
   .header-text .subtitle {
     margin: 0.25rem 0 0 0;
     font-size: 0.875rem;
-    color: #525252;
+    color: var(--custom-text-secondary);
     line-height: 1.4;
   }
 
   :global(.controls-row) {
+    margin-bottom: 1.5rem;
+  }
+
+  :global(.career-row) {
     margin-bottom: 1.5rem;
   }
 

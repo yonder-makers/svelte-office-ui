@@ -147,52 +147,52 @@
 
 <style>
   tr {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--custom-border);
     transition: background-color 0.15s ease;
   }
 
   tr:hover {
-    background-color: #f4f4f4;
+    background-color: var(--custom-hover);
   }
 
   tr.pending-row {
-    background-color: #fff9e6 !important;
+    background-color: rgba(241, 194, 27, 0.1) !important;
     border-left: 3px solid #f1c21b;
   }
   
   tr.pending-row td {
-    background-color: #fff9e6 !important;
+    background-color: rgba(241, 194, 27, 0.1) !important;
   }
   
   tr.pending-row:hover {
-    background-color: #fff3cc !important;
+    background-color: rgba(241, 194, 27, 0.15) !important;
   }
   
   tr.pending-row:hover td {
-    background-color: #fff3cc !important;
+    background-color: rgba(241, 194, 27, 0.15) !important;
   }
   
   tr.rejected-row {
-    background-color: #fff1f1 !important;
+    background-color: rgba(218, 30, 40, 0.1) !important;
     border-left: 3px solid #da1e28;
   }
   
   tr.rejected-row td {
-    background-color: #fff1f1 !important;
+    background-color: rgba(218, 30, 40, 0.1) !important;
   }
   
   tr.rejected-row:hover {
-    background-color: #ffe6e6 !important;
+    background-color: rgba(218, 30, 40, 0.15) !important;
   }
   
   tr.rejected-row:hover td {
-    background-color: #ffe6e6 !important;
+    background-color: rgba(218, 30, 40, 0.15) !important;
   }
 
   td {
     padding: 1rem;
     font-size: 0.875rem;
-    color: #161616;
+    color: var(--custom-text);
     vertical-align: middle;
   }
 
@@ -211,23 +211,23 @@
   }
 
   .type-badge.paid {
-    background: #d0e2ff;
-    color: #0043ce;
+    background: rgba(15, 98, 254, 0.15);
+    color: #0f62fe;
   }
 
   .type-badge.compensation {
-    background: #d2f4ea;
-    color: #005d5d;
+    background: rgba(36, 161, 72, 0.15);
+    color: #24a148;
   }
 
   .type-badge.not-paid {
-    background: #ffd6e8;
-    color: #9f1853;
+    background: rgba(218, 30, 40, 0.15);
+    color: #da1e28;
   }
 
   .type-badge.legal {
-    background: #e5e5e5;
-    color: #161616;
+    background: var(--custom-bg-tertiary);
+    color: var(--custom-text);
   }
 
   .status-cell {
@@ -235,7 +235,7 @@
   }
 
   .date-cell {
-    color: #525252;
+    color: var(--custom-text-secondary);
     white-space: nowrap;
   }
 
@@ -268,7 +268,7 @@
   }
 
   .modified-by {
-    color: #8d8d8d;
+    color: var(--custom-text-secondary);
     font-size: 0.75rem;
   }
 
@@ -278,7 +278,7 @@
   }
 
   .no-action {
-    color: #c6c6c6;
+    color: var(--custom-text-secondary);
   }
 
   .delete-details {
@@ -287,13 +287,13 @@
     gap: 0.5rem;
     margin-top: 1rem;
     padding: 1rem;
-    background: #f4f4f4;
+    background: var(--custom-bg-secondary);
     border-radius: 4px;
   }
 
   .delete-details strong {
     font-size: 1rem;
-    color: #161616;
+    color: var(--custom-text);
   }
 
   .delete-details span {

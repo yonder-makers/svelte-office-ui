@@ -13,6 +13,7 @@ import {
   type HolidayFilters,
   type HolidayRequest
 } from '../../../apis/holidays.api';
+import { fetchCurrentEmployee } from '../../../apis/employee.api';
 import {
   currentYearState,
   errorStore,
@@ -21,6 +22,8 @@ import {
   legalHolidaysStore,
   loadingLegalHolidaysStore,
   loadingRemainingStore,
+  loadingEmployeeStore,
+  currentEmployeeStore,
   refreshTriggerStore,
   remainingDaysStore,
   selectedHolidayStore,
@@ -101,6 +104,19 @@ export async function loadLegalHolidays() {
     legalHolidaysStore.set([]);
   } finally {
     loadingLegalHolidaysStore.set(false);
+  }
+}
+
+export async function loadCurrentEmployee() {
+  try {
+    loadingEmployeeStore.set(true);
+    const employee = await fetchCurrentEmployee();
+    currentEmployeeStore.set(employee);
+  } catch (error) {
+    console.warn('Current employee endpoint not available:', error);
+    currentEmployeeStore.set(null);
+  } finally {
+    loadingEmployeeStore.set(false);
   }
 }
 
@@ -204,8 +220,11 @@ export async function triggerRefresh() {
     startDateFrom: formatDate(new Date(year, 0, 1)),
     startDateTo: formatDate(new Date(year, 11, 31)),
   };
-  await loadHolidayRequests(filters);
-  await loadRemainingDays();
+  await Promise.all([
+    loadHolidayRequests(filters),
+    loadRemainingDays(),
+    loadCurrentEmployee()
+  ]);
 }
 
 // Approval workflow actions

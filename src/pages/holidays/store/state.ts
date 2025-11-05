@@ -5,6 +5,7 @@ import type {
   LegalHoliday,
   RemainingHolidaysResponse,
 } from '../../../apis/holidays.api';
+import type { Employee } from '../../../apis/employee.api';
 
 export const currentYearState = writable<number>(new Date().getFullYear());
 
@@ -35,6 +36,10 @@ export const remainingDaysStore = writable<RemainingHolidaysResponse>({
 // Loading states
 export const loadingRemainingStore = writable<boolean>(false);
 export const loadingLegalHolidaysStore = writable<boolean>(false);
+export const loadingEmployeeStore = writable<boolean>(false);
+
+// Current employee data for career stats
+export const currentEmployeeStore = writable<Employee | null>(null);
 
 // Error states
 export const errorStore = writable<string | null>(null);
