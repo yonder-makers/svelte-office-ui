@@ -23,6 +23,16 @@
   import { validateHolidayRequest } from '../../../utils/holiday-validation';
   import { formatDateForWebOffice } from '../../../utils/holiday-date-utils';
 
+  // Helper function to parse holiday ID (handles hex strings and numbers)
+  function parseHolidayId(id: string | number | null | undefined): number | null {
+    if (id === null || id === undefined) return null;
+    if (typeof id === 'number') return id;
+    if (typeof id === 'string') {
+      return id.startsWith('0x') ? parseInt(id, 16) : parseInt(id, 10);
+    }
+    return null;
+  }
+
   // Form state (always in YYYY-MM-DD format internally)
   let startDate = '';
   let endDate = '';
@@ -190,13 +200,7 @@
       const newStart = new Date(startDate + 'T00:00:00');
       const newEnd = new Date(endDate + 'T23:59:59');
       
-      // Parse holiday ID - could be hex string or number
-      let numericHolidayId: number;
-      if (typeof holidayId === 'string') {
-        numericHolidayId = holidayId.startsWith('0x') ? parseInt(holidayId, 16) : parseInt(holidayId, 10);
-      } else {
-        numericHolidayId = holidayId;
-      }
+      const numericHolidayId = parseHolidayId(holidayId);
 
       let found = false;
       
@@ -205,14 +209,7 @@
         
         // Get ID from 'id' field or fallback to 'uid' (from API response)
         const otherId = (other as any).id ?? (other as any).uid;
-        
-        // Parse both store ID and current ID - could be hex string or number
-        let parsedOtherId: number | undefined;
-        if (typeof otherId === 'string') {
-          parsedOtherId = otherId.startsWith('0x') ? parseInt(otherId, 16) : parseInt(otherId, 10);
-        } else {
-          parsedOtherId = otherId;
-        }
+        const parsedOtherId = parseHolidayId(otherId);
 
         if (parsedOtherId === numericHolidayId) {
           continue;
