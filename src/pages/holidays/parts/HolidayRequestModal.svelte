@@ -2,106 +2,166 @@
   import {
     Button,
     ComposedModal,
+    DatePicker,
+    DatePickerInput,
     InlineNotification,
     ModalBody,
     ModalFooter,
     ModalHeader,
-    NumberInput,
     RadioButton,
     RadioButtonGroup,
+    Checkbox,
     TextArea,
   } from 'carbon-components-svelte';
   import { HolidayType } from '../../../apis/holidays.api';
   import { createNewHoliday, closeCreateModal } from '../store';
-  import { remainingDaysStore, showCreateModalStore } from '../store/state';
+  import {
+    remainingDaysStore,
+    showCreateModalStore,
+    holidayRequestsStore,
+    legalHolidaysStore
+  } from '../store/state';
+  import { validateHolidayRequest } from '../../../utils/holiday-validation';
+  import { formatDateForWebOffice } from '../../../utils/holiday-date-utils';
 
+  // Form state (always in YYYY-MM-DD format internally)
   let startDate = '';
   let endDate = '';
   let days = 1;
   let type = HolidayType.PAID;
-  let isAM = true;
+  // Deprecated AM/PM selection replaced by a simple half-day toggle
+  let isAM = true; // backend still expects this field; we'll always send true
+  let isHalfDay = false; // designer-friendly half-day checkbox
   let description = '';
   let isSubmitting = false;
   let formError = '';
+  let validationWarnings: string[] = [];
+  let showHalfDaySelector = false; // renamed semantic: can show half-day checkbox
 
   // Get remaining days from store
   $: remainingDays = $remainingDaysStore.remaining;
-  $: totalDays = $remainingDaysStore.total;
 
-  // Calculate working days when dates change
-  $: if (startDate && endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    if (end >= start) {
-      days = calculateWorkingDays(start, end);
-    }
-  }
-
-  $: showHalfDaySelector = days === 0.5;
-  
-  // Check if requesting more days than available (only for Paid holidays)
-  $: exceedsAvailable = type === HolidayType.PAID && days > remainingDays;
-  $: showRemainingWarning = type === HolidayType.PAID && days > 0;
-
+  // Calculate working days between two dates
   function calculateWorkingDays(start: Date, end: Date): number {
     let count = 0;
     const current = new Date(start);
-    
+
     while (current <= end) {
       const day = current.getDay();
-      // Skip weekends (0 = Sunday, 6 = Saturday)
-      if (day !== 0 && day !== 6) {
+      if (day !== 0 && day !== 6) { // Skip weekends
         count++;
       }
       current.setDate(current.getDate() + 1);
     }
-    
+
     return count;
   }
 
+  // Handle date picker change
+  function handleDateChange(event: CustomEvent) {
+    const selectedDates = event.detail.selectedDates;
+    if (selectedDates && selectedDates.length >= 1) {
+      const start = selectedDates[0];
+      // If only one date picked in range mode, treat as single-day selection
+      const end = selectedDates.length === 2 ? selectedDates[1] : selectedDates[0];
+      startDate = start.toISOString().split('T')[0];
+      endDate = end.toISOString().split('T')[0];
+    }
+  }
+
+  // Check if start and end dates are the same day
+  // Auto-calculate days based on range + half-day toggle
+  $: {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const isSameDay = !isNaN(start.getTime()) && !isNaN(end.getTime()) && start.toDateString() === end.toDateString();
+
+      if (isSameDay) {
+        days = isHalfDay ? 0.5 : 1;
+      } else if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end >= start) {
+        // Reset half-day if user expanded to multiple days
+        if (isHalfDay) isHalfDay = false;
+        days = calculateWorkingDays(start, end);
+      }
+    }
+  }
+
+  // Show AM/PM selector when same day is selected
+  // Show half-day checkbox only when a single day is selected
+  $: {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    showHalfDaySelector = !isNaN(start.getTime()) && !isNaN(end.getTime()) && start.toDateString() === end.toDateString();
+  }
+
+  // Check if exceeds available days (only for Paid)
+  $: exceedsAvailable = type === HolidayType.PAID && days > remainingDays;
+  $: showRemainingWarning = type === HolidayType.PAID && days > 0;
+
+  // Validate days format
+  // Removed manual days validation UI; validation handled centrally in validateHolidayRequest
+
   async function handleSubmit() {
     formError = '';
-    
-    // Validation
+    validationWarnings = [];
+
+    // Validation checks
     if (!startDate || !endDate) {
-      formError = 'Please select start and end dates';
-      return;
-    }
-    
-    if (!description || description.trim().length === 0) {
-      formError = 'Please provide a description';
-      return;
-    }
-    
-    if (description.length > 50) {
-      formError = 'Description must be 50 characters or less';
-      return;
-    }
-    
-    if (days < 0.5) {
-      formError = 'Minimum 0.5 days required';
+      formError = 'Start date and end date are required';
       return;
     }
 
-    // Check if exceeds available days for Paid holidays
-    if (type === HolidayType.PAID && days > remainingDays) {
-      formError = `You only have ${remainingDays.toFixed(1)} days available. You are requesting ${days} days.`;
+    if (!description.trim()) {
+      formError = 'Description is required';
       return;
+    }
+
+    // Run comprehensive validation
+    const validationResult = await validateHolidayRequest(
+      {
+        startDate,
+        endDate,
+        days,
+        type,
+        description,
+        isAM, // keep sending required field (meaningful only if days=0.5)
+      },
+      {
+        existingRequests: $holidayRequestsStore,
+        legalHolidays: $legalHolidaysStore,
+        remainingDays: $remainingDaysStore,
+      }
+    );
+
+    if (!validationResult.valid) {
+      formError = validationResult.errors.join('. ');
+      return;
+    }
+
+    if (validationResult.warnings && validationResult.warnings.length > 0) {
+      validationWarnings = validationResult.warnings;
     }
 
     isSubmitting = true;
 
     try {
+      // Convert dates to DD-MM-YYYY format for backend
+      const [year, month, day] = startDate.split('-');
+      const backendStartDate = `${day}-${month}-${year}`;
+
+      const [endYear, endMonth, endDay] = endDate.split('-');
+      const backendEndDate = `${endDay}-${endMonth}-${endYear}`;
+
       await createNewHoliday({
-        startDate,
-        endDate,
+        startDate: backendStartDate,
+        endDate: backendEndDate,
         days,
         type,
         isAM,
         description: description.trim(),
       });
-      
-      // Reset form
+
       resetForm();
     } catch (error) {
       formError = error instanceof Error ? error.message : 'Failed to create holiday request';
@@ -116,8 +176,10 @@
     days = 1;
     type = HolidayType.PAID;
     isAM = true;
+    isHalfDay = false;
     description = '';
     formError = '';
+    validationWarnings = [];
   }
 
   function handleClose() {
@@ -131,11 +193,20 @@
   on:close={handleClose}
   preventCloseOnClickOutside={isSubmitting}
   size="default"
+  hasForm
 >
-  <ModalHeader title="✨ New Holiday Request" />
+  <ModalHeader title="New Holiday Request" />
   
   <ModalBody hasForm>
-    <form on:submit|preventDefault={handleSubmit} id="holiday-form" class="holiday-form">
+    {#if isSubmitting}
+      <div class="loading-overlay">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Submitting your request...</p>
+        </div>
+      </div>
+    {/if}
+    <form on:submit|preventDefault={handleSubmit} id="holiday-form" class="holiday-form" class:form-submitting={isSubmitting}>
       {#if formError}
         <InlineNotification
           kind="error"
@@ -146,52 +217,43 @@
         />
       {/if}
 
-      <div class="form-section">
-        <div class="section-header">
+      {#if validationWarnings.length > 0}
+        {#each validationWarnings as warning}
+          <InlineNotification
+            kind="warning"
+            title="Warning"
+            subtitle={warning}
+            lowContrast
+            hideCloseButton
+          />
+        {/each}
+      {/if}
+
+      <div class="form-section compact">
+        <div class="section-header merged">
           <span class="section-icon">📅</span>
-          <h4 class="section-title">Date Selection</h4>
+          <h4 class="section-title">Dates & Duration</h4>
         </div>
-        <div class="date-inputs">
-          <div class="date-field">
-            <label for="start-date" class="bx--label">Start Date</label>
-            <input
-              id="start-date"
-              type="date"
-              class="bx--text-input date-input"
-              bind:value={startDate}
-              required
-            />
+        <div class="date-duration-row">
+          <div class="date-picker-col">
+            <DatePicker datePickerType="range" on:change={handleDateChange}>
+              <DatePickerInput labelText="Start" placeholder="mm/dd/yyyy" />
+              <DatePickerInput labelText="End" placeholder="mm/dd/yyyy" />
+            </DatePicker>
           </div>
-          <div class="date-field">
-            <label for="end-date" class="bx--label">End Date</label>
-            <input
-              id="end-date"
-              type="date"
-              class="bx--text-input date-input"
-              bind:value={endDate}
-              min={startDate}
-              required
-            />
+          <div class="days-info-col">
+            <div class="days-info" aria-live="polite">
+              {#if showHalfDaySelector}
+                <div class="days-row half-day-toggle">
+                  <Checkbox bind:checked={isHalfDay} labelText="Half day" id="half-day-checkbox" />
+                </div>
+              {/if}
+              {#if exceedsAvailable}
+                <div class="error-text">Exceeds balance ({remainingDays.toFixed(1)} left)</div>
+              {/if}
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="form-section">
-        <div class="section-header">
-          <span class="section-icon">⏱️</span>
-          <h4 class="section-title">Duration</h4>
-        </div>
-        <NumberInput
-          label="Number of Days"
-          bind:value={days}
-          min={0.5}
-          step={0.5}
-          helperText="Auto-calculated from working days (excludes weekends)"
-          invalid={exceedsAvailable}
-          invalidText={exceedsAvailable ? `Exceeds available days (${remainingDays} remaining)` : ''}
-          required
-        />
-
         {#if showRemainingWarning}
           <div class="balance-card" class:warning={exceedsAvailable}>
             <div class="balance-header">
@@ -241,23 +303,7 @@
           />
         </RadioButtonGroup>
 
-        {#if showHalfDaySelector}
-          <div class="half-day-section">
-            <RadioButtonGroup
-              legendText="Half Day Period"
-              bind:selected={isAM}
-            >
-              <RadioButton
-                labelText="🌅 Morning (AM)"
-                value={true}
-              />
-              <RadioButton
-                labelText="🌆 Afternoon (PM)"
-                value={false}
-              />
-            </RadioButtonGroup>
-          </div>
-        {/if}
+        <!-- Removed AM/PM selector per design simplification -->
 
         <TextArea
           labelText="Description"
@@ -290,200 +336,213 @@
   .holiday-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.75rem;
   }
 
   .form-section {
-    background: #f4f4f4;
-    border-radius: 8px;
-    padding: 1.25rem;
-    transition: box-shadow 0.2s ease;
+    background: linear-gradient(135deg, var(--custom-bg-secondary) 0%, var(--custom-bg) 100%);
+    border-radius: 12px;
+    padding: 1.25rem 1.25rem 1rem;
+    border: 1px solid var(--custom-border);
   }
 
-  .form-section:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  .form-section.compact .section-header.merged {
+    margin-bottom: 0.75rem;
+  }
+
+  .date-duration-row {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .date-picker-col {
+    flex: 1 1 250px;
+    min-width: 240px;
+  }
+  .days-info-col {
+    flex: 1 1 220px;
+    min-width: 210px;
+    display: flex;
+  }
+  .days-info-col .days-info {
+    width: 100%;
+  }
+  @media (max-width: 700px) {
+    .date-duration-row {
+      flex-direction: column;
+    }
   }
 
   .section-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid #e0e0e0;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
   }
 
   .section-icon {
     font-size: 1.5rem;
-    line-height: 1;
   }
 
   .section-title {
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 600;
-    color: #161616;
     margin: 0;
   }
 
-  .date-inputs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  .date-field {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .date-field label {
-    margin-bottom: 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1rem;
-    letter-spacing: 0.32px;
-    color: #161616;
-  }
-
-  .date-input {
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 4px;
-    background-color: #ffffff;
-    outline: none;
-    transition: all 0.2s cubic-bezier(0.2, 0, 0.38, 0.9);
-  }
-
-  .date-input:hover {
-    border-color: #0f62fe;
-  }
-
-  .date-input:focus {
-    outline: 2px solid #0f62fe;
-    outline-offset: 2px;
-    border-color: #0f62fe;
-  }
-
-  :global(.form-section .bx--number-input) {
-    margin-bottom: 0;
-  }
-
-  :global(.form-section .bx--radio-button-group) {
-    margin-bottom: 0;
-  }
-
-  :global(.form-section .bx--text-area) {
-    margin-bottom: 0;
-  }
-
   .balance-card {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: #e5f6ff;
-    border: 2px solid #0f62fe;
+    margin-top: 1.25rem;
+    padding: 1.25rem;
+    background: rgba(229, 246, 255, 0.08);
+    border: 2px solid var(--cds-link-01, #0f62fe);
     border-radius: 8px;
-    transition: all 0.2s ease;
   }
 
   .balance-card.warning {
-    background: #fff1f1;
-    border-color: #da1e28;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      box-shadow: 0 0 0 0 rgba(218, 30, 40, 0.2);
-    }
-    50% {
-      box-shadow: 0 0 0 8px rgba(218, 30, 40, 0);
-    }
+    background: rgba(255, 241, 241, 0.12);
+    border-color: var(--cds-support-01, #da1e28);
   }
 
   .balance-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .balance-icon {
     font-size: 1.25rem;
-    line-height: 1;
   }
 
   .balance-title {
-    font-size: 0.875rem;
     font-weight: 600;
-    color: #161616;
   }
 
   .balance-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 1rem;
   }
 
   .balance-stat {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.375rem;
   }
 
   .balance-label {
     font-size: 0.75rem;
-    color: #6f6f6f;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .balance-value {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: #0f62fe;
-  }
-
-  .balance-value.requesting {
-    color: #161616;
   }
 
   .balance-value.error {
-    color: #da1e28;
+    color: var(--cds-support-01, #da1e28);
   }
 
   .half-day-section {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e0e0e0;
-  }
-
-  :global(.bx--modal-container) {
-    max-width: 600px;
-  }
-
-  :global(.bx--modal-header__heading) {
-    font-size: 1.25rem;
-  }
-
-  :global(.holiday-form .bx--text-area__wrapper textarea) {
-    background-color: #ffffff;
-    border: 2px solid #e0e0e0;
-    transition: border-color 0.2s ease;
-  }
-
-  :global(.holiday-form .bx--text-area__wrapper textarea:hover) {
-    border-color: #0f62fe;
-  }
-
-  :global(.holiday-form .bx--text-area__wrapper textarea:focus) {
-    border-color: #0f62fe;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--custom-border);
   }
 
   :global(.holiday-form .bx--inline-notification) {
-    margin-bottom: 1rem;
-    border-radius: 4px;
+    margin-bottom: 1.25rem;
+  }
+
+  .days-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    background: var(--custom-bg-secondary);
+    border: 1px solid var(--custom-border);
+    border-radius: 10px;
+  }
+  .days-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.875rem;
+  }
+  .days-row .label {
+    font-weight: 600;
+    opacity: 0.8;
+  }
+  .days-row .value.strong {
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .badge {
+    background: var(--cds-link-01);
+    color: #fff;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .half-day-toggle {
+    margin-top: 0.25rem;
+  }
+  .error-text {
+    color: var(--cds-support-error);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  /* Loading overlay */
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+  :global([data-carbon-theme="g90"]) .loading-overlay,
+  :global([data-carbon-theme="g100"]) .loading-overlay {
+    background: rgba(22, 22, 22, 0.95);
+  }
+
+  .loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--cds-ui-03, #e0e0e0);
+    border-top-color: var(--cds-link-01, #0f62fe);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .loading-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--custom-text);
+    margin: 0;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .form-submitting {
+    opacity: 0.6;
+    pointer-events: none;
   }
 </style>

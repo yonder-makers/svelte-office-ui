@@ -12,6 +12,7 @@ import {
   isAllowedOverlap,
   overlapsLegalHoliday,
   parseDate,
+  parseDateFromWebOffice,
 } from './holiday-date-utils';
 
 export interface ValidationResult {
@@ -36,8 +37,24 @@ export async function validateHolidayRequest(
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  const startDate = parseDate(request.startDate);
-  const endDate = parseDate(request.endDate);
+  // Parse dates - handle both DD-MM-YYYY (WebOffice) and ISO formats
+  // Try WebOffice format first (DD-MM-YYYY), fall back to ISO
+  let startDate: Date;
+  let endDate: Date;
+
+  try {
+    startDate = parseDateFromWebOffice(request.startDate);
+    endDate = parseDateFromWebOffice(request.endDate);
+  } catch (e) {
+    console.warn('Failed to parse dates as WebOffice format, trying ISO:', e);
+    startDate = parseDate(request.startDate);
+    endDate = parseDate(request.endDate);
+  }
+
+  console.log('[validateHolidayRequest] Parsed dates:', {
+    input: { startDate: request.startDate, endDate: request.endDate },
+    parsed: { startDate, endDate }
+  });
 
   // 1. Date Validation
   if (!request.startDate) {
@@ -46,6 +63,17 @@ export async function validateHolidayRequest(
   if (!request.endDate) {
     errors.push('End date is required');
   }
+
+  // Check if dates are valid Date objects
+  if (isNaN(startDate.getTime())) {
+    errors.push(`Invalid start date: "${request.startDate}". Expected format: DD-MM-YYYY`);
+    return { valid: false, errors, warnings };
+  }
+  if (isNaN(endDate.getTime())) {
+    errors.push(`Invalid end date: "${request.endDate}". Expected format: DD-MM-YYYY`);
+    return { valid: false, errors, warnings };
+  }
+
   if (request.startDate && request.endDate && endDate < startDate) {
     errors.push('End date must be on or after start date');
   }
@@ -65,19 +93,26 @@ export async function validateHolidayRequest(
   }
 
   // Check weekend days
-  const weekendDays = countWeekendDays(startDate, endDate);
-  if (weekendDays > 0) {
-    warnings.push(
-      `Period includes ${weekendDays} weekend day(s) - they are not counted`
-    );
-  }
+  try {
+    const weekendDays = countWeekendDays(startDate, endDate);
+    if (weekendDays > 0) {
+      warnings.push(
+        `Period includes ${weekendDays} weekend day(s) - they are not counted`
+      );
+    }
 
-  // Validate days match timeline
-  const calculatedDays = countWorkingDays(startDate, endDate);
-  if (Math.abs(calculatedDays - request.days) > 0.1) {
-    warnings.push(
-      `Calculated ${calculatedDays} working days, but ${request.days} entered`
-    );
+    // Validate days match timeline
+    const calculatedDays = countWorkingDays(startDate, endDate);
+    if (Math.abs(calculatedDays - request.days) > 0.1) {
+      warnings.push(
+        `Calculated ${calculatedDays} working days, but ${request.days} entered`
+      );
+    }
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[validateHolidayRequest] Error calculating days:', errorMsg);
+    errors.push(`Unable to process date range: ${errorMsg}`);
+    return { valid: false, errors, warnings };
   }
 
   // 3. Legal Holiday Check

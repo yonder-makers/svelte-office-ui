@@ -20,6 +20,7 @@ import {
   holidayRequestsStore,
   holidaysState,
   legalHolidaysStore,
+  loadingHolidaysStore,
   loadingLegalHolidaysStore,
   loadingRemainingStore,
   loadingEmployeeStore,
@@ -29,12 +30,13 @@ import {
   selectedHolidayStore,
   showCreateModalStore,
   showEditModalStore,
+  showCareerStatsModalStore,
 } from './state';
 
 import { keyBy } from 'lodash';
 import { addNotification } from '../../../state/notifications/notifications.state';
 import { createAbortable } from '../../../utils/create-abortable';
-import { formatDate } from '../../../utils/holiday-date-utils';
+import { formatDateForWebOffice } from '../../../utils/holiday-date-utils';
 
 export function goNextYear() {
   currentYearState.update((year) => year + 1);
@@ -62,8 +64,11 @@ export const refreshData = createAbortable(async (signal: AbortSignal) => {
 // New actions for full holiday management
 export async function loadHolidayRequests(filters?: HolidayFilters) {
   try {
+    loadingHolidaysStore.set(true);
     errorStore.set(null);
+    console.log('[loadHolidayRequests] Fetching with filters:', filters);
     const requests = await listHolidays(filters);
+    console.log('[loadHolidayRequests] Received', requests.length, 'holidays');
     holidayRequestsStore.set(requests);
   } catch (error) {
     console.warn('Holiday requests endpoint not available:', error);
@@ -71,6 +76,8 @@ export async function loadHolidayRequests(filters?: HolidayFilters) {
       'Holiday API endpoints not yet implemented. Please implement the backend endpoints according to HOLIDAY_MIGRATION_GUIDE.md'
     );
     holidayRequestsStore.set([]);
+  } finally {
+    loadingHolidaysStore.set(false);
   }
 }
 
@@ -213,13 +220,25 @@ export function closeEditModal() {
   selectedHolidayStore.set(null);
 }
 
+export function openCareerStatsModal() {
+  showCareerStatsModalStore.set(true);
+}
+
+export function closeCareerStatsModal() {
+  showCareerStatsModalStore.set(false);
+}
+
 export async function triggerRefresh() {
   refreshTriggerStore.update((n) => n + 1);
   const year = get(currentYearState);
+  console.log('[triggerRefresh] Year:', year);
+
+  // Backend expects startDate/endDate in dd-MM-yyyy format (WebOffice format)
   const filters: HolidayFilters = {
-    startDateFrom: formatDate(new Date(year, 0, 1)),
-    startDateTo: formatDate(new Date(year, 11, 31)),
+    startDate: formatDateForWebOffice(new Date(year, 0, 1)),
+    endDate: formatDateForWebOffice(new Date(year, 11, 31)),
   };
+  console.log('[triggerRefresh] Built filters:', filters);
   await Promise.all([
     loadHolidayRequests(filters),
     loadRemainingDays(),

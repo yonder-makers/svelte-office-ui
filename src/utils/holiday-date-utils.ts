@@ -20,6 +20,14 @@ export function isWeekend(date: Date): boolean {
  * Count working days (excluding weekends) between two dates (inclusive)
  */
 export function countWorkingDays(startDate: Date, endDate: Date): number {
+  // Ensure valid Date objects
+  if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
+    throw new Error(`Invalid dates for countWorkingDays: startDate=${startDate}, endDate=${endDate}`);
+  }
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    throw new Error(`Invalid date values: startDate=${startDate.toISOString()}, endDate=${endDate.toISOString()}`);
+  }
+
   const days = eachDayOfInterval({ start: startDate, end: endDate });
   return days.filter((day) => !isWeekend(day)).length;
 }
@@ -28,6 +36,14 @@ export function countWorkingDays(startDate: Date, endDate: Date): number {
  * Count weekend days between two dates (inclusive)
  */
 export function countWeekendDays(startDate: Date, endDate: Date): number {
+  // Ensure valid Date objects
+  if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
+    throw new Error(`Invalid dates for countWeekendDays: startDate=${startDate}, endDate=${endDate}`);
+  }
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    throw new Error(`Invalid date values: startDate=${startDate.toISOString()}, endDate=${endDate.toISOString()}`);
+  }
+
   const days = eachDayOfInterval({ start: startDate, end: endDate });
   return days.filter((day) => isWeekend(day)).length;
 }
@@ -165,6 +181,32 @@ export function getYearDateRange() {
 export function formatDate(date: Date | string): string {
   const d = typeof date === 'string' ? parseISO(date) : date;
   return format(d, 'yyyy-MM-dd');
+}
+
+/**
+ * Format date as DD-MM-YYYY (WebOffice format for backend API)
+ */
+export function formatDateForWebOffice(date: Date | string): string {
+  const d = typeof date === 'string' ? parseISO(date) : date;
+  return format(d, 'dd-MM-yyyy');
+}
+
+/**
+ * Parse date from DD-MM-YYYY format (WebOffice format)
+ * This is critical because JavaScript's Date constructor does NOT properly parse DD-MM-YYYY
+ */
+export function parseDateFromWebOffice(dateStr: string): Date {
+  if (!dateStr) return new Date();
+
+  // Try parsing DD-MM-YYYY format first (WebOffice format)
+  const ddMmYyyy = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (ddMmYyyy) {
+    const [, day, month, year] = ddMmYyyy;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  }
+
+  // Fall back to parseISO for ISO format
+  return parseISO(dateStr);
 }
 
 /**

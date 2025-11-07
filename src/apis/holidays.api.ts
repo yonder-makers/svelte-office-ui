@@ -72,10 +72,14 @@ export interface RemainingHolidaysResponse {
 }
 
 export interface HolidayFilters {
+  // New format (for future backend support)
   startDateFrom?: string;
   startDateTo?: string;
   endDateFrom?: string;
   endDateTo?: string;
+  // Legacy format (current backend expects these)
+  startDate?: string;
+  endDate?: string;
 }
 
 // Legacy function for compatibility
@@ -119,7 +123,8 @@ export async function createHoliday(
   data: HolidayRequest,
   signal?: AbortSignal
 ): Promise<HolidayResponse> {
-  return await doPost<HolidayResponse>('/api/holidays', data, signal);
+  const transformedData = transformHolidayRequestForBackend(data);
+  return await doPost<HolidayResponse>('/api/holidays', transformedData, signal);
 }
 
 export async function updateHoliday(
@@ -127,7 +132,16 @@ export async function updateHoliday(
   data: Partial<HolidayRequest>,
   signal?: AbortSignal
 ): Promise<HolidayResponse> {
-  return await doPut<HolidayResponse>(`/api/holidays/${id}`, data, signal);
+  // Transform the fields that need conversion
+  const transformedData: any = { ...data };
+  if (data.days !== undefined) {
+    transformedData.numberOfDays = data.days;
+    delete transformedData.days;
+  }
+  if (data.type !== undefined) {
+    transformedData.type = getHolidayTypeForBackend(data.type);
+  }
+  return await doPut<HolidayResponse>(`/api/holidays/${id}`, transformedData, signal);
 }
 
 export async function deleteHoliday(
@@ -188,4 +202,33 @@ export function getHolidayTypeName(type: HolidayType): string {
     [HolidayType.LEGAL]: 'Legal',
   };
   return names[type] || 'Unknown';
+}
+
+/**
+ * Convert HolidayType enum to backend format string
+ * Backend expects: 'Paid' | 'Compensation' | 'Not paid' | 'Legal'
+ */
+export function getHolidayTypeForBackend(type: HolidayType | number): string {
+  const typeMap: Record<number, string> = {
+    [HolidayType.PAID]: 'Paid',
+    [HolidayType.COMPENSATION]: 'Compensation',
+    [HolidayType.NOT_PAID]: 'Not paid',  // ✅ lowercase 'paid'
+    [HolidayType.LEGAL]: 'Legal',
+  };
+  return typeMap[type] || 'Paid';
+}
+
+/**
+ * Transform frontend HolidayRequest to backend format
+ * Backend controller expects: numberOfDays, type as string
+ */
+function transformHolidayRequestForBackend(request: HolidayRequest) {
+  return {
+    startDate: request.startDate,
+    endDate: request.endDate,
+    numberOfDays: request.days,  // Convert days → numberOfDays
+    type: getHolidayTypeForBackend(request.type),  // Convert enum → string
+    description: request.description,
+    isAM: request.isAM,
+  };
 }

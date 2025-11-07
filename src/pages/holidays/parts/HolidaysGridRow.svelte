@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, InlineLoading, Modal, Tag } from 'carbon-components-svelte';
+  import { TableRow, TableCell, Modal, InlineLoading, Tag, Button } from 'carbon-components-svelte';
   import TrashCan from 'carbon-icons-svelte/lib/TrashCan.svelte';
   import { deleteExistingHoliday } from '../store';
   import { HolidayType, getHolidayTypeName, type HolidayResponse } from '../../../apis/holidays.api';
@@ -76,31 +76,31 @@
 </script>
 
 {#if holiday}
-  <tr class={rowClass}>
-    <td class="type-cell">
+  <TableRow class={rowClass}>
+    <TableCell class="type-cell row-header">
       <span class="type-badge {displayTypeName?.toLowerCase().replace(' ', '-')}">{displayTypeName}</span>
-    </td>
-    <td class="status-cell">
+    </TableCell>
+    <TableCell class="status-cell">
       {#if isApproved}
         <Tag type="green" size="sm">Approved</Tag>
       {:else if isRejected}
         <Tag type="red" size="sm">Rejected</Tag>
       {:else}
-        <Tag type="yellow" size="sm">Pending</Tag>
+        <Tag type="gray" size="sm">Pending</Tag>
       {/if}
-    </td>
-    <td class="date-cell">{formatDate(holiday.startDate)}</td>
-    <td class="date-cell">{formatDate(holiday.endDate)}</td>
-    <td class="days-cell">{displayDays}</td>
-    <td class="description-cell">{holiday.description || '-'}</td>
-    <td class="date-cell">{formatDate(holiday.requestDate || holiday.createdAt)}</td>
-    <td class="modified-cell">
+    </TableCell>
+    <TableCell class="date-cell">{formatDate(holiday.startDate)}</TableCell>
+    <TableCell class="date-cell">{formatDate(holiday.endDate)}</TableCell>
+    <TableCell class="days-cell">{displayDays}</TableCell>
+    <TableCell class="description-cell">{holiday.description || '-'}</TableCell>
+    <TableCell class="date-cell">{formatDate(holiday.requestDate || holiday.createdAt)}</TableCell>
+    <TableCell class="modified-cell">
       <div class="modified-info">
         <span class="modified-date">{formatDate(holiday.modifiedDate)}</span>
         <span class="modified-by">{holiday.modifiedBy || '-'}</span>
       </div>
-    </td>
-    <td class="actions-cell">
+    </TableCell>
+    <TableCell class="actions-cell">
       {#if canDelete}
         <Button
           kind="danger-ghost"
@@ -113,8 +113,8 @@
       {:else}
         <span class="no-action">-</span>
       {/if}
-    </td>
-  </tr>
+    </TableCell>
+  </TableRow>
 {/if}
 
 <Modal
@@ -146,54 +146,66 @@
 </Modal>
 
 <style>
-  tr {
+  :global(.bx--data-table tbody tr) {
     border-bottom: 1px solid var(--custom-border);
     transition: background-color 0.15s ease;
   }
 
-  tr:hover {
+  :global(.bx--data-table tbody tr:hover) {
     background-color: var(--custom-hover);
   }
 
-  tr.pending-row {
-    background-color: rgba(241, 194, 27, 0.1) !important;
-    border-left: 3px solid #f1c21b;
-  }
-  
-  tr.pending-row td {
-    background-color: rgba(241, 194, 27, 0.1) !important;
-  }
-  
-  tr.pending-row:hover {
-    background-color: rgba(241, 194, 27, 0.15) !important;
-  }
-  
-  tr.pending-row:hover td {
-    background-color: rgba(241, 194, 27, 0.15) !important;
-  }
-  
-  tr.rejected-row {
-    background-color: rgba(218, 30, 40, 0.1) !important;
-    border-left: 3px solid #da1e28;
-  }
-  
-  tr.rejected-row td {
-    background-color: rgba(218, 30, 40, 0.1) !important;
-  }
-  
-  tr.rejected-row:hover {
-    background-color: rgba(218, 30, 40, 0.15) !important;
-  }
-  
-  tr.rejected-row:hover td {
-    background-color: rgba(218, 30, 40, 0.15) !important;
+  /* Pending holiday rows - use theme variables so values update per Carbon theme */
+  :global(.bx--data-table tbody tr.pending-row) {
+    background-color: var(--holiday-pending-bg) !important;
+    border-left: 4px solid var(--holiday-pending-border);
   }
 
-  td {
-    padding: 1rem;
+  :global(.bx--data-table tbody tr.pending-row) td {
+    background-color: var(--holiday-pending-bg) !important;
+  }
+
+  :global(.bx--data-table tbody tr.pending-row:hover) {
+    /* hover state can be the same variable (different alpha per theme if desired) */
+    background-color: var(--holiday-pending-bg) !important;
+  }
+
+  :global(.bx--data-table tbody tr.pending-row:hover) td {
+    background-color: var(--holiday-pending-bg) !important;
+  }
+  
+  /* Rejected holiday rows - theme variables provide correct light/dark variants */
+  :global(.bx--data-table tbody tr.rejected-row) {
+    background-color: var(--holiday-rejected-bg) !important;
+    border-left: 4px solid var(--holiday-rejected-border);
+  }
+  
+  :global(.bx--data-table tbody tr.rejected-row) td {
+    background-color: var(--holiday-rejected-bg) !important;
+  }
+  
+  :global(.bx--data-table tbody tr.rejected-row:hover) {
+    background-color: var(--holiday-rejected-bg) !important;
+  }
+  
+  :global(.bx--data-table tbody tr.rejected-row:hover) td {
+    background-color: var(--holiday-rejected-bg) !important;
+  }
+
+  :global(.bx--data-table td) {
+    padding: 1.25rem 1.5rem;
     font-size: 0.875rem;
     color: var(--custom-text);
     vertical-align: middle;
+    background-color: var(--custom-bg);
+  }
+
+  :global(.bx--data-table td:first-child) {
+    padding-left: 2rem;
+  }
+
+  :global(.bx--data-table td:last-child) {
+    padding-right: 2rem;
   }
 
   .type-cell {
@@ -211,23 +223,41 @@
   }
 
   .type-badge.paid {
-    background: rgba(15, 98, 254, 0.15);
-    color: #0f62fe;
+    background: var(--holiday-approved-badge-bg);
+    color: var(--holiday-approved-badge-color);
+    border: 1px solid var(--holiday-approved-badge-color);
   }
 
   .type-badge.compensation {
-    background: rgba(36, 161, 72, 0.15);
+    background: rgba(36, 161, 72, 0.12);
     color: #24a148;
+    border: 1px solid rgba(36, 161, 72, 0.2);
+  }
+
+  :global([data-carbon-theme="g90"]) .type-badge.compensation,
+  :global([data-carbon-theme="g100"]) .type-badge.compensation {
+    background: rgba(66, 190, 101, 0.18);
+    color: #42be65;
+    border: 1px solid rgba(66, 190, 101, 0.3);
   }
 
   .type-badge.not-paid {
-    background: rgba(218, 30, 40, 0.15);
+    background: rgba(218, 30, 40, 0.12);
     color: #da1e28;
+    border: 1px solid rgba(218, 30, 40, 0.2);
+  }
+
+  :global([data-carbon-theme="g90"]) .type-badge.not-paid,
+  :global([data-carbon-theme="g100"]) .type-badge.not-paid {
+    background: rgba(255, 131, 137, 0.18);
+    color: #ff8389;
+    border: 1px solid rgba(255, 131, 137, 0.3);
   }
 
   .type-badge.legal {
     background: var(--custom-bg-tertiary);
     color: var(--custom-text);
+    border: 1px solid var(--custom-border);
   }
 
   .status-cell {
@@ -242,7 +272,7 @@
   .days-cell {
     text-align: center;
     font-weight: 600;
-    color: #0f62fe;
+    color: var(--holiday-approved-badge-color);
   }
 
   .description-cell {
@@ -253,7 +283,7 @@
   }
 
   .modified-cell {
-    color: #8d8d8d;
+    color: var(--custom-text-secondary);
     font-size: 0.8125rem;
   }
 
@@ -264,7 +294,7 @@
   }
 
   .modified-date {
-    color: #525252;
+    color: var(--custom-text-secondary);
   }
 
   .modified-by {
@@ -298,11 +328,11 @@
 
   .delete-details span {
     font-size: 0.875rem;
-    color: #525252;
+    color: var(--custom-text-secondary);
   }
 
   .error-text {
-    color: #da1e28;
+    color: var(--holiday-rejected-border);
     font-size: 0.875rem;
     margin-top: 1rem;
   }

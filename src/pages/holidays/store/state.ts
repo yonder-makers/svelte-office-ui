@@ -34,6 +34,7 @@ export const remainingDaysStore = writable<RemainingHolidaysResponse>({
 });
 
 // Loading states
+export const loadingHolidaysStore = writable<boolean>(false);
 export const loadingRemainingStore = writable<boolean>(false);
 export const loadingLegalHolidaysStore = writable<boolean>(false);
 export const loadingEmployeeStore = writable<boolean>(false);
@@ -50,6 +51,7 @@ export const selectedHolidayStore = writable<HolidayResponse | null>(null);
 // Modal states
 export const showCreateModalStore = writable<boolean>(false);
 export const showEditModalStore = writable<boolean>(false);
+export const showCareerStatsModalStore = writable<boolean>(false);
 
 // Refresh trigger
 export const refreshTriggerStore = writable<number>(0);

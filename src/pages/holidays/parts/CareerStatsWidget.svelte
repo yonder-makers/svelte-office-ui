@@ -1,26 +1,10 @@
 <script lang="ts">
-  import { Tile, SkeletonText } from 'carbon-components-svelte';
-  import ChevronDown from 'carbon-icons-svelte/lib/ChevronDown.svelte';
-  import ChevronUp from 'carbon-icons-svelte/lib/ChevronUp.svelte';
-  import { currentEmployeeStore, loadingEmployeeStore, remainingDaysStore } from '../store/state';
+  import {
+    Modal,
+    SkeletonText,
+  } from 'carbon-components-svelte';
+  import { currentEmployeeStore, loadingEmployeeStore, remainingDaysStore, showCareerStatsModalStore } from '../store/state';
   import { differenceInDays, differenceInYears, parse } from 'date-fns';
-  import { writable } from 'svelte/store';
-  import { slide } from 'svelte/transition';
-
-  // Persistent collapse state (saved to localStorage)
-  const isCollapsedStore = writable<boolean>(
-    localStorage.getItem('careerStatsCollapsed') === 'true'
-  );
-
-  $: isCollapsed = $isCollapsedStore;
-
-  function toggleCollapse() {
-    isCollapsedStore.update(val => {
-      const newVal = !val;
-      localStorage.setItem('careerStatsCollapsed', String(newVal));
-      return newVal;
-    });
-  }
 
   $: employee = $currentEmployeeStore;
   $: loading = $loadingEmployeeStore;
@@ -114,73 +98,78 @@
     if (yearsLeft > 5) return '🎊';
     return '🏖️';
   }
+
+  function handleClose() {
+    showCareerStatsModalStore.set(false);
+  }
+
+  $: modalHeading = `Career Stats ${pensionEmoji}`;
 </script>
 
-<Tile class="career-stats-tile">
-  <div class="career-widget">
-    {#if loading}
-      <SkeletonText />
-    {:else if employee}
-      <div class="career-content">
-        <button class="widget-header" on:click={toggleCollapse}>
-          <div class="header-left">
-            <h3 class="widget-title">Career Stats</h3>
-            <span class="career-emoji">{pensionEmoji}</span>
+<Modal
+  bind:open={$showCareerStatsModalStore}
+  {modalHeading}
+  primaryButtonText="Close"
+  size="lg"
+  on:click:button--primary={handleClose}
+  on:close={handleClose}
+>
+  {#if loading}
+    <SkeletonText />
+  {:else if employee}
+    <div class="career-content">
+      <div class="career-message-inline">{careerMessage}</div>
+        <!-- Career Overview Section -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">📊</span>
+            <h4 class="section-title">Career Overview</h4>
           </div>
-          <div class="collapse-icon">
-            {#if isCollapsed}
-              <ChevronDown size={20} />
-            {:else}
-              <ChevronUp size={20} />
-            {/if}
-          </div>
-        </button>
-
-        {#if !isCollapsed}
-        <div class="collapsible-content" transition:slide={{ duration: 250 }}>
-        <div class="career-message">{careerMessage}</div>
-
-        <div class="stats-grid">
-          <!-- Years at Company -->
-          <div class="stat-box">
-            <div class="stat-icon">📅</div>
-            <div class="stat-info">
-              <div class="stat-value-large">{yearsOfService}</div>
-              <div class="stat-label">Years Here</div>
+          <div class="stats-grid">
+            <!-- Years at Company -->
+            <div class="stat-box">
+              <div class="stat-icon">📅</div>
+              <div class="stat-info">
+                <div class="stat-value-large">{yearsOfService}</div>
+                <div class="stat-label">Years Here</div>
+              </div>
             </div>
-          </div>
 
-          <!-- Extra Vacation Days -->
-          <div class="stat-box highlight">
-            <div class="stat-icon">🏖️</div>
-            <div class="stat-info">
-              <div class="stat-value-large">+{extraDays}</div>
-              <div class="stat-label">Bonus Days</div>
+            <!-- Extra Vacation Days -->
+            <div class="stat-box highlight">
+              <div class="stat-icon">🏖️</div>
+              <div class="stat-info">
+                <div class="stat-value-large">+{extraDays}</div>
+                <div class="stat-label">Bonus Days</div>
+              </div>
             </div>
-          </div>
 
-          <!-- Years Until Pension -->
-          <div class="stat-box">
-            <div class="stat-icon">⏳</div>
-            <div class="stat-info">
-              <div class="stat-value-large">{yearsUntilPension}</div>
-              <div class="stat-label">Years to Pension</div>
+            <!-- Years Until Pension -->
+            <div class="stat-box">
+              <div class="stat-icon">⏳</div>
+              <div class="stat-info">
+                <div class="stat-value-large">{yearsUntilPension}</div>
+                <div class="stat-label">Years to Pension</div>
+              </div>
             </div>
-          </div>
 
-          <!-- Total Vacation Days -->
-          <div class="stat-box">
-            <div class="stat-icon">✨</div>
-            <div class="stat-info">
-              <div class="stat-value-large">{total}</div>
-              <div class="stat-label">Total Days</div>
+            <!-- Total Vacation Days -->
+            <div class="stat-box">
+              <div class="stat-icon">✨</div>
+              <div class="stat-info">
+                <div class="stat-value-large">{total}</div>
+                <div class="stat-label">Total Days</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Vacation Progression Info -->
-        <div class="progression-info">
-          <div class="progression-title">🎁 Bonus Vacation Days Earned:</div>
+        <!-- Vacation Progress Section -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">🎁</span>
+            <h4 class="section-title">Bonus Vacation Progress</h4>
+          </div>
           <ul class="progression-list">
             <li class:achieved={yearsOfService >= 1}>Year 1-3: +{Math.min(yearsOfService, 3)} days</li>
             <li class:achieved={yearsOfService >= 5}>After 5 years: {yearsOfService >= 5 ? '+1 day ✓' : '+1 day'}</li>
@@ -197,9 +186,13 @@
           {/if}
         </div>
 
-        <!-- Fun Pension Counter -->
+        <!-- Retirement Timeline Section -->
         {#if yearsUntilPension > 0}
-          <div class="pension-counter">
+          <div class="form-section">
+            <div class="section-header">
+              <span class="section-icon">🏖️</span>
+              <h4 class="section-title">Retirement Timeline</h4>
+            </div>
             <div class="pension-fun">
               Only <strong>{daysUntilPension.toLocaleString()}</strong> days until retirement!
               {#if yearsUntilPension <= 5}
@@ -214,118 +207,81 @@
             </div>
           </div>
         {/if}
-        </div>
-        {/if}
-      </div>
-    {:else}
-      <div class="no-data">
-        <div class="no-data-icon">📊</div>
-        <div class="no-data-text">Career stats loading...</div>
-      </div>
-    {/if}
-  </div>
-</Tile>
+    </div>
+  {:else}
+    <div class="no-data">
+      <div class="no-data-icon">📊</div>
+      <div class="no-data-text">Career stats loading...</div>
+    </div>
+  {/if}
+</Modal>
 
 <style>
-  .career-widget {
-    padding: 0;
-    width: 100%;
-  }
-
   .career-content {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0;
   }
 
-  .collapsible-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    overflow: hidden;
+  .career-content > .form-section:not(:last-child) {
+    margin-bottom: 1.75rem;
   }
 
-  .widget-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 0.5rem;
-    margin: -0.5rem -0.5rem 0.5rem -0.5rem;
-    background: transparent;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
+  .form-section {
+    background: linear-gradient(135deg, var(--custom-bg-secondary) 0%, var(--custom-bg) 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--custom-border);
+    transition: all 0.3s cubic-bezier(0.2, 0, 0.38, 0.9);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   }
 
-  .widget-header:hover {
-    background: var(--cds-layer-hover-01, rgba(0, 0, 0, 0.05));
+  .form-section:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--cds-link-01, #0f62fe);
   }
 
-  .widget-header:active {
-    background: var(--cds-layer-active-01, rgba(0, 0, 0, 0.1));
-  }
-
-  .widget-header:focus {
-    outline: 2px solid var(--cds-focus, #0f62fe);
-    outline-offset: 2px;
-  }
-
-  .widget-header:focus:not(:focus-visible) {
-    outline: none;
-  }
-
-  .header-left {
+  .section-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0;
+    border-bottom: none;
   }
 
-  .widget-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 0;
-    color: var(--cds-text-01, var(--custom-text));
-    letter-spacing: 0.02em;
-  }
-
-  .career-emoji {
+  .section-icon {
     font-size: 1.5rem;
+    line-height: 1;
+    opacity: 0.9;
   }
 
-  .collapse-icon {
-    display: flex;
-    align-items: center;
-    color: var(--custom-text-secondary);
-    transition: transform 0.2s ease;
+  .section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--custom-text);
+    margin: 0;
+    letter-spacing: -0.01em;
   }
 
-  .widget-header:hover .collapse-icon {
-    color: var(--cds-text-01, var(--custom-text));
-  }
-
-  .career-message {
-    text-align: center;
+  .career-message-inline {
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--cds-link-01, #0f62fe);
-    padding: 0.5rem;
-    background: var(--cds-layer-accent-01, rgba(15, 98, 254, 0.1));
-    border-radius: 6px;
-    margin-bottom: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(229, 246, 255, 0.08) 0%, rgba(229, 246, 255, 0.04) 100%);
+    border: 2px solid var(--cds-link-01, #0f62fe);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+    display: block;
   }
 
   /* Dark theme specific overrides */
-  :global([data-theme="g100"]) .widget-title {
-    color: var(--cds-text-01, #f4f4f4);
-  }
-
-  :global([data-theme="g100"]) .career-message {
+  :global([data-carbon-theme="g90"]) .career-message-inline,
+  :global([data-carbon-theme="g100"]) .career-message-inline {
     color: #78a9ff;
-    background: rgba(120, 169, 255, 0.15);
+    background: linear-gradient(135deg, rgba(120, 169, 255, 0.12) 0%, rgba(120, 169, 255, 0.06) 100%);
   }
 
   .stats-grid {
@@ -339,21 +295,38 @@
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 0.5rem;
-    background: var(--custom-bg-secondary);
-    border-radius: 8px;
+    padding: 0.875rem 0.625rem;
+    background: var(--custom-bg-tertiary);
+    border-radius: 10px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: 2px solid transparent;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   }
 
   .stat-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  :global([data-carbon-theme="g90"]) .stat-box,
+  :global([data-carbon-theme="g100"]) .stat-box {
+    background: var(--custom-bg-tertiary);
+  }
+
+  :global([data-carbon-theme="g90"]) .stat-box:hover,
+  :global([data-carbon-theme="g100"]) .stat-box:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   }
 
   .stat-box.highlight {
-    background: linear-gradient(135deg, rgba(66, 190, 101, 0.1) 0%, rgba(36, 161, 72, 0.1) 100%);
-    border-color: rgba(66, 190, 101, 0.3);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--status-success, rgba(66,190,101,1)) 15%, transparent 85%) 0%, color-mix(in srgb, var(--status-success-2, rgba(36,161,72,1)) 15%, transparent 85%) 100%);
+    border-color: color-mix(in srgb, var(--status-success, rgba(66,190,101,1)) 30%, transparent 70%);
+  }
+
+  :global([data-carbon-theme="g90"]) .stat-box.highlight,
+  :global([data-carbon-theme="g100"]) .stat-box.highlight {
+    background: linear-gradient(135deg, rgba(66, 190, 101, 0.2) 0%, rgba(36, 161, 72, 0.2) 100%);
+    border-color: rgba(66, 190, 101, 0.4);
   }
 
   .stat-icon {
@@ -378,52 +351,47 @@
     font-size: 0.7rem;
     color: var(--custom-text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
     text-align: center;
     white-space: nowrap;
-  }
-
-  .progression-info {
-    padding: 1rem;
-    background: var(--custom-bg-secondary);
-    border-radius: 8px;
-    border-left: 4px solid #0f62fe;
-  }
-
-  .progression-title {
-    font-size: 0.875rem;
     font-weight: 600;
-    color: var(--custom-text);
-    margin-bottom: 0.75rem;
   }
+
 
   .progression-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 1rem 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 
   .progression-list li {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: var(--custom-text-secondary);
-    padding-left: 1.5rem;
+    padding-left: 1.75rem;
     position: relative;
+    line-height: 1.5;
   }
 
   .progression-list li::before {
     content: '○';
     position: absolute;
     left: 0;
-    color: #8d8d8d;
+    color: var(--custom-text-secondary);
     font-weight: bold;
+    font-size: 1.1rem;
   }
 
   .progression-list li.achieved {
     color: #24a148;
-    font-weight: 500;
+    font-weight: 600;
+  }
+
+  :global([data-carbon-theme="g90"]) .progression-list li.achieved,
+  :global([data-carbon-theme="g100"]) .progression-list li.achieved {
+    color: #42be65;
   }
 
   .progression-list li.achieved::before {
@@ -431,43 +399,60 @@
     color: #24a148;
   }
 
+  :global([data-carbon-theme="g90"]) .progression-list li.achieved::before,
+  :global([data-carbon-theme="g100"]) .progression-list li.achieved::before {
+    color: #42be65;
+  }
+
   .next-milestone {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: #0f62fe;
-    font-weight: 500;
-    padding: 0.5rem;
-    background: rgba(15, 98, 254, 0.05);
-    border-radius: 4px;
-    text-align: center;
-  }
-
-  .max-level {
-    font-size: 0.8rem;
-    color: #24a148;
     font-weight: 600;
-    padding: 0.5rem;
-    background: rgba(36, 161, 72, 0.1);
-    border-radius: 4px;
-    text-align: center;
-  }
-
-  .pension-counter {
-    padding: 0.75rem 1rem;
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 193, 7, 0.3);
-  }
-
-  .pension-fun {
-    font-size: 0.85rem;
-    color: var(--custom-text);
-    text-align: center;
+    padding: 0.875rem 1rem;
+    background: rgba(229, 246, 255, 0.15);
+    border-left: 4px solid var(--cds-link-01, #0f62fe);
+    border-radius: 6px;
     line-height: 1.5;
   }
 
+  :global([data-carbon-theme="g90"]) .next-milestone,
+  :global([data-carbon-theme="g100"]) .next-milestone {
+    color: #78a9ff;
+    background: rgba(120, 169, 255, 0.15);
+  }
+
+  .max-level {
+    font-size: 0.9rem;
+    color: #24a148;
+    font-weight: 600;
+    padding: 0.875rem 1rem;
+    background: rgba(66, 190, 101, 0.15);
+    border-left: 4px solid #24a148;
+    border-radius: 6px;
+    line-height: 1.5;
+  }
+
+  :global([data-carbon-theme="g90"]) .max-level,
+  :global([data-carbon-theme="g100"]) .max-level {
+    color: #42be65;
+    background: rgba(66, 190, 101, 0.15);
+    border-left-color: #42be65;
+  }
+
+  .pension-fun {
+    font-size: 0.95rem;
+    color: var(--custom-text);
+    line-height: 1.6;
+  }
+
   .pension-fun strong {
-    color: #ff6f00;
+    color: var(--cds-link-01, #0f62fe);
     font-weight: 700;
+  }
+
+  :global([data-carbon-theme="g90"]) .pension-fun strong,
+  :global([data-carbon-theme="g100"]) .pension-fun strong {
+    color: #78a9ff;
   }
 
   .no-data {
@@ -488,11 +473,6 @@
     color: var(--custom-text-secondary);
   }
 
-  :global(.career-stats-tile.bx--tile) {
-    padding: 1rem;
-    overflow: hidden;
-  }
-
   /* Responsive */
   @media (max-width: 1200px) {
     .stats-grid {
@@ -501,6 +481,14 @@
   }
 
   @media (max-width: 768px) {
+    .form-section {
+      padding: 1rem;
+    }
+
+    .career-content > .form-section:not(:last-child) {
+      margin-bottom: 1.25rem;
+    }
+
     .stats-grid {
       grid-template-columns: repeat(2, 1fr);
       gap: 0.5rem;
@@ -516,6 +504,18 @@
 
     .stat-value-large {
       font-size: 1.25rem;
+    }
+
+    .section-header {
+      gap: 0.75rem;
+    }
+
+    .section-icon {
+      font-size: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
     }
   }
 </style>

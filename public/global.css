@@ -1,3 +1,37 @@
+:root,
+ [data-carbon-theme="white"],
+ [data-carbon-theme="g10"] {
+   --custom-text-secondary: #525252;
+
+  /* Holiday status colors (light theme) */
+  --holiday-pending-bg: rgba(254, 235, 153, 0.35);
+  --holiday-pending-border: #f1c21b;
+  --holiday-rejected-bg: rgba(255, 199, 199, 0.35);
+  --holiday-rejected-border: #da1e28;
+  --holiday-approved-badge-bg: rgba(66, 133, 244, 0.12);
+  --holiday-approved-badge-color: #0f62fe;
+ }
+
+ [data-carbon-theme="g90"],
+ [data-carbon-theme="g100"] {
+   --custom-text-secondary: #c6c6c6;
+
+  /* Holiday status colors (dark theme) */
+  --holiday-pending-bg: rgba(229, 76, 180, 0.65);
+  --holiday-pending-border: #ff1493;
+  --holiday-rejected-bg: rgba(218, 30, 40, 0.35);
+  --holiday-rejected-border: #ff8389;
+  --holiday-approved-badge-bg: rgba(120, 169, 255, 0.18);
+  --holiday-approved-badge-color: #78a9ff;
+ }
+
+ @media (prefers-color-scheme: dark) {
+   :root {
+     --holiday-pending-bg: rgba(229, 76, 180, 0.1) !important;
+     --holiday-pending-border: #ff1493 !important;
+   }
+ }
+
 
 body {
   color: #333;
