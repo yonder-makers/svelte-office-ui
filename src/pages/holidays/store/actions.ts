@@ -1,4 +1,5 @@
 import { get } from 'svelte/store';
+import { fetchCurrentEmployee } from '../../../apis/employee.api';
 import {
   createHoliday,
   deleteHoliday,
@@ -13,24 +14,23 @@ import {
   type HolidayFilters,
   type HolidayRequest
 } from '../../../apis/holidays.api';
-import { fetchCurrentEmployee } from '../../../apis/employee.api';
 import {
+  currentEmployeeStore,
   currentYearState,
   errorStore,
   holidayRequestsStore,
   holidaysState,
   legalHolidaysStore,
+  loadingEmployeeStore,
   loadingHolidaysStore,
   loadingLegalHolidaysStore,
   loadingRemainingStore,
-  loadingEmployeeStore,
-  currentEmployeeStore,
   refreshTriggerStore,
   remainingDaysStore,
   selectedHolidayStore,
+  showCareerStatsModalStore,
   showCreateModalStore,
   showEditModalStore,
-  showCareerStatsModalStore,
 } from './state';
 
 import { keyBy } from 'lodash';
@@ -136,7 +136,8 @@ export async function createNewHoliday(data: HolidayRequest) {
     addNotification(
       'Holiday Created',
       'Your holiday request has been submitted successfully',
-      new Date().toLocaleString()
+      new Date().toLocaleString(),
+      'success'
     );
   } catch (error) {
     errorStore.set(
@@ -145,7 +146,8 @@ export async function createNewHoliday(data: HolidayRequest) {
     addNotification(
       'Error',
       error instanceof Error ? error.message : 'Failed to create holiday',
-      new Date().toLocaleString()
+      new Date().toLocaleString(),
+      'error'
     );
     throw error;
   }
@@ -164,7 +166,8 @@ export async function updateExistingHoliday(
     addNotification(
       'Holiday Updated',
       'Your holiday request has been updated successfully',
-      new Date().toLocaleString()
+      new Date().toLocaleString(),
+      'success'
     );
   } catch (error) {
     errorStore.set(
@@ -173,7 +176,8 @@ export async function updateExistingHoliday(
     addNotification(
       'Error',
       error instanceof Error ? error.message : 'Failed to update holiday',
-      new Date().toLocaleString()
+      new Date().toLocaleString(),
+      'error'
     );
     throw error;
   }
@@ -187,7 +191,8 @@ export async function deleteExistingHoliday(id: number | string) {
     addNotification(
       'Holiday Deleted',
       'Your holiday request has been deleted successfully',
-      new Date().toLocaleString()
+      new Date().toLocaleString(),
+      'success'
     );
   } catch (error) {
     errorStore.set(
@@ -196,7 +201,8 @@ export async function deleteExistingHoliday(id: number | string) {
     addNotification(
       'Error',
       error instanceof Error ? error.message : 'Failed to delete holiday',
-      new Date().toLocaleString()
+      new Date().toLocaleString(),
+      'error'
     );
     throw error;
   }
@@ -258,7 +264,8 @@ export async function updateHolidayAdvice(
     addNotification(
       'Advice Updated',
       `Holiday advice has been set to ${advice}`,
-      new Date().toLocaleString()
+      new Date().toLocaleString(),
+      'success'
     );
   } catch (error) {
     errorStore.set(
@@ -267,7 +274,8 @@ export async function updateHolidayAdvice(
     addNotification(
       'Error',
       error instanceof Error ? error.message : 'Failed to update advice',
-      new Date().toLocaleString()
+      new Date().toLocaleString(),
+      'error'
     );
     throw error;
   }
@@ -284,7 +292,8 @@ export async function updateHolidayDecision(
     addNotification(
       'Decision Updated',
       `Holiday decision has been set to ${decision}`,
-      new Date().toLocaleString()
+      new Date().toLocaleString(),
+      'success'
     );
   } catch (error) {
     errorStore.set(
@@ -293,7 +302,8 @@ export async function updateHolidayDecision(
     addNotification(
       'Error',
       error instanceof Error ? error.message : 'Failed to update decision',
-      new Date().toLocaleString()
+      new Date().toLocaleString(),
+      'error'
     );
     throw error;
   }

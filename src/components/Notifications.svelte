@@ -10,7 +10,7 @@
   {#each $notifications as item}
     <ToastNotification
       lowContrast
-      kind="error"
+      kind={item.kind}
       title={item.title}
       subtitle={item.description}
       caption={item.footer}
@@ -22,9 +22,14 @@
 
 <style>
   div {
-    position: absolute;
-    z-index: 1000;
+    position: fixed;
+    z-index: 999999;
     top: 0;
     right: 0;
+    pointer-events: none;
+  }
+
+  :global(.bx--toast-notification) {
+    pointer-events: auto;
   }
 </style>

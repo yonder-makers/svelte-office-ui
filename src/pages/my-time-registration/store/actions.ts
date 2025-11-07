@@ -1,30 +1,30 @@
 import type { WorkTimeDto } from '@svelte-office/api';
 import {
-  add,
-  addDays,
-  addMonths,
-  differenceInCalendarDays,
-  format,
-  isSameMonth,
-  parseISO,
-  subDays,
-  subMonths,
+    add,
+    addDays,
+    addMonths,
+    differenceInCalendarDays,
+    format,
+    isSameMonth,
+    parseISO,
+    subDays,
+    subMonths,
 } from 'date-fns';
 import isSameDay from 'date-fns/isSameDay';
 import {
-  differenceWith,
-  isEqual,
-  keyBy,
-  last,
-  uniq,
-  uniqBy,
-  uniqWith,
+    differenceWith,
+    isEqual,
+    keyBy,
+    last,
+    uniq,
+    uniqBy,
+    uniqWith,
 } from 'lodash';
 import { get } from 'svelte/store';
 import {
-  addFavoriteTask,
-  type FavoriteTaskDto,
-  removeFavoriteTask,
+    addFavoriteTask,
+    type FavoriteTaskDto,
+    removeFavoriteTask,
 } from '../../../apis/favorite-tasks.api';
 import { bulkUpsertTasksLog, type TaskLogDto } from '../../../apis/tasks-log.api';
 import type { TaskDto } from '../../../apis/tasks.api';
@@ -33,31 +33,31 @@ import { addNotification } from '../../../state/notifications/notifications.stat
 import { DaySelectionType } from '../enums';
 import type { AssistantSettings } from '../models';
 import {
-  getSelected,
-  hasImportedData,
-  selectedTypeOfWorkKeyForImport,
+    getSelected,
+    hasImportedData,
+    selectedTypeOfWorkKeyForImport,
 } from './selectors';
 import {
-  assignableTasks,
-  assistantSettings,
-  currentMonthState,
-  displayWeekend,
-  editingValue,
-  enteringMode,
-  favoritesTasks,
-  importEntriesSafeCopy,
-  importinfo,
-  lastRefreshDateState,
-  loadingLogs,
-  logEntries,
-  logEntriesAreLoading,
-  type LogEntry,
-  type LogId,
-  newlyAddedTaskIds,
-  selectedLogs,
-  type Task,
-  tasksState,
-  typesOfWork
+    assignableTasks,
+    assistantSettings,
+    currentMonthState,
+    displayWeekend,
+    editingValue,
+    enteringMode,
+    favoritesTasks,
+    importEntriesSafeCopy,
+    importinfo,
+    lastRefreshDateState,
+    loadingLogs,
+    logEntries,
+    logEntriesAreLoading,
+    type LogEntry,
+    type LogId,
+    newlyAddedTaskIds,
+    selectedLogs,
+    type Task,
+    tasksState,
+    typesOfWork
 } from './state';
 
 export function changeDisplayWeekend(newValue: boolean) {
@@ -494,6 +494,7 @@ async function updateTaskLogFailed(errorMessage: string, taskLog: LogEntry) {
     'Error from server',
     errorMessage,
     `TaskId: ${taskLog.taskId}, Date: ${format(taskLog.date, 'yyyy-MM-dd')}`,
+    'error'
   );
 
   loadingLogs.update((old) => {

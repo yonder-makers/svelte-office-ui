@@ -218,8 +218,6 @@
       <div class="search-container">
         <ToolbarSearch
           bind:value={searchValue}
-          placeholder="Search holidays..."
-          persistent
         />
       </div>
 
@@ -479,16 +477,10 @@
     justify-content: center;
   }
 
-  :global(.search-container .bx--search) {
-    width: 100%;
-    background: var(--custom-bg-secondary);
-  }
-
   :global(.search-container .bx--search-input) {
     background: var(--custom-bg-secondary);
     color: var(--custom-text);
     border-radius: 6px;
-    padding: 0.875rem 1rem;
   }
 
   :global(.bx--data-table) {

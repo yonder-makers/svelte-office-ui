@@ -37,6 +37,7 @@
   let formError = '';
   let validationWarnings: string[] = [];
   let showHalfDaySelector = false; // renamed semantic: can show half-day checkbox
+  let overlapWarning: string | null = null;
 
   // Get remaining days from store
   $: remainingDays = $remainingDaysStore.remaining;
@@ -87,12 +88,48 @@
     }
   }
 
-  // Show AM/PM selector when same day is selected
   // Show half-day checkbox only when a single day is selected
   $: {
     const start = new Date(startDate);
     const end = new Date(endDate);
     showHalfDaySelector = !isNaN(start.getTime()) && !isNaN(end.getTime()) && start.toDateString() === end.toDateString();
+  }
+
+  // Check for overlaps reactively as dates change
+  $: {
+    overlapWarning = null;
+    if (startDate && endDate && $holidayRequestsStore) {
+      const newStart = new Date(startDate + 'T00:00:00');
+      const newEnd = new Date(endDate + 'T23:59:59');
+
+      for (let i = 0; i < $holidayRequestsStore.length; i++) {
+        const other = $holidayRequestsStore[i];
+        
+        if (!other.startDate || !other.endDate) {
+          continue;
+        }
+
+        // Parse as DD-MM-YYYY
+        const [d1, m1, y1] = other.startDate.split('-').map(Number);
+        const [d2, m2, y2] = other.endDate.split('-').map(Number);
+        
+        const otherStart = new Date(y1, m1 - 1, d1, 0, 0, 0);
+        const otherEnd = new Date(y2, m2 - 1, d2, 23, 59, 59);
+        
+        const overlaps = !(newEnd < otherStart || newStart > otherEnd);
+
+        if (overlaps) {
+          const formatDate = (d: Date) => {
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}-${month}-${year}`;
+          };
+          overlapWarning = `Overlaps with existing holiday from ${formatDate(otherStart)} to ${formatDate(otherEnd)}`;
+          break;
+        }
+      }
+    }
   }
 
   // Check if exceeds available days (only for Paid)
@@ -212,6 +249,16 @@
           kind="error"
           title="Error"
           subtitle={formError}
+          lowContrast
+          hideCloseButton
+        />
+      {/if}
+
+      {#if overlapWarning}
+        <InlineNotification
+          kind="warning"
+          title="Overlap Warning"
+          subtitle={overlapWarning}
           lowContrast
           hideCloseButton
         />
@@ -510,6 +557,12 @@
   :global([data-carbon-theme="g90"]) .loading-overlay,
   :global([data-carbon-theme="g100"]) .loading-overlay {
     background: rgba(22, 22, 22, 0.95);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .loading-overlay {
+      background: rgba(22, 22, 22, 0.95) !important;
+    }
   }
 
   .loading-content {
