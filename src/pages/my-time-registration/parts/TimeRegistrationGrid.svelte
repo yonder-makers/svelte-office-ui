@@ -112,16 +112,21 @@
     background-color: rgb(254, 106, 106);
   }
 
+  /* Weekend styling - Light theme */
   :global(td.log-day.day-0, td.log-day.day-6, thead.log-day.day-0, thead.log-day.day-6) {
-    background-color: var(--cds-layer-accent-01, rgb(202, 202, 246));
+    background-color: rgba(226, 232, 240, 0.6);
   }
 
   /* Dark theme specific styles for weekends */
-  :global([data-theme="g100"] td.log-day.day-0),
-  :global([data-theme="g100"] td.log-day.day-6),
-  :global([data-theme="g100"] thead.log-day.day-0),
-  :global([data-theme="g100"] thead.log-day.day-6) {
-    background-color: rgba(100, 100, 200, 0.3);
+  :global([data-carbon-theme="g90"] td.log-day.day-0),
+  :global([data-carbon-theme="g90"] td.log-day.day-6),
+  :global([data-carbon-theme="g90"] thead.log-day.day-0),
+  :global([data-carbon-theme="g90"] thead.log-day.day-6),
+  :global([data-carbon-theme="g100"] td.log-day.day-0),
+  :global([data-carbon-theme="g100"] td.log-day.day-6),
+  :global([data-carbon-theme="g100"] thead.log-day.day-0),
+  :global([data-carbon-theme="g100"] thead.log-day.day-6) {
+    background-color: rgba(82, 82, 82, 0.4);
   }
 
   .total {

@@ -36,6 +36,10 @@ export async function doPost<TResult>(
 
   handleUnauthorized(result);
 
+  if (!result.ok) {
+    throw new Error(`HTTP error! status: ${result.status}`);
+  }
+
   const response = await result.json();
   if (response.errorCode) {
     throw response;
@@ -126,6 +130,10 @@ export async function doPut<TResult>(
 
   handleUnauthorized(result);
 
+  if (!result.ok) {
+    throw new Error(`HTTP error! status: ${result.status}`);
+  }
+
   const response = await result.json();
   if (response.errorCode) {
     throw response;
@@ -151,6 +159,10 @@ export async function doDelete<TResult>(
   });
 
   handleUnauthorized(result);
+
+  if (!result.ok) {
+    throw new Error(`HTTP error! status: ${result.status}`);
+  }
 
   const response = await result.json();
   if (response.errorCode) {

@@ -21,27 +21,53 @@ export interface Employee extends EmployeeDto {
   birthMonth: string;
 }
 
+function parseEmployeeDate(date: string): { year: string; month: string } {
+  // Handle both DD.MM.YYYY and DD-MM-YYYY formats
+  const separator = date.includes('.') ? '.' : '-';
+  const parts = date.split(separator);
+  return {
+    year: parts[2],
+    month: parts[1]
+  };
+}
+
 export async function fetchEmployees(): Promise<Employee[]> {
-  try {
-    const webOfficeUrl = get(authState).webOfficeUrl;
-    const response = await doGet<EmployeeDto[]>('/api/employees');
-    
-    if (!Array.isArray(response)) {
-      throw new Error(`Invalid response format from employee API. Expected array, got: ${typeof response}`);
-    }
-    
-    return response
-      .sort((a, b) => a.firstName.localeCompare(b.firstName) || a.lastName.localeCompare(b.lastName))
-      .map((employee) => ({
+  const webOfficeUrl = get(authState).webOfficeUrl;
+  const response = await doGet<any>('/api/employees');
+
+  // Handle both array response and object response
+  const employees = Array.isArray(response) ? response : (response.employees || []);
+
+  return employees
+    .sort((a, b) => a.firstName.localeCompare(b.firstName) || a.lastName.localeCompare(b.lastName))
+    .map((employee) => {
+      const hireDateParsed = parseEmployeeDate(employee.hireDate);
+      const birthDateParsed = parseEmployeeDate(employee.birthDate);
+
+      return {
         ...employee,
         picture: employee.picture.includes('/.jpg') ? '/assets/images/user-avatar.png' : `${webOfficeUrl}${employee.picture}`,
-        hireYear: employee.hireDate.substring(6, 10),
-        hireMonth: employee.hireDate.substring(3, 5),
-        birthYear: employee.birthDate.substring(6, 10),
-        birthMonth: employee.birthDate.substring(3, 5),
-      }));
-  } catch (error) {
-    console.error('Error in fetchEmployees:', error);
-    throw error;
-  }
+        hireYear: hireDateParsed.year,
+        hireMonth: hireDateParsed.month,
+        birthYear: birthDateParsed.year,
+        birthMonth: birthDateParsed.month,
+      }
+    });
+}
+
+export async function fetchCurrentEmployee(): Promise<Employee> {
+  const webOfficeUrl = get(authState).webOfficeUrl;
+  const response = await doGet<EmployeeDto>('/api/employees/me');
+
+  const hireDateParsed = parseEmployeeDate(response.hireDate);
+  const birthDateParsed = parseEmployeeDate(response.birthDate);
+
+  return {
+    ...response,
+    picture: response.picture.includes('/.jpg') ? '/assets/images/user-avatar.png' : `${webOfficeUrl}${response.picture}`,
+    hireYear: hireDateParsed.year,
+    hireMonth: hireDateParsed.month,
+    birthYear: birthDateParsed.year,
+    birthMonth: birthDateParsed.month,
+  };
 }

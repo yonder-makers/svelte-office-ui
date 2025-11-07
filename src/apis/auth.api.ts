@@ -1,7 +1,7 @@
 import { doGet, doPost } from './core/base-api';
 
 export interface LoginResponse {
-   accessToken: string;
+  access_token: string;
 }
 
 export async function login(username: string, password: string) {
@@ -9,7 +9,7 @@ export async function login(username: string, password: string) {
   const loginResponse = await doPost<LoginResponse>('/api/login', body);
 
   return {
-    accessToken: loginResponse.accessToken,
+    accessToken: loginResponse.access_token,
   };
 }
 

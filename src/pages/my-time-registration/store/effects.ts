@@ -4,36 +4,36 @@ import { differenceWith, isEqual } from 'lodash';
 import { get } from 'svelte/store';
 import { fetchFavoriteTasks } from '../../../apis/favorite-tasks.api';
 import {
-  bulkUpsertTasksLog,
-  fetchTasksLog,
-  type TaskLogDto,
+    bulkUpsertTasksLog,
+    fetchTasksLog,
+    type TaskLogDto,
 } from '../../../apis/tasks-log.api';
 import { getTasks } from "../../../apis/tasks.api";
 import { fetchTypesOfWork } from '../../../apis/types-of-work.api';
 import { addNotification } from '../../../state/notifications/notifications.state';
 import { createAbortable } from '../../../utils/create-abortable';
 import {
-  addDataFromToggl,
-  enterKeyPressed,
-  escapeKeyPressed,
-  logEntriesLoaded,
-  logEntriesLoadingStarted,
-  navigateKeyPressed,
+    addDataFromToggl,
+    enterKeyPressed,
+    escapeKeyPressed,
+    logEntriesLoaded,
+    logEntriesLoadingStarted,
+    navigateKeyPressed,
 } from './actions';
 import {
-  affectedEntriesDuringImport,
-  affectedLogsDuringImport,
-  getDisplayedDateRange,
+    affectedEntriesDuringImport,
+    affectedLogsDuringImport,
+    getDisplayedDateRange,
 } from './selectors';
 import {
-  currentMonthState,
-  importEntriesSafeCopy,
-  lastRefreshDateState,
-  loadingLogs,
-  logEntries,
-  logEntriesAreLoading,
-  type LogEntry,
-  selectedLogs,
+    currentMonthState,
+    importEntriesSafeCopy,
+    lastRefreshDateState,
+    loadingLogs,
+    logEntries,
+    logEntriesAreLoading,
+    type LogEntry,
+    selectedLogs,
 } from './state';
 
 async function onDataNeedsRefresh(signal: AbortSignal, refreshDate: Date) {
@@ -158,6 +158,7 @@ async function updateTaskLogFailed(errorMessage: string, taskLog: LogEntry) {
     'Error from server',
     errorMessage,
     `TaskId: ${taskLog.taskId}, Date: ${format(taskLog.date, 'yyyy-MM-dd')}`,
+    'error'
   );
 
   loadingLogs.update((old) => {

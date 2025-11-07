@@ -9,11 +9,16 @@ function computeUrl(base: string, relativePath: string) {
     );
   }
 
+  // Strip leading slash from relative path to prevent it from being treated as absolute
+  const cleanRelativePath = relativePath.startsWith('/')
+    ? relativePath.substring(1)
+    : relativePath;
+
   let url: URL | null = null;
   try {
-    url = new URL(relativePath, base);
+    url = new URL(cleanRelativePath, base);
   } catch (err) {
-    url = new URL(relativePath, window.location.origin + base);
+    url = new URL(cleanRelativePath, window.location.origin + base);
     authState.update((state) => {
       return {
         ...state,
