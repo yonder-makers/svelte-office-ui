@@ -38,9 +38,11 @@
 </script>
 
 <Theme bind:theme={$themeStore}>
-  <Header company="Yonder" platformName="SvelteOffice">
-    <HeaderNav style="display: flex; align-items: center; width: 100%; line-height: 48px;">
-      {#if $isUserAuthenticated}
+  {#if $isUserAuthenticated}
+    <Header company="Yonder" platformName="SvelteOffice">
+      <HeaderNav
+        style="display: flex; align-items: center; width: 100%; line-height: 48px;"
+      >
         <HeaderNavItem href="#/my-tr" text="My Time Registration" />
         <HeaderNavItem href="#/employees" text="Employees" />
         <HeaderNavItem href="#/holidays" text="Holidays" />
@@ -48,9 +50,9 @@
         <div style="margin-left: auto; display: flex; align-items: center;">
           <ThemeToggle />
         </div>
-      {/if}
-    </HeaderNav>
-  </Header>
+      </HeaderNav>
+    </Header>
+  {/if}
   <Content>
     {#if $isConfigLoaded}
       <Routing />
