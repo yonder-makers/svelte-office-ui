@@ -88,6 +88,7 @@
     padding: 0 0.5rem !important;
     z-index: 2;
     border-right: 1px solid gray;
+    background-color: var(--cds-ui-01, #ffffff);
   }
 
   :global(td.log-day, thead.log-day) {
@@ -102,6 +103,7 @@
     position: sticky;
     left:200px;
     z-index: 10;
+    background-color: var(--cds-ui-01, #ffffff);
   }
 
   :global(td.log-day.day-1,thead.log-day.day-1){

@@ -25,6 +25,20 @@
   });
 
   export let selectedIndex = 0;
+
+  $: selectedId = $typesOfWorkComboItems[selectedIndex]?.id;
+
+  function onSelect(event: CustomEvent) {
+    const { selectedItem } = event.detail;
+    if (selectedItem) {
+      const index = $typesOfWorkComboItems.findIndex(
+        (i) => i.id === selectedItem.id
+      );
+      if (index >= 0) {
+        selectedIndex = index;
+      }
+    }
+  }
 </script>
 
 {#if $typesOfWorkComboItems.length > 0}
@@ -34,6 +48,7 @@
     placeholder="Select the type of work"
     itemToString={typeOfWorkString}
     shouldFilterItem={typeOfWorkFilter}
-    bind:selectedIndex
+    {selectedId}
+    on:select={onSelect}
   />
 {/if}

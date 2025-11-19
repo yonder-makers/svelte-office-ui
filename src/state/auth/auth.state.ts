@@ -28,7 +28,7 @@ export function loggedOut() {
   authState.update((state) => {
     return {
       ...state,
-      auth_token: null,
+      accessToken: null,
       isUserLoggedInToggl: false,
     };
   });
