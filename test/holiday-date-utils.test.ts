@@ -3,7 +3,7 @@ import {
   isWeekend,
   countWorkingDays,
   countWeekendDays,
-} from './holiday-date-utils';
+} from '../src/utils/holiday-date-utils';
 
 describe('Holiday Date Utils - Timezone Bug Fix', () => {
   let originalTZ: string | undefined;
