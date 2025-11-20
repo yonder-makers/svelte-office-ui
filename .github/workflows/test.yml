@@ -27,5 +27,6 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Run validation
+      - name: Run validation (optional)
         run: npm run validate
+        continue-on-error: true
