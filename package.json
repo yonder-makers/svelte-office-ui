@@ -7,13 +7,17 @@
     "dev": "vite --host",
     "build": "vite build",
     "start": "npm run create-config && vite preview --host 0.0.0.0",
-    "validate": "svelte-check"
+    "validate": "svelte-check",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@tsconfig/svelte": "^5.0.5",
     "@types/lodash": "^4.17.20",
     "@vitejs/plugin-legacy": "^7.2.1",
+    "@vitest/ui": "^4.0.11",
     "carbon-components-svelte": "^0.90.1",
     "carbon-icons-svelte": "^13.6.0",
     "svelte": "^5.43.2",
@@ -22,7 +26,8 @@
     "terser": "^5.44.0",
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
-    "vite": "^7.1.12"
+    "vite": "^7.1.12",
+    "vitest": "^4.0.11"
   },
   "dependencies": {
     "carbon-components": "^10.59.2",
