@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     Button,
+    Checkbox,
     ComposedModal,
     DatePicker,
     DatePickerInput,
@@ -10,19 +11,18 @@
     ModalHeader,
     RadioButton,
     RadioButtonGroup,
-    Checkbox,
     TextArea,
   } from 'carbon-components-svelte';
   import { HolidayType } from '../../../apis/holidays.api';
-  import { createNewHoliday, closeCreateModal } from '../store';
+  import { formatDateLocal } from '../../../utils/holiday-date-utils';
+  import { validateHolidayRequest } from '../../../utils/holiday-validation';
+  import { closeCreateModal, createNewHoliday } from '../store';
   import {
+    holidayRequestsStore,
+    legalHolidaysStore,
     remainingDaysStore,
     showCreateModalStore,
-    holidayRequestsStore,
-    legalHolidaysStore
   } from '../store/state';
-  import { validateHolidayRequest } from '../../../utils/holiday-validation';
-  import { formatDateForWebOffice } from '../../../utils/holiday-date-utils';
 
   // Form state (always in YYYY-MM-DD format internally)
   let startDate = '';
@@ -49,7 +49,8 @@
 
     while (current <= end) {
       const day = current.getUTCDay();
-      if (day !== 0 && day !== 6) { // Skip weekends
+      if (day !== 0 && day !== 6) {
+        // Skip weekends
         count++;
       }
       current.setDate(current.getDate() + 1);
@@ -64,9 +65,12 @@
     if (selectedDates && selectedDates.length >= 1) {
       const start = selectedDates[0];
       // If only one date picked in range mode, treat as single-day selection
-      const end = selectedDates.length === 2 ? selectedDates[1] : selectedDates[0];
-      startDate = start.toISOString().split('T')[0];
-      endDate = end.toISOString().split('T')[0];
+      const end =
+        selectedDates.length === 2 ? selectedDates[1] : selectedDates[0];
+
+      // Use local date components to avoid timezone shifts that toISOString() causes
+      startDate = formatDateLocal(start);
+      endDate = formatDateLocal(end);
     }
   }
 
@@ -76,11 +80,18 @@
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      const isSameDay = !isNaN(start.getTime()) && !isNaN(end.getTime()) && start.toDateString() === end.toDateString();
+      const isSameDay =
+        !isNaN(start.getTime()) &&
+        !isNaN(end.getTime()) &&
+        start.toDateString() === end.toDateString();
 
       if (isSameDay) {
         days = isHalfDay ? 0.5 : 1;
-      } else if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end >= start) {
+      } else if (
+        !isNaN(start.getTime()) &&
+        !isNaN(end.getTime()) &&
+        end >= start
+      ) {
         // Reset half-day if user expanded to multiple days
         if (isHalfDay) isHalfDay = false;
         days = calculateWorkingDays(start, end);
@@ -92,7 +103,10 @@
   $: {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    showHalfDaySelector = !isNaN(start.getTime()) && !isNaN(end.getTime()) && start.toDateString() === end.toDateString();
+    showHalfDaySelector =
+      !isNaN(start.getTime()) &&
+      !isNaN(end.getTime()) &&
+      start.toDateString() === end.toDateString();
   }
 
   // Check for overlaps reactively as dates change
@@ -104,7 +118,7 @@
 
       for (let i = 0; i < $holidayRequestsStore.length; i++) {
         const other = $holidayRequestsStore[i];
-        
+
         if (!other.startDate || !other.endDate) {
           continue;
         }
@@ -112,10 +126,10 @@
         // Parse as DD-MM-YYYY
         const [d1, m1, y1] = other.startDate.split('-').map(Number);
         const [d2, m2, y2] = other.endDate.split('-').map(Number);
-        
+
         const otherStart = new Date(y1, m1 - 1, d1, 0, 0, 0);
         const otherEnd = new Date(y2, m2 - 1, d2, 23, 59, 59);
-        
+
         const overlaps = !(newEnd < otherStart || newStart > otherEnd);
 
         if (overlaps) {
@@ -168,7 +182,7 @@
         existingRequests: $holidayRequestsStore,
         legalHolidays: $legalHolidaysStore,
         remainingDays: $remainingDaysStore,
-      }
+      },
     );
 
     if (!validationResult.valid) {
@@ -201,7 +215,10 @@
 
       resetForm();
     } catch (error) {
-      formError = error instanceof Error ? error.message : 'Failed to create holiday request';
+      formError =
+        error instanceof Error
+          ? error.message
+          : 'Failed to create holiday request';
     } finally {
       isSubmitting = false;
     }
@@ -233,7 +250,7 @@
   hasForm
 >
   <ModalHeader title="New Holiday Request" />
-  
+
   <ModalBody hasForm>
     {#if isSubmitting}
       <div class="loading-overlay">
@@ -243,7 +260,12 @@
         </div>
       </div>
     {/if}
-    <form on:submit|preventDefault={handleSubmit} id="holiday-form" class="holiday-form" class:form-submitting={isSubmitting}>
+    <form
+      on:submit|preventDefault={handleSubmit}
+      id="holiday-form"
+      class="holiday-form"
+      class:form-submitting={isSubmitting}
+    >
       {#if formError}
         <InlineNotification
           kind="error"
@@ -283,20 +305,30 @@
         </div>
         <div class="date-duration-row">
           <div class="date-picker-col">
-            <DatePicker datePickerType="range" on:change={handleDateChange}>
-              <DatePickerInput labelText="Start" placeholder="mm/dd/yyyy" />
-              <DatePickerInput labelText="End" placeholder="mm/dd/yyyy" />
+            <DatePicker
+              datePickerType="range"
+              on:change={handleDateChange}
+              dateFormat="d/m/Y"
+            >
+              <DatePickerInput labelText="Start" placeholder="dd/mm/yyyy" />
+              <DatePickerInput labelText="End" placeholder="dd/mm/yyyy" />
             </DatePicker>
           </div>
           <div class="days-info-col">
             <div class="days-info" aria-live="polite">
               {#if showHalfDaySelector}
                 <div class="days-row half-day-toggle">
-                  <Checkbox bind:checked={isHalfDay} labelText="Half day" id="half-day-checkbox" />
+                  <Checkbox
+                    bind:checked={isHalfDay}
+                    labelText="Half day"
+                    id="half-day-checkbox"
+                  />
                 </div>
               {/if}
               {#if exceedsAvailable}
-                <div class="error-text">Exceeds balance ({remainingDays.toFixed(1)} left)</div>
+                <div class="error-text">
+                  Exceeds balance ({remainingDays.toFixed(1)} left)
+                </div>
               {/if}
             </div>
           </div>
@@ -305,12 +337,18 @@
           <div class="balance-card" class:warning={exceedsAvailable}>
             <div class="balance-header">
               <span class="balance-icon">{exceedsAvailable ? '⚠️' : '✅'}</span>
-              <span class="balance-title">{exceedsAvailable ? 'Insufficient Balance' : 'Balance Check'}</span>
+              <span class="balance-title"
+                >{exceedsAvailable
+                  ? 'Insufficient Balance'
+                  : 'Balance Check'}</span
+              >
             </div>
             <div class="balance-stats">
               <div class="balance-stat">
                 <span class="balance-label">Available</span>
-                <span class="balance-value">{remainingDays.toFixed(1)} days</span>
+                <span class="balance-value">
+                  {remainingDays.toFixed(1)} days
+                </span>
               </div>
               <div class="balance-stat">
                 <span class="balance-label">Requesting</span>
@@ -319,7 +357,9 @@
               {#if exceedsAvailable}
                 <div class="balance-stat">
                   <span class="balance-label">Over by</span>
-                  <span class="balance-value error">{(days - remainingDays).toFixed(1)} days</span>
+                  <span class="balance-value error">
+                    {(days - remainingDays).toFixed(1)} days
+                  </span>
                 </div>
               {/if}
             </div>
@@ -332,14 +372,8 @@
           <span class="section-icon">🏷️</span>
           <h4 class="section-title">Type & Details</h4>
         </div>
-        <RadioButtonGroup
-          legendText="Holiday Type"
-          bind:selected={type}
-        >
-          <RadioButton
-            labelText="💰 Paid Leave"
-            value={HolidayType.PAID}
-          />
+        <RadioButtonGroup legendText="Holiday Type" bind:selected={type}>
+          <RadioButton labelText="💰 Paid Leave" value={HolidayType.PAID} />
           <RadioButton
             labelText="🔄 Compensation Time"
             value={HolidayType.COMPENSATION}
@@ -387,7 +421,11 @@
   }
 
   .form-section {
-    background: linear-gradient(135deg, var(--custom-bg-secondary) 0%, var(--custom-bg) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--custom-bg-secondary) 0%,
+      var(--custom-bg) 100%
+    );
     border-radius: 12px;
     padding: 1.25rem 1.25rem 1rem;
     border: 1px solid var(--custom-border);
@@ -554,8 +592,8 @@
     justify-content: center;
     z-index: 10000;
   }
-  :global([data-carbon-theme="g90"]) .loading-overlay,
-  :global([data-carbon-theme="g100"]) .loading-overlay {
+  :global([data-carbon-theme='g90']) .loading-overlay,
+  :global([data-carbon-theme='g100']) .loading-overlay {
     background: rgba(22, 22, 22, 0.95);
   }
 
