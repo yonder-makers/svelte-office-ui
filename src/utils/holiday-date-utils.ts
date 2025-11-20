@@ -216,6 +216,7 @@ export function formatDateForWebOffice(date: Date | string): string {
 /**
  * Parse date from DD-MM-YYYY format (WebOffice format)
  * This is critical because JavaScript's Date constructor does NOT properly parse DD-MM-YYYY
+ * Creates dates at midnight UTC to match the UTC methods used in isWeekend and countWorkingDays
  */
 export function parseDateFromWebOffice(dateStr: string): Date {
   if (!dateStr) return new Date();
@@ -224,7 +225,8 @@ export function parseDateFromWebOffice(dateStr: string): Date {
   const ddMmYyyy = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})$/);
   if (ddMmYyyy) {
     const [, day, month, year] = ddMmYyyy;
-    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    // Use Date.UTC to create date at midnight UTC, not local timezone
+    return new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)));
   }
 
   // Fall back to parseISO for ISO format
