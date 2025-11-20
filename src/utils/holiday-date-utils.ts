@@ -18,6 +18,7 @@ export function isWeekend(date: Date): boolean {
 
 /**
  * Count working days (excluding weekends) between two dates (inclusive)
+ * Uses UTC to avoid timezone issues when dates are parsed as midnight UTC
  */
 export function countWorkingDays(startDate: Date, endDate: Date): number {
   // Ensure valid Date objects
@@ -28,12 +29,23 @@ export function countWorkingDays(startDate: Date, endDate: Date): number {
     throw new Error(`Invalid date values: startDate=${startDate.toISOString()}, endDate=${endDate.toISOString()}`);
   }
 
-  const days = eachDayOfInterval({ start: startDate, end: endDate });
-  return days.filter((day) => !isWeekend(day)).length;
+  let count = 0;
+  const current = new Date(startDate.getTime());
+
+  while (current <= endDate) {
+    if (!isWeekend(current)) {
+      count++;
+    }
+    // Move to next day using UTC to avoid DST issues
+    current.setUTCDate(current.getUTCDate() + 1);
+  }
+
+  return count;
 }
 
 /**
  * Count weekend days between two dates (inclusive)
+ * Uses UTC to avoid timezone issues when dates are parsed as midnight UTC
  */
 export function countWeekendDays(startDate: Date, endDate: Date): number {
   // Ensure valid Date objects
@@ -44,8 +56,18 @@ export function countWeekendDays(startDate: Date, endDate: Date): number {
     throw new Error(`Invalid date values: startDate=${startDate.toISOString()}, endDate=${endDate.toISOString()}`);
   }
 
-  const days = eachDayOfInterval({ start: startDate, end: endDate });
-  return days.filter((day) => isWeekend(day)).length;
+  let count = 0;
+  const current = new Date(startDate.getTime());
+
+  while (current <= endDate) {
+    if (isWeekend(current)) {
+      count++;
+    }
+    // Move to next day using UTC to avoid DST issues
+    current.setUTCDate(current.getUTCDate() + 1);
+  }
+
+  return count;
 }
 
 /**
