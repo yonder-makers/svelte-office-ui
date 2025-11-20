@@ -1,9 +1,9 @@
 import {
   eachDayOfInterval,
-  format,
-  startOfYear,
   endOfYear,
+  format,
   parseISO,
+  startOfYear,
 } from 'date-fns';
 import type { LegalHoliday } from '../apis/holidays.api';
 
@@ -261,9 +261,18 @@ export function getTodayString(): string {
   return formatDate(new Date());
 }
 
-/**
- * Get end of year as YYYY-MM-DD string
- */
 export function getEndOfYearString(): string {
   return formatDate(endOfYear(new Date()));
+}
+
+/**
+ * Format a date using local time components (YYYY-MM-DD)
+ * This avoids timezone shifts that occur with toISOString() when the user is in a positive timezone
+ * e.g. Monday 00:00 Local -> Sunday 22:00 UTC
+ */
+export function formatDateLocal(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
