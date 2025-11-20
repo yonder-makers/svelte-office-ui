@@ -48,7 +48,7 @@
     const current = new Date(start);
 
     while (current <= end) {
-      const day = current.getDay();
+      const day = current.getUTCDay();
       if (day !== 0 && day !== 6) { // Skip weekends
         count++;
       }

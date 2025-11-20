@@ -1,6 +1,5 @@
 import {
   eachDayOfInterval,
-  getDay,
   format,
   startOfYear,
   endOfYear,
@@ -10,9 +9,10 @@ import type { LegalHoliday } from '../apis/holidays.api';
 
 /**
  * Check if a date falls on a weekend (Saturday or Sunday)
+ * Uses UTC day to avoid timezone issues when dates are parsed as midnight UTC
  */
 export function isWeekend(date: Date): boolean {
-  const day = getDay(date);
+  const day = date.getUTCDay();
   return day === 0 || day === 6; // Sunday=0, Saturday=6
 }
 
