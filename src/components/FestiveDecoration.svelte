@@ -25,7 +25,6 @@
   }
 
   let celebration = '';
-  let icon = '';
   let emoji = '';
 
   onMount(() => {
