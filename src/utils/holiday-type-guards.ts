@@ -49,15 +49,28 @@ export function getHolidayDays(holiday: HolidayData): number {
 export function isHolidayPending(holiday: HolidayData): boolean {
     if (isHolidayResponse(holiday)) {
         // New format: check managerDecision or status
-        if (holiday.managerDecision) {
-            return holiday.managerDecision === '?';
+        if (holiday.managerDecision === '?' || holiday.managerDecision === null || holiday.managerDecision === undefined) {
+            return true;
         }
         if (holiday.status) {
             return holiday.status === 'Pending';
         }
-        return false;
+        // If we have a HolidayResponse structure but no decision and no status, it might be pending
+        // But let's be careful. If managerDecision is strictly checked above, we might be good.
+        // However, the issue is likely that managerDecision is null.
+        return !holiday.managerDecision && !holiday.status;
     } else if (isHolidayDto(holiday)) {
-        // Old format: decision is boolean, pending when both decision and advice are false
+        // Old format: decision is boolean or string '?'
+        // Pending when:
+        // 1. decision is false AND advice is false (legacy boolean logic)
+        // 2. decision is '?' (legacy string logic)
+        // 3. advice is '?' (legacy string logic)
+        const decision = String(holiday.decision).trim();
+        const advice = String(holiday.advice).trim();
+
+        if (decision === '?' || advice === '?') {
+            return true;
+        }
         return holiday.decision === false && holiday.advice === false;
     }
 

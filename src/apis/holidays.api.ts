@@ -5,9 +5,9 @@ export type HolidayDto = {
   uid: string;
   rowState: string;
   user: string;
-  advice: boolean;
+  advice: boolean | string;
   numberOfDays: number;
-  decision: boolean;
+  decision: boolean | string;
   description: string;
   startDate: string;
   endDate: string;

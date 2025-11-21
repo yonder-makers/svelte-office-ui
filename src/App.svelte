@@ -24,6 +24,7 @@
   import Asleep from 'carbon-icons-svelte/lib/Asleep.svelte';
   import Light from 'carbon-icons-svelte/lib/Light.svelte';
   import ThemeToggle from './components/ThemeToggle.svelte';
+  import FestiveDecoration from './components/FestiveDecoration.svelte';
 
   onMount(async () => {
     await loadConfiguration();
@@ -48,6 +49,7 @@
         <HeaderNavItem href="#/holidays" text="Holidays" />
         <HeaderNavItem on:click={loggedOut} text="Logout" />
         <div style="margin-left: auto; display: flex; align-items: center;">
+          <FestiveDecoration />
           <ThemeToggle />
         </div>
       </HeaderNav>
