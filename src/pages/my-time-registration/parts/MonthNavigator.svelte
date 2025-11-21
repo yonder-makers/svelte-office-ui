@@ -14,7 +14,6 @@
     <Button
       on:click={goPreviousMonth}
       class="nav-btn"
-      hasIconOnly={true}
       size="small"
       kind="primary"
     >
@@ -25,7 +24,7 @@
 
     <Button on:click={goNextMonth} class="nav-btn" size="small" kind="primary">
       <ArrowRight size={16} />
-    </Buttons>
+    </Button>
 
     <Button
       class="refresh-btn"
