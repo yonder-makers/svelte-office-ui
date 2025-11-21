@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TableCell, Loading } from 'carbon-components-svelte';
+  import { Loading, TableCell } from 'carbon-components-svelte';
 
   import { tick } from 'svelte';
   import { DaySelectionType } from '../enums';
@@ -11,16 +11,22 @@
   import {
     getLogInfo,
     isGridReadOnly,
+    isLogImported,
+    isLogInvalid,
     isLogLoading,
     isLogSelected,
-    isLogImported,
     isLogUpdated,
-    isLogInvalid,
   } from '../store/selectors';
   import { editingValue, enteringMode } from '../store/state';
 
+  import type { HolidayResponse } from '../../../apis/holidays.api';
+  import { isPendingHoliday } from '../../../utils/holiday-status-utils';
+
   export let day: Date;
   export let taskId: number;
+  export let holidayRequests: HolidayResponse[] = [];
+  export let isLegalDay: boolean = false;
+  export let isApprovedDay: boolean = false;
 
   $: dayOfTheWeek = `day-${day.getDay()}`;
 
@@ -29,6 +35,7 @@
   $: isUpdated = isLogUpdated(taskId, day);
   $: isLoading = isLogLoading(taskId, day);
   $: isInvalid = isLogInvalid(taskId, day);
+  $: isPending = isPendingHoliday(day, holidayRequests);
 
   $: log = getLogInfo(taskId, day);
   $: {
@@ -40,7 +47,15 @@
     $isLoading ? ' loading' : ''
   }${$isImported ? ' imported' : ''}${
     $isUpdated ? ' updated' : ''
-  } ${dayOfTheWeek} ${$isInvalid ? ' invalid' : ''}`;
+  } ${dayOfTheWeek} ${$isInvalid ? ' invalid' : ''} ${
+    isPending
+      ? 'pending-holiday'
+      : isApprovedDay
+        ? 'approved-holiday'
+        : isLegalDay
+          ? 'legal-holiday'
+          : ''
+  }`;
 
   async function focusInput() {
     await tick();
@@ -67,8 +82,8 @@
     const daySelectionType = shiftPressed
       ? DaySelectionType.Row
       : ctrlPressed
-      ? DaySelectionType.Scattered
-      : DaySelectionType.Single;
+        ? DaySelectionType.Scattered
+        : DaySelectionType.Single;
     selectLog(taskId, day, daySelectionType);
   }
 

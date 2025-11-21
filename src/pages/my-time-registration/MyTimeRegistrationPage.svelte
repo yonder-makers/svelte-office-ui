@@ -1,5 +1,12 @@
 <script lang="ts">
+  import { Button } from 'carbon-components-svelte';
   import { onMount } from 'svelte';
+  import AssistantIcon from '../../components/icons/AssistantIcon.svelte';
+  import {
+    loadLegalHolidays,
+    triggerRefresh as refreshHolidays,
+  } from '../holidays/store/actions';
+  import Assistant from './assistant/Assistant.svelte';
   import AddTaskModal from './modals/AddTaskModal.svelte';
   import EditLogModal from './modals/EditLogModal.svelte';
   import GridConfig from './parts/GridConfig.svelte';
@@ -7,9 +14,6 @@
   import MonthNavigator from './parts/MonthNavigator.svelte';
   import TimeRegistrationGrid from './parts/TimeRegistrationGrid.svelte';
   import { refreshData } from './store/actions';
-  import Assistant from './assistant/Assistant.svelte';
-  import { Button } from 'carbon-components-svelte';
-  import AssistantIcon from '../../components/icons/AssistantIcon.svelte';
   import { newlyAddedTaskIds } from './store/state';
 
   let assistantEnabled = false;
@@ -22,6 +26,9 @@
     // Clear newly added tasks for a fresh view
     newlyAddedTaskIds.set([]);
     refreshData();
+    // Load holiday data for grid visualization
+    refreshHolidays();
+    loadLegalHolidays();
   });
 </script>
 
