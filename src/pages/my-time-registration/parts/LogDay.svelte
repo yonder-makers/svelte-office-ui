@@ -20,7 +20,7 @@
   import { editingValue, enteringMode } from '../store/state';
 
   import type { HolidayResponse } from '../../../apis/holidays.api';
-  import { isPendingHoliday } from '../../../utils/holiday-status-utils';
+  import { getHolidayStatusClasses } from '../../../utils/holiday-class-utils';
 
   export let day: Date;
   export let taskId: number;
@@ -35,7 +35,12 @@
   $: isUpdated = isLogUpdated(taskId, day);
   $: isLoading = isLogLoading(taskId, day);
   $: isInvalid = isLogInvalid(taskId, day);
-  $: isPending = isPendingHoliday(day, holidayRequests);
+  $: holidayStatusClass = getHolidayStatusClasses(
+    day,
+    holidayRequests,
+    isLegalDay,
+    isApprovedDay,
+  );
 
   $: log = getLogInfo(taskId, day);
   $: {
@@ -47,15 +52,7 @@
     $isLoading ? ' loading' : ''
   }${$isImported ? ' imported' : ''}${
     $isUpdated ? ' updated' : ''
-  } ${dayOfTheWeek} ${$isInvalid ? ' invalid' : ''} ${
-    isPending
-      ? 'pending-holiday'
-      : isApprovedDay
-        ? 'approved-holiday'
-        : isLegalDay
-          ? 'legal-holiday'
-          : ''
-  }`;
+  } ${dayOfTheWeek} ${$isInvalid ? ' invalid' : ''} ${holidayStatusClass}`;
 
   async function focusInput() {
     await tick();

@@ -2,7 +2,7 @@
   import { TableHead } from 'carbon-components-svelte';
   import { format } from 'date-fns';
   import type { HolidayResponse } from '../../../apis/holidays.api';
-  import { isPendingHoliday } from '../../../utils/holiday-status-utils';
+  import { getHolidayStatusClasses } from '../../../utils/holiday-class-utils';
 
   export let day: Date;
   export let holidayRequests: HolidayResponse[] = [];
@@ -10,16 +10,15 @@
   export let isApprovedDay: boolean = false;
 
   $: dayOfTheWeek = `day-${day.getDay()}`;
-  $: isPending = isPendingHoliday(day, holidayRequests);
+  $: holidayStatusClass = getHolidayStatusClasses(
+    day,
+    holidayRequests,
+    isLegalDay,
+    isApprovedDay,
+  );
 </script>
 
-<TableHead
-  class="log-day {dayOfTheWeek} {isPending
-    ? 'pending-holiday'
-    : ''} {isApprovedDay ? 'approved-holiday' : ''} {isLegalDay
-    ? 'legal-holiday'
-    : ''}"
->
+<TableHead class="log-day {dayOfTheWeek} {holidayStatusClass}">
   <span>
     {format(day, 'd')}
   </span>

@@ -30,8 +30,9 @@
       class="refresh-btn"
       on:click={refreshData}
       size="small"
-      kind="primary">Refresh</Button
-    >
+      kind="primary">
+        Refresh
+    </Button>
     <HintMessage />
   </div>
 

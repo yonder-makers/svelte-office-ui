@@ -1,74 +1,87 @@
 <script lang="ts">
-  import { TableRow, TableCell, Modal, InlineLoading, Tag, Button } from 'carbon-components-svelte';
+  import {
+    Button,
+    InlineLoading,
+    Modal,
+    TableCell,
+    TableRow,
+    Tag,
+  } from 'carbon-components-svelte';
   import TrashCan from 'carbon-icons-svelte/lib/TrashCan.svelte';
+  import { getHolidayTypeName } from '../../../apis/holidays.api';
+  import {
+    type HolidayData,
+    getHolidayDays,
+    getHolidayId,
+    getHolidayModifiedBy,
+    getHolidayModifiedDate,
+    getHolidayRequestDate,
+    isHolidayApproved,
+    isHolidayPending,
+    isHolidayRejected,
+    isHolidayResponse,
+  } from '../../../utils/holiday-type-guards';
   import { deleteExistingHoliday } from '../store';
-  import { HolidayType, getHolidayTypeName, type HolidayResponse } from '../../../apis/holidays.api';
 
-  export let holiday: any; // Using any because backend returns mixed format
-  
+  export let holiday: HolidayData;
+
   // Handle both old HolidayDto (type as string "Paid") and new HolidayResponse (type as enum)
-  $: displayTypeName = typeof holiday?.type === 'string' 
-    ? holiday.type  // Old format: type is already a string like "Paid"
-    : (holiday?.typeName || (holiday?.type ? getHolidayTypeName(Number(holiday.type)) : 'Unknown'));
-  
-  // Use days field, fallback to numberOfDays for old format
-  $: displayDays = holiday?.days ?? holiday?.numberOfDays ?? 0;
-  
-  // Get ID - use id for new format, uid for old format
-  $: holidayId = holiday?.id ?? holiday?.uid;
-  
-  // Determine row status - handle both old (decision boolean) and new (managerDecision string) formats
-  $: decision = holiday?.managerDecision ?? holiday?.decision;
-  
-  // Check status for both formats
-  $: isPending = holiday && (
-    decision === '?' || 
-    decision === undefined || 
-    decision === null ||
-    (decision === false && holiday.advice === false)
-  );
-  
-  $: isApproved = holiday && (decision === 'YES' || decision === true);
-  $: isRejected = holiday && (decision === 'NO' || (decision === false && holiday.advice !== false));
-  
+  $: displayTypeName =
+    typeof holiday?.type === 'string'
+      ? holiday.type // Old format: type is already a string like "Paid"
+      : (isHolidayResponse(holiday) && holiday.typeName) ||
+        (holiday?.type ? getHolidayTypeName(Number(holiday.type)) : 'Unknown');
+
+  // Use type-safe helper functions
+  $: displayDays = getHolidayDays(holiday);
+  $: holidayId = getHolidayId(holiday);
+  $: isPending = isHolidayPending(holiday);
+  $: isApproved = isHolidayApproved(holiday);
+  $: isRejected = isHolidayRejected(holiday);
+
   $: rowClass = isPending ? 'pending-row' : isRejected ? 'rejected-row' : '';
-  
+
   // Can delete based on canDelete field from API
-  $: canDelete = holiday?.canDelete ?? false;
-  
+  $: canDelete = isHolidayResponse(holiday) ? holiday.canDelete : false;
+
   let showDeleteModal = false;
   let isDeleting = false;
   let deleteError = '';
-  
+
   function handleDeleteClick() {
     showDeleteModal = true;
     deleteError = '';
   }
-  
+
   async function confirmDelete() {
     if (!holiday) return;
-    
+
     isDeleting = true;
     deleteError = '';
-    
+
     try {
       // Use ID from either format (id for new, uid for old)
       await deleteExistingHoliday(holidayId);
       showDeleteModal = false;
     } catch (error) {
-      deleteError = error instanceof Error ? error.message : 'Failed to delete holiday';
+      deleteError =
+        error instanceof Error ? error.message : 'Failed to delete holiday';
       console.error('Delete error:', error);
       console.error('Holiday data:', holiday);
     } finally {
       isDeleting = false;
     }
   }
-  
+
   function formatDate(dateStr: string): string {
     if (!dateStr) return '';
     try {
       const date = new Date(dateStr);
-      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
     } catch {
       return dateStr;
     }
@@ -78,7 +91,10 @@
 {#if holiday}
   <TableRow class={rowClass}>
     <TableCell class="type-cell row-header">
-      <span class="type-badge {displayTypeName?.toLowerCase().replace(' ', '-')}">{displayTypeName}</span>
+      <span
+        class="type-badge {displayTypeName?.toLowerCase().replace(' ', '-')}"
+        >{displayTypeName}</span
+      >
     </TableCell>
     <TableCell class="status-cell">
       {#if isApproved}
@@ -93,11 +109,15 @@
     <TableCell class="date-cell">{formatDate(holiday.endDate)}</TableCell>
     <TableCell class="days-cell">{displayDays}</TableCell>
     <TableCell class="description-cell">{holiday.description || '-'}</TableCell>
-    <TableCell class="date-cell">{formatDate(holiday.requestDate || holiday.createdAt)}</TableCell>
+    <TableCell class="date-cell"
+      >{formatDate(getHolidayRequestDate(holiday))}</TableCell
+    >
     <TableCell class="modified-cell">
       <div class="modified-info">
-        <span class="modified-date">{formatDate(holiday.modifiedDate)}</span>
-        <span class="modified-by">{holiday.modifiedBy || '-'}</span>
+        <span class="modified-date"
+          >{formatDate(getHolidayModifiedDate(holiday))}</span
+        >
+        <span class="modified-by">{getHolidayModifiedBy(holiday) || '-'}</span>
       </div>
     </TableCell>
     <TableCell class="actions-cell">
@@ -131,15 +151,17 @@
   {#if holiday}
     <div class="delete-details">
       <strong>{displayTypeName}</strong>
-      <span>{formatDate(holiday.startDate)} - {formatDate(holiday.endDate)}</span>
+      <span
+        >{formatDate(holiday.startDate)} - {formatDate(holiday.endDate)}</span
+      >
       <span>{displayDays} days</span>
     </div>
   {/if}
-  
+
   {#if isDeleting}
     <InlineLoading description="Deleting..." />
   {/if}
-  
+
   {#if deleteError}
     <p class="error-text">{deleteError}</p>
   {/if}
@@ -173,21 +195,21 @@
   :global(.bx--data-table tbody tr.pending-row:hover) td {
     background-color: var(--holiday-pending-bg) !important;
   }
-  
+
   /* Rejected holiday rows - theme variables provide correct light/dark variants */
   :global(.bx--data-table tbody tr.rejected-row) {
     background-color: var(--holiday-rejected-bg) !important;
     border-left: 4px solid var(--holiday-rejected-border);
   }
-  
+
   :global(.bx--data-table tbody tr.rejected-row) td {
     background-color: var(--holiday-rejected-bg) !important;
   }
-  
+
   :global(.bx--data-table tbody tr.rejected-row:hover) {
     background-color: var(--holiday-rejected-bg) !important;
   }
-  
+
   :global(.bx--data-table tbody tr.rejected-row:hover) td {
     background-color: var(--holiday-rejected-bg) !important;
   }
@@ -234,8 +256,8 @@
     border: 1px solid rgba(36, 161, 72, 0.2);
   }
 
-  :global([data-carbon-theme="g90"]) .type-badge.compensation,
-  :global([data-carbon-theme="g100"]) .type-badge.compensation {
+  :global([data-carbon-theme='g90']) .type-badge.compensation,
+  :global([data-carbon-theme='g100']) .type-badge.compensation {
     background: rgba(66, 190, 101, 0.18);
     color: #42be65;
     border: 1px solid rgba(66, 190, 101, 0.3);
@@ -247,8 +269,8 @@
     border: 1px solid rgba(218, 30, 40, 0.2);
   }
 
-  :global([data-carbon-theme="g90"]) .type-badge.not-paid,
-  :global([data-carbon-theme="g100"]) .type-badge.not-paid {
+  :global([data-carbon-theme='g90']) .type-badge.not-paid,
+  :global([data-carbon-theme='g100']) .type-badge.not-paid {
     background: rgba(255, 131, 137, 0.18);
     color: #ff8389;
     border: 1px solid rgba(255, 131, 137, 0.3);
