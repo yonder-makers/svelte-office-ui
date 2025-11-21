@@ -55,9 +55,7 @@ export function isHolidayPending(holiday: HolidayData): boolean {
         if (holiday.status) {
             return holiday.status === 'Pending';
         }
-        // If we have a HolidayResponse structure but no decision and no status, it might be pending
-        // But let's be careful. If managerDecision is strictly checked above, we might be good.
-        // However, the issue is likely that managerDecision is null.
+        // If both managerDecision and status are missing, treat the holiday as pending.
         return !holiday.managerDecision && !holiday.status;
     } else if (isHolidayDto(holiday)) {
         // Old format: decision is boolean or string '?'
