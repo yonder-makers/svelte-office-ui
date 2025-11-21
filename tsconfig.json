@@ -6,6 +6,10 @@
   "compilerOptions": {
     "baseUrl": "./",
     "lib": ["ES5","DOM","ES2022"],
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "paths": {
       "@svelte-office/state": ["src/state/index"],
       "@svelte-office/api": ["src/apis/index"]
