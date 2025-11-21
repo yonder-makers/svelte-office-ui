@@ -1,6 +1,6 @@
 {
   "name": "svelte-app",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "type": "module",
   "scripts": {
     "create-config": "echo {\\\"apiUrl\\\":\\\"$API_URL\\\", \\\"webOfficeUrl\\\":\\\"$WEB_OFFICE_URL\\\"} > ./dist/config.json",
