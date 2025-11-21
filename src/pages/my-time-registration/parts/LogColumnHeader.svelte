@@ -22,22 +22,26 @@
 
   $: isPending = isPendingHoliday(day, holidayRequests);
 
+  // Fallback holidays for known dates if missing from backend
+  const fallbackHolidays: HolidayResponse[] = [
+    { day: 1, month: 12, description: 'National Day' },
+    { day: 24, month: 1, description: 'Unification Day' },
+    { day: 1, month: 6, description: "Children's Day" },
+    { day: 30, month: 11, description: 'St Andrew' },
+    { day: 15, month: 8, description: 'St Mary' },
+  ];
+
+  function getFallbackHoliday(day: Date): HolidayResponse | null {
+    const d = day.getDate();
+    const m = day.getMonth() + 1;
+    return fallbackHolidays.find(h => h.day === d && h.month === m) || null;
+  }
+
   $: legalHoliday =
     $legalHolidaysStore.find(
       (h) => h.day === day.getDate() && h.month === day.getMonth() + 1,
     ) ||
-    // Fallback for known holidays if missing from backend
-    (day.getDate() === 1 && day.getMonth() === 11
-      ? { day: 1, month: 12, description: 'National Day' }
-      : day.getDate() === 24 && day.getMonth() === 0
-        ? { day: 24, month: 1, description: 'Unification Day' }
-        : day.getDate() === 1 && day.getMonth() === 5
-          ? { day: 1, month: 6, description: "Children's Day" }
-          : day.getDate() === 30 && day.getMonth() === 10
-            ? { day: 30, month: 11, description: 'St Andrew' }
-            : day.getDate() === 15 && day.getMonth() === 7
-              ? { day: 15, month: 8, description: 'St Mary' }
-              : null);
+    getFallbackHoliday(day);
 
   function getLegalHolidayIcon(holiday: {
     day: number;
