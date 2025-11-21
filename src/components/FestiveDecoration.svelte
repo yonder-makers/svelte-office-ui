@@ -5,7 +5,11 @@
   let month = today.getMonth() + 1;
   let day = today.getDate();
   
-  // Calculate Easter date (simplified - works for 1900-2099)
+  // Calculate Easter date using the Meeus/Jones/Butcher algorithm.
+  // This algorithm is accurate for Gregorian calendar years 1900-2099.
+  // For years outside this range, the result may be incorrect.
+  // It does not handle Julian calendar years (pre-1583) or years far in the future.
+  // If called with years outside 1900-2099, the function will return a date, but its correctness is not guaranteed.
   function getEasterDate(year: number): Date {
     const a = year % 19;
     const b = Math.floor(year / 100);
